@@ -293,7 +293,7 @@ sta sizeof: viewt@ype -> int
 
 ボックス化タプル, レコード, リストはフラットなtypeとよく似ています。
 
-<table border="1">
+<table>
 <tbody>
 <tr>
 <td>種<br />
