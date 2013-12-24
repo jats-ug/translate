@@ -6,7 +6,7 @@
 
 ## ATS言語の公式マニュアル
 
-TODO.
+[Manual/index.md](Manual/index.md)
 
 ## ATS言語に関する論文
 
