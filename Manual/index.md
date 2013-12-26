@@ -43,6 +43,7 @@ $ export ATSHOMERELOC=ATS-0.2.11
 準備がととのったので、ATS-Postiatsのマニュアルをビルドしましょう。
 
 ```
+$ sudo apt-get install docbook-utils
 $ git clone https://github.com/jats-ug/ATS-Postiats.git
 $ cd ATS-Postiats
 $ git checkout translate_ja
