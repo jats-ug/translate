@@ -13,6 +13,39 @@ http://po4a.alioth.debian.org/
 を使ったgettext翻訳をするか考え中。
 問題は僕以外の人がgettextを使った翻訳に慣れているか。。。
 
+docbookであるmain.dbをpo4aにかけると煩雑なpoファイルが出てしまう。
+大本のmain.atxtファイルをpo4aにかけてしまうの無難か。
+ところが、jwコマンドでエラーになる。xmlのスタイルシートをなんか指定しないとダメ？
+
+```
+$ pwd
+/home/kiwamu/src/ATS-Postiats.jats-ug/doc/BOOK/INT2PROGINATS
+$ git diff preface.atxt
+diff --git a/doc/BOOK/INT2PROGINATS/preface.atxt b/doc/BOOK/INT2PROGINATS/preface.atxt
+index 4ff8dae..821c2b5 100644
+--- a/doc/BOOK/INT2PROGINATS/preface.atxt
++++ b/doc/BOOK/INT2PROGINATS/preface.atxt
+@@ -30,7 +30,7 @@ implements according to its specification.  If I could associate only one
+ single word with ATS, I would choose the word
+ <emphasis>precision</emphasis>.  Programming in ATS is about being precise
+ and being able to effectively enforce precision. This point will be
+-demonstrated concretely and repeatedly in this book.\
++demonstrated concretely and repeatedly in this book. 日本語\
+ 
+ ')
+$ make html
+--snip--
+jw -b html --output HTML/ main.db
+Using catalogs: /etc/sgml/catalog
+Using stylesheet: /usr/share/docbook-utils/docbook-utils.dsl#html
+Working on: /home/kiwamu/src/ATS-Postiats.jats-ug/doc/BOOK/INT2PROGINATS/main.db
+jade:/usr/share/sgml/declaration/xml.dcl:31:27:W: characters in the document character set with numbers exceeding 65535 not supported
+jade:/home/kiwamu/src/ATS-Postiats.jats-ug/doc/BOOK/INT2PROGINATS/preface.db:23:54:E: non SGML character number 151
+jade:/home/kiwamu/src/ATS-Postiats.jats-ug/doc/BOOK/INT2PROGINATS/preface.db:23:57:E: non SGML character number 156
+jade:/home/kiwamu/src/ATS-Postiats.jats-ug/doc/BOOK/INT2PROGINATS/preface.db:23:61:E: non SGML character number 158
+make: *** [html] エラー 8
+```
+
 ## マニュアルのビルド手順
 
 まずATS-Anairiatsのアーカイブを以下のURLから取ってきます。
