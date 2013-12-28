@@ -20,7 +20,20 @@ docbookであるmain.dbをpo4aにかけると煩雑なpoファイルが出てし
 ```
 $ pwd
 /home/kiwamu/src/ATS-Postiats.jats-ug/doc/BOOK/INT2PROGINATS
-$ git diff preface.atxt
+$ git diff
+diff --git a/doc/BOOK/INT2PROGINATS/main.db b/doc/BOOK/INT2PROGINATS/main.db
+index 6ecb2d4..f87e61c 100644
+--- a/doc/BOOK/INT2PROGINATS/main.db
++++ b/doc/BOOK/INT2PROGINATS/main.db
+@@ -25,7 +25,7 @@
+ <!ENTITY chap_prgthmprv SYSTEM "CHAP_PRGTHMPRV/main.db">
+ <!ENTITY chap_vvtintro SYSTEM "CHAP_VVTINTRO/main.db">
+ ]>
+-<book id="proginats" lang="en">
++<book id="proginats" lang="ja">
+ &bookinfo;
+ 
+ <dedication>
 diff --git a/doc/BOOK/INT2PROGINATS/preface.atxt b/doc/BOOK/INT2PROGINATS/preface.atxt
 index 4ff8dae..821c2b5 100644
 --- a/doc/BOOK/INT2PROGINATS/preface.atxt
@@ -33,6 +46,7 @@ index 4ff8dae..821c2b5 100644
 +demonstrated concretely and repeatedly in this book. 日本語\
  
  ')
+
 $ make html
 --snip--
 jw -b html --output HTML/ main.db
@@ -45,6 +59,21 @@ jade:/home/kiwamu/src/ATS-Postiats.jats-ug/doc/BOOK/INT2PROGINATS/preface.db:23:
 jade:/home/kiwamu/src/ATS-Postiats.jats-ug/doc/BOOK/INT2PROGINATS/preface.db:23:61:E: non SGML character number 158
 make: *** [html] エラー 8
 ```
+
+なんと、、、upstreamのバグでまだ修正されていないっぽい。。。というか修正する気がない？
+出力されたhtmlはまともそう。
+[#206707 - sgml-data: Warning in /usr/lib/sgml/declaration/xml.dcl - Debian Bug report logs](http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=206707)
+警告は無視しますか、終了コードもエラーだけど。。。
+
+```
+$ po4a-gettextize -f text -M utf8 -m CHAP_CINTERACT/main.atxt -m CHAP_DATATYPE/main.atxt \
+  -m CHAP_DEPDTREF/main.atxt -m CHAP_DEPTYPES/main.atxt -m CHAP_EFFECTFUL/main.atxt \
+  -m CHAP_FUNCTION/main.atxt -m CHAP_MODULARITY/main.atxt -m CHAP_POLYMORPH/main.atxt \
+  -m CHAP_PRGTHMPRV/main.atxt -m CHAP_PROGELEM/main.atxt -m CHAP_START/main.atxt \
+  -m CHAP_THMPRVING/main.atxt -m CHAP_VVTINTRO/main.atxt -m preface.atxt > ja.po
+```
+
+うん。なんかそれっぽいpoファイルができました。
 
 ## マニュアルのビルド手順
 
