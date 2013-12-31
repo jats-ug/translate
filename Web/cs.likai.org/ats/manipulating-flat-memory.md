@@ -7,7 +7,7 @@ ATSがサポートするフラットなメモリのtypeはt@ypeという種を�
 
 ## フラットな型とサイズ
 
-次に示すのは、種t@ypeを持ち完全にフラットなビルトインのプリミテイィブ型は、
+種t@ypeを持ち完全にフラットなビルトインのプリミテイィブ型は、
 bool, char, double, int, uint, size_t, void です。
 さらにATSはフラットなデータ構造型としてtuple, record, arrayをサポートしています。
 
@@ -16,5 +16,8 @@ bool, char, double, int, uint, size_t, void です。
 | Tuple      | @(t1, t2, ... tn)                    |
 | Record     | @{lab1 = t1, lab2= t2, ... labn= tn} |
 | Array      | @[t][n]                              |
+
+全てのt@ypeはサイズに関する情報をも持っています。
+しかし、このサイズ情報はATSコンパイラから見えません。
 
 xxx
