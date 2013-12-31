@@ -1,11 +1,16 @@
 # ATS2の公式マニュアルの日本語訳
 
-## 文書
+## 文書リスト
 
 ### ATSプログラミング入門
 
 * 日本語: http://jats-ug.metasepi.org/doc/INT2PROGINATS/
 * 元データ: https://github.com/jats-ug/ATS-Postiats/tree/translate_ja/doc/BOOK
+
+### A Tutorial on Programming Features in ATS
+
+* 日本語: 未着手
+* 元データ: https://github.com/jats-ug/ATS-Postiats/tree/translate_ja/doc/BOOK/ATS2TUTORIAL
 
 ## 翻訳環境
 
@@ -25,7 +30,112 @@ githubリポジトリにたまった翻訳は適切なタイミングで
 
 ### 翻訳作業
 
-xxx
+ATSの作者であるHongwei Xiは
+[DocBook](http://www.docbook.org/)
+の上に
+[atsdoc](http://www.ats-lang.org/htdocs-old/DOCUMENT/atsdocman/atsdocman.html)
+というレイヤーを重ねて執筆をしています。
+そのため翻訳環境も少し特殊になっています。
+
+#### 準備
+
+おそらくこの翻訳のための準備は https://github.com/master-q に押し付けた方が良いでしょう。
+まず、Makefileを作りましょう。
+詳しくは
+https://github.com/jats-ug/ATS-Postiats/blob/translate_ja/doc/BOOK/INT2PROGINATS/Makefile#L29
+を参照してください。
+
+```makefile
+CHAPTERS=CHAP_START CHAP_PROGELEM CHAP_FUNCTION CHAP_DATATYPE CHAP_POLYMORPH CHAP_EFFECTFUL CHAP_MODULARITY CHAP_CINTERACT CHAP_DEPTYPES CHAP_DEPDTREF CHAP_THMPRVING CHAP_PRGTHMPRV CHAP_VVTINTRO
+
+html_ja: main_ja.db
+	rm -rf build_ja
+	mkdir build_ja
+	iconv -f UTF8 -t EUCJP main_ja.db > build_ja/main_ja.db
+	iconv -f UTF8 -t EUCJP bookinfo_ja.db > build_ja/bookinfo_ja.db
+	iconv -f UTF8 -t EUCJP preface.db > build_ja/preface.db
+	@for i in $(CHAPTERS); do \
+		mkdir -p build_ja/$$i; \
+		iconv -f UTF8 -t EUCJP $$i/main.db > build_ja/$$i/main.db; \
+	done
+	cd build_ja && jw -b html --output ../HTML/ main_ja.db
+
+main_ja.db: main.db
+```
+
+このhtml_jaターゲットでのポイントは以下です。
+
+* dbという拡張子のファイルはDocBook XML
+* atxtという拡張子のファイルはatsdocのドキュメント
+* main.dbというファイルをmain_ja.dbという名前で日本語化
+* bookinfo.dbというファイルをbookinfo_ja.dbという名前で日本語化
+* preface.dbというファイルははpreface.atxtから生成される
+* CHAP_*/main.dbというファイルはCHAP_*/main.atxtから生成される
+
+日本語化したファイルは全てUTF8エンコーディングで保存してください。
+main_ja.dbにはなぜかファイル頭にEUC-JPとか書いてありますが、UTF8で保存してください。
+atsdocを通した後にUTF8からEUC-JPにMakefileが変換をかけます。
+
+さらに、
+[ATEXT/int2proginats.dats](https://github.com/jats-ug/ATS-Postiats/blob/translate_ja/doc/BOOK/INT2PROGINATS/ATEXT/int2proginats.dats)
+ファイルを編集して、日本語を扱うマクロであるlangjaを作ります。
+
+```ocaml
+(*
+macdef
+langeng (x) = atext_strsub ,(x)
+*)
+macdef langeng (x) = ignorestr ,(x)
+(*
+macdef
+langchin (x) = atext_strsub ,(x)
+*)
+macdef langchin (x) = ignorestr ,(x)
+macdef
+langja (x) = atext_strsub ,(x)
+(*
+macdef langja (x) = ignorestr ,(x)
+*)
+```
+
+langengは英語、langchinは中国語、langjaは日本語用のマクロです。
+
+#### atxtファイルの翻訳
+
+[preface.atxt](https://github.com/jats-ug/ATS-Postiats/blob/translate_ja/doc/BOOK/INT2PROGINATS/preface.atxt)
+を例にして練習しましょう。簡単です。
+
+```
+<preface>
+#langeng("
+#title("Preface")
+")
+#langchin("
+#title("序言")
+")
+#langja("
+#title("前書き")
+")
+```
+
+langengというマクロで囲まれている部分は英語のドキュメント。langchinマクロは中国語。
+langjaは日本語のマクロです。
+先の
+[ATEXT/int2proginats.dats](https://github.com/jats-ug/ATS-Postiats/blob/translate_ja/doc/BOOK/INT2PROGINATS/ATEXT/int2proginats.dats)
+ファイルの宣言によって、この3つのマクロのどれがDocBookであるdbファイルに出力されるのかは制御できます。
+さっきの準備でlangjaのみ生かすように設定したので、
+atsdocによってこの部分は以下のようなDocBookに変化します。
+
+```
+<preface>
+#title("前書き")
+```
+
+langengに書こまれていないパラグラフは、単にlangengで囲んだ後、
+対応する日本語をlangjaマクロで囲めば翻訳完了です。
+保存する文字コードはUTF8を選択してください。
+
+pull requestお待ちしています!
 
 ### 発行作業
 
