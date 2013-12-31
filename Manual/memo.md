@@ -1,4 +1,4 @@
-# ATS2の公式マニュアルの日本語訳
+# メモ
 
 https://github.com/jats-ug/ATS-Postiats/tree/translate_ja/doc/BOOK
 
