@@ -1,11 +1,15 @@
 # ATS2の公式マニュアルの日本語訳
 
-## ATSプログラミング入門
+## 文書
+
+### ATSプログラミング入門
 
 * 日本語: http://jats-ug.metasepi.org/doc/INT2PROGINATS/
 * 元データ: https://github.com/jats-ug/ATS-Postiats/tree/translate_ja/doc/BOOK
 
-## 翻訳環境概要
+## 翻訳環境
+
+### 概要
 
 xxx 図
 
@@ -19,11 +23,11 @@ githubリポジトリにたまった翻訳は適切なタイミングで
 [JATS-UGのメンバー](https://github.com/jats-ug?tab=members)
 が発行します。
 
-## 翻訳作業
+### 翻訳作業
 
 xxx
 
-## 発行作業
+### 発行作業
 
 まずATS-Anairiatsのアーカイブを以下のURLから取ってきます。
 
