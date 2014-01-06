@@ -28,7 +28,7 @@ githubリポジトリにたまった翻訳は適切なタイミングで
 [JATS-UGのメンバー](https://github.com/jats-ug?tab=members)
 が発行します。
 
-### 翻訳作業
+### 準備
 
 ATSの作者であるHongwei Xiは
 [DocBook](http://www.docbook.org/)
@@ -37,42 +37,13 @@ ATSの作者であるHongwei Xiは
 というレイヤーを重ねて執筆をしています。
 そのため翻訳環境も少し特殊になっています。
 
-#### 準備
-
 ![](draw/translate_env.png)
 
 おそらくこの翻訳のための準備は https://github.com/master-q に押し付けた方が良いでしょう。
-まず、Makefileを作りましょう。
+まず、OMakefileを作りましょう。
 詳しくは
-https://github.com/jats-ug/ATS-Postiats/blob/translate_ja/doc/BOOK/INT2PROGINATS/Makefile#L29
+https://github.com/jats-ug/ATS-Postiats/blob/translate_ja/doc/BOOK/INT2PROGINATS/OMakefile
 を参照してください。
-
-```makefile
-CHAPTERS=CHAP_START CHAP_PROGELEM CHAP_FUNCTION CHAP_DATATYPE CHAP_POLYMORPH CHAP_EFFECTFUL CHAP_MODULARITY CHAP_CINTERACT CHAP_DEPTYPES CHAP_DEPDTREF CHAP_THMPRVING CHAP_PRGTHMPRV CHAP_VVTINTRO
-
-html_ja: main_ja.db
-	rm -rf build_ja
-	mkdir build_ja
-	iconv -f UTF8 -t EUCJP main_ja.db > build_ja/main_ja.db
-	iconv -f UTF8 -t EUCJP bookinfo_ja.db > build_ja/bookinfo_ja.db
-	iconv -f UTF8 -t EUCJP preface.db > build_ja/preface.db
-	@for i in $(CHAPTERS); do \
-		mkdir -p build_ja/$$i; \
-		iconv -f UTF8 -t EUCJP $$i/main.db > build_ja/$$i/main.db; \
-	done
-	cd build_ja && jw -b html --output ../HTML/ main_ja.db
-
-main_ja.db: main.db
-```
-
-このhtml_jaターゲットでのポイントは以下です。
-
-* dbという拡張子のファイルはDocBook XML
-* atxtという拡張子のファイルはatsdocのドキュメント
-* main.dbというファイルをmain_ja.dbという名前で日本語化
-* bookinfo.dbというファイルをbookinfo_ja.dbという名前で日本語化
-* preface.dbというファイルははpreface.atxtから生成される
-* CHAP_*/main.dbというファイルはCHAP_*/main.atxtから生成される
 
 日本語化したファイルは全てUTF8エンコーディングで保存してください。
 main_ja.dbにはなぜかファイル頭にEUC-JPとか書いてありますが、UTF8で保存してください。
@@ -102,7 +73,7 @@ macdef langja (x) = ignorestr ,(x)
 
 langengは英語、langchinは中国語、langjaは日本語用のマクロです。
 
-#### atxtファイルの翻訳
+### 翻訳作業
 
 [preface.atxt](https://github.com/jats-ug/ATS-Postiats/blob/translate_ja/doc/BOOK/INT2PROGINATS/preface.atxt)
 を例にして練習しましょう。簡単です。
@@ -139,7 +110,7 @@ langengに書こまれていないパラグラフは、単にlangengで囲んだ
 
 pull requestお待ちしています!
 
-### 発行作業
+### 発行作業(もしくは翻訳結果の確認)
 
 まずATS-Anairiatsのアーカイブを以下のURLから取ってきます。
 
