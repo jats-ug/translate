@@ -140,12 +140,12 @@ $ export ATSHOMERELOC=ATS-0.2.11
 準備がととのったので、ATS-Postiatsのマニュアルをビルドしましょう。
 
 ```
-$ sudo apt-get install docbook-utils
+$ sudo apt-get install docbook-utils omake
 $ git clone https://github.com/jats-ug/ATS-Postiats.git
 $ cd ATS-Postiats
 $ git checkout translate_ja
 $ cd doc/BOOK/INT2PROGINATS
-$ make html_ja -j4
+$ omake
 $ ls HTML/index.html
 HTML/index.html
 ```
