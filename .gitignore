@@ -1,1 +1,5 @@
 *~
+.omakedb
+.omakedb.lock
+OMakefile.omc
+OMakeroot.omc

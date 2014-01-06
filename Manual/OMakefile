@@ -1,0 +1,16 @@
+ODG_FILES   = $(glob draw/*.odg)
+PNG_FILES   = $(replacesuffixes .odg, .png, $(ODG_FILES))
+OTHER_FILES = ajhc-hg.yaml CHAPS PREDEF POSTDEF _cover.tex
+
+.SUBDIRS: $(glob draw/)
+	%.png: %.odg
+		unoconv -f png -o $@.tmp $< || unoconv -n -f png -o $@.tmp $< \
+		|| unoconv -f png -o $@.tmp $< || unoconv -n -f png -o $@.tmp $<
+		convert -resize 600x $@.tmp $@
+		rm -f $@.tmp
+
+.DEFAULT: $(PNG_FILES)
+.PHONY: clean
+
+clean:
+	rm -f *~
