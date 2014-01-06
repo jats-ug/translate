@@ -16,7 +16,7 @@
 
 ### 概要
 
-xxx 図
+![](draw/translate_flow.png)
 
 翻訳環境は大きく翻訳作業と発行作業の2つに分れています。
 発行作業は
@@ -38,6 +38,8 @@ ATSの作者であるHongwei Xiは
 そのため翻訳環境も少し特殊になっています。
 
 #### 準備
+
+![](draw/translate_env.png)
 
 おそらくこの翻訳のための準備は https://github.com/master-q に押し付けた方が良いでしょう。
 まず、Makefileを作りましょう。
