@@ -7,3 +7,4 @@ ATS2に関する一次情報は
 
 * [MLプログラマ向けATS言語ガイド](cs.likai.org/ats/ml-programmers-guide-to-ats.md)
 * [フラットなメモリを操作する](cs.likai.org/ats/manipulating-flat-memory.md)
+* [BLUISH CODER: ATSによる安全なC言語の使い方](bluishcoder.co.nz/2010/06/02/safer-c-code-using-ats.md)
