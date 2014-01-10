@@ -210,4 +210,85 @@ extern fun curl_easy_cleanup {l:addr}
 
 ## NULLポインタの扱い
 
+しかし、このバージョンでもまだ潜んでいるバグがあります。
+そのバグは同時にC言語プログラムにも潜んでいます。
+["curl_easy_init"](http://curl.haxx.se/libcurl/c/curl_easy_init.html)
+はNULLを返すことがあります。
+NULLが返った場合には他のいかなるcurl関数も呼び出してはなりません。
+ATSを使うことでNULLをチェックする要件を定義でき、コンパイルを通すことができます。
+
+そのような変更をほどこした先の例の修正バージョンが
+[simple2.dats](http://bluishcoder.co.nz/ats/curl/simple2.dats)
+([pretty-printed version](http://bluishcoder.co.nz/ats/curl/simple2.html))
+です。
+
+このバージョンではCURLptr型に2つのtypedefを追加します。
+1つ目であるCURLptr0はNULLを取ることができます。
+2つ目のCURLptr1はNULLを取ることができません。
+
+```ocaml
+absviewtype CURLptr (l:addr) // CURL*
+viewtypedef CURLptr0 = [l:addr | l >= null] CURLptr l
+viewtypedef CURLptr1 = [l:addr | l >  null] CURLptr l
+```
+
+使用しているcurlの関数の定義はこれらの型を使うように変更されています。
+
+```ocaml
+extern fun curl_easy_init
+  ()
+  : CURLptr0 = "#curl_easy_init"
+extern fun curl_easy_setopt {p:type}
+  (handle: !CURLptr1, option: CURLoption, parameter: p)
+  : int = "#curl_easy_setopt"
+extern fun curl_easy_perform
+  ( handle: !CURLptr1)
+  : int = "#curl_easy_perform"
+extern fun curl_easy_cleanup
+  (handle: CURLptr1)
+  : void = "#curl_easy_cleanup"
+```
+
+"curl_easy_init"はNULLを返すので、CURLptr0を返すように変更します。
+他の関数はCURLptr1を使い、NULLを返してはならないことを表わします。
+この段階で以前のバージョンの"main"関数をそのまま使い"curl_easy_init"の結果をチェックしない場合、
+コンパイル時エラーになります。
+このエラーは"curl"変数の型の型が"curl_easy_opt"による要求と一致しないと言っているはずです。
+
+これを修正するにはNULLのチェックを追加します。
+
+```ocaml
+implement main() = let
+  val curl = curl_easy_init();
+  val () = assert_errmsg(CURLptr_isnot_null curl, "curl_easy_init failed");
+  val res = curl_easy_setopt(curl, CURLOPT_URL, "www.bluishcoder.co.nz");
+  val res = curl_easy_perform(curl);
+  val ()  = curl_easy_cleanup(curl);
+in
+  ()
+end;
+```
+
+コンパイラは、assertチェックをした後には"curl"がNULLを取らないことを知っています。
+このおかげでプログラムの残り部分の型検査をすることができるようになります。
+
+# 返値チェックの強制
+
+Another common error is that of not checking the return values of C api calls for errors.
+This proved to be an issue in the first versions of the Firefox Ogg video backend where return values were not checked in some of the third party libraries we were using.
+Types can be defined in ATS to give compile time errors if return values are not checked for errors.
+
+‘curl_easy_setopt’ and ‘curl_easy_perform’ both return a value indicating success or failure.
+A non-zero value indicates an error.
+
+See simple3.dats (pretty-printed version) for the changes required to enforce checking of the values.
+The definition of ‘curl_easy_setopt’ has changed to:
+
+```ocaml
+extern fun curl_easy_setopt {p:type}
+  (handle: !CURLptr1 >> opt(CURLptr1, err == 0),
+   option: CURLoption, parameter: p)
+  : #[err:int] int err = "#curl_easy_setopt"
+```
+
 xxx
