@@ -56,7 +56,7 @@ $ ./simple
 ...
 ```
 
-## Ensuring release of resources
+## 確実なリソース解放
 
 先のコードをATSに翻訳してみると
 [simple1.dats](http://bluishcoder.co.nz/ats/curl/simple1.dats)
@@ -164,14 +164,50 @@ CURLcode curl_easy_setopt(CURL *curl, CURLoption option, ...);
 このC言語の関数は可変長引数を取るようです。
 この例では追加の引数を1つだけ取れるようにしましょう。
 確かにごまかしかもしれませんが、ATSが解釈できる宣言です。
-
-I’ll cover how to do variable argument functions later.
-The ATS definition is:
+可変長引数を扱う方法は後で説明します。
+ATSでの定義は以下のようになります。
 
 ```ocaml
 extern fun curl_easy_setopt {l:addr} {p:type}
   (handle: !CURLptr l, option: CURLoption, parameter: p)
   : int = "#curl_easy_setopt"
 ```
+
+この関数は3つの引数を取り、1つの返値を返します。
+その引数というのは以下になります。
+
+* "!CURLptr l"。先に宣言されている通り、これは"l"アドレスに配置されたCURLptrオブジェクトです。"!"はcurl_easy_setoptがそのオブジェクトを消費しないことを表わしています。つまり、後の処理でこのオブジェクトを継続使用できることになります。{l:addr} の使用に先立って、"l"は"addr"型であると宣言されています。
+* "CURLoption"
+* 型"p"のパラメータ値。この値は"type"という型です。{p:type} と定義されているためです。マシンワード(ポインタ、整数、などなど)のサイズに一致する全てのオブジェクトは、ATSではこの型になります。
+
+この例で使っている残った2つのCURL関数はこれまでの変形です。
+主な差異は"curl_easy_cleanup"のATSにおける定義でしょう。
+
+```ocaml
+extern fun curl_easy_cleanup {l:addr}
+  (handle: CURLptr l)
+  : void = "#curl_easy_cleanup"
+```
+
+ここでの"handle"のパラメータは"CURLptr l"です。
+またその前に"!"を付けていません。
+これはこの関数が引数を消費してしまい、
+この呼び出し以降その引数を使用することができないことを意味しています。
+"CURLptr l"型は線形型です。
+この型の値はプログラムのどこかで破棄されねばらず、
+そして一度破棄されたら二度と使えないのです。
+
+このように"curl_easy_cleanup"を定義することで、
+プログラマがまだ解放されていない"CURLptr l"とともにこの関数を呼び出すことを強制できます。
+練習のためにですが、
+もしcleanup呼び出しを削除してコンパイルしてみるとどうなるでしょうか？
+コンパイルエラーが起きることになるでしょう。
+またcleanup呼び出しの後にcurlハンドラを使ってみてもコンパイルエラーになります。
+
+線形型を使用しているため、
+プログラマが起こしがちなエラーの一部については既に安全です。
+確保されたオブジェクトのcleanup関数呼び忘れなようなことを防止できるのです。
+
+## NULLポインタの扱い
 
 xxx
