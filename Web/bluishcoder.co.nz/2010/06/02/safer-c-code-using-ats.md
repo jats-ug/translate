@@ -274,15 +274,20 @@ end;
 
 # 返値チェックの強制
 
-Another common error is that of not checking the return values of C api calls for errors.
-This proved to be an issue in the first versions of the Firefox Ogg video backend where return values were not checked in some of the third party libraries we were using.
-Types can be defined in ATS to give compile time errors if return values are not checked for errors.
+もう一つの一般的なエラーに、エラー時のC言語APIの返値のチェック漏れが挙げられます。
+これはFirefox Oggビデオバックエンドの最初のバージョンでの不具合によって立証されています。
+私達が使っている第三者のライブラリでも返値はチェックされていないことがありました。
+ATSでは、
+もしエラー時の返値がチェックされない場合コンパイル時エラーになるような型を定義できます。
 
-‘curl_easy_setopt’ and ‘curl_easy_perform’ both return a value indicating success or failure.
-A non-zero value indicates an error.
+"curl_easy_setopt"と"curl_easy_perform"の返値は成功もしくは失敗を表わしています。
+非ゼロの値はエラーです。
 
-See simple3.dats (pretty-printed version) for the changes required to enforce checking of the values.
-The definition of ‘curl_easy_setopt’ has changed to:
+そのような値のチェックを強制する変更を加えたバージョンが
+[simple3.dats](http://bluishcoder.co.nz/ats/curl/simple3.dats)
+([pretty-printed version](http://bluishcoder.co.nz/ats/curl/simple3.html))
+です。
+"curl_easy_setopt"の定義が以下のように変更されています。
 
 ```ocaml
 extern fun curl_easy_setopt {p:type}
@@ -290,5 +295,41 @@ extern fun curl_easy_setopt {p:type}
    option: CURLoption, parameter: p)
   : #[err:int] int err = "#curl_easy_setopt"
 ```
+
+これと同じ変更が"curl_easy_perform"にもほどこされています。
+まず"handle"パラメータが
+"!CURLptr1 » opt(CURLptr1, err == 0)"
+型に変更されています。
+"»"の前で定義している型は関数が受け付ける入力です。
+"»"の後ろは、関数が返った後の、このパラメータの型です。
+
+つまり関数が返った後では、
+"err"がゼロであるなら"handle"の型は"CURLptr1"であるということを表わしています。
+"err"は後のコードで整数として定義されています。
+これは返値がゼロであることをチェックするコードを呼び出すことを強制します。
+このコードは"opt"から展開したCURLptr1型を使って実行を継続します。
+修正された"main"関数がこの動作を表わしています。
+
+```ocaml
+implement main() = let
+  val curl = curl_easy_init();
+  val () = assert_errmsg(CURLptr_isnot_null curl, "curl_easy_init failed");
+  val res = curl_easy_setopt(curl, CURLOPT_URL, "www.bluishcoder.co.nz");
+  val () = assert_errmsg(res = 0, "curl_easy_setopt failed");
+  prval () = opt_unsome(curl);
+  val res = curl_easy_perform(curl);
+  val () = assert_errmsg(res = 0, "curl_easy_perform failed");
+  prval () = opt_unsome(curl);
+  val ()  = curl_easy_cleanup(curl);
+in
+ ()
+end;
+```
+
+Notice the assertion check for the return value of the functions.
+This is followed by an ‘opt_unsome’ call to ‘un-opt’ the type and continue using it as a ‘CURLptr1’.
+If either the assert check, or the ‘opt_unsome’ is commented out the code won’t compile.
+If the assert check is done for a value other than zero it won’t compile.
+The code could also check the result using an ‘if’ statement - I use assert here for brevity.
 
 xxx
