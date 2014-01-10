@@ -113,32 +113,65 @@ ATSでこれをラップするために $extype を使ってC言語の名前と�
 abst@ype CURLoption = $extype "CURLoption"
 ```
 
-I only reference one value of these types.
-That is CURLOPT_URL and again I reference the C value directly.
-Since this is a value rather than a type I use $extval:
+この型の値を一つだけ参照することにしましょう。
+それは CURLOPT_URL で、これはまたC言語の値を直接参照させます。
+これは型ではなく値なので $extval を使います。
 
 ```ocaml
 macdef CURLOPT_URL = $extval(CURLoption, "CURLOPT_URL")
 ```
 
-The CURL type is an abstract type in C - we don’t care what it is actually composed of.
-A CURL object is always refered to via a pointer.
-This is modeled in ATS with:
+CURL型はC言語における抽象型です。
+ここではそれが実際は何で構成されているのかは気にしないことにします。
+CURLオブジェクトはいつもポインタを経由して参照されます。
+これはATSで以下のようにモデル化できます。
 
 ```ocaml
 absviewtype CURLptr (l:addr) // CURL*
 ```
 
-Think of ‘CURLptr’ as being ‘a reference to a CURL object’.
-It’s basically a C ‘CURL*’.
-The definition above states that a CURLptr is an object of type ‘CURLptr’ located at a memory address ‘l’.
+"CURLptr" が "CURLオブジェクトへの参照" として振る舞うと考えてください。
+これはC言語では基本的に"CURL*"で表わされます。
 
-The C definition of curl_easy_init looks like:
+上記の定義によって、
+CURLptrはメモリアドレス"l"に配置された"CURLptr"型のオブジェクトであることを宣言していることになります。
 
-```ocaml
+curl_easy_initのC言語定義は以下です。
+
+```
 CURL *curl_easy_init(void);
 ```
 
+ATSにおける定義は以下のようになります。
+
+```ocaml
+extern fun curl_easy_init {l:addr} () : CURLptr l = "#curl_easy_init"
+```
+
+行頭の"extern"と行末の"#curl_easy_init"は、
+この関数の実装は外部ライブラリの中にある"curl_easy_init"と呼ばれるC言語関数であることを意味しています。
+関数名の後に続く"{l:addr}"は返値の型において使う"l"の型を与えています。
+つまりそれはポインタです。
+返値の型である"CURLptr l"は既に定義されています。
+この関数は"l"というアドレスに配置されたCURLptrオブジェクトを返します。
+
+curl_easy_setoptのC言語側の定義は次のようになっています。
+
+```c
+CURLcode curl_easy_setopt(CURL *curl, CURLoption option, ...);
+```
+
+このC言語の関数は可変長引数を取るようです。
+この例では追加の引数を1つだけ取れるようにしましょう。
+確かにごまかしかもしれませんが、ATSが解釈できる宣言です。
+
+I’ll cover how to do variable argument functions later.
 The ATS definition is:
+
+```ocaml
+extern fun curl_easy_setopt {l:addr} {p:type}
+  (handle: !CURLptr l, option: CURLoption, parameter: p)
+  : int = "#curl_easy_setopt"
+```
 
 xxx
