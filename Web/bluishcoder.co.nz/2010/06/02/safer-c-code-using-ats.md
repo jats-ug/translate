@@ -326,10 +326,9 @@ in
 end;
 ```
 
-Notice the assertion check for the return value of the functions.
-This is followed by an ‘opt_unsome’ call to ‘un-opt’ the type and continue using it as a ‘CURLptr1’.
-If either the assert check, or the ‘opt_unsome’ is commented out the code won’t compile.
-If the assert check is done for a value other than zero it won’t compile.
-The code could also check the result using an ‘if’ statement - I use assert here for brevity.
-
-xxx
+関数の返値をassertでチェックしていることに注意してください。
+その後"opt_unsome"という呼び出しで、型から"optを外し"て"CURLptr1"として使用できるようにします。
+assertチェックもしくは"opt_unsome"をコメントにするとコンパイルは通りません。
+0以外の値についてassertチェックが行なわれた場合にもコンパイルは通りません。
+簡潔さのためにここではassertを使いましたが、
+"if"文を使って結果をチェックすることもできます。
