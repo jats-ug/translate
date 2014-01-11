@@ -101,4 +101,105 @@ implement main () = {
 }
 ```
 
-xxx
+この例では typedef を使ってレコードへの型の別名を作っています。
+そのため point という名前で型を参照できます。
+add1関数は & 接頭辞の付いた参照であるpointを取ります。
+これはC++の参照引数のように振舞います。
+実際にはこの関数は構造体のインスタンスへのポインタを取り、
+関数はそのインスタンスを変更することができます。
+ここでは関数に渡されるpointは左辺値(l-value)です。
+すなわちミュータブルであるということになります。
+これはATSにおいて、varとvalのどちらを使うかによって選択されます。
+
+未初期化のpointオブジェクトを作り、addr1に渡すと型エラーになることに注意してください。
+例えば次のコードは型検査エラーになります。
+
+```ocaml
+implement main () = {
+  var p1: point?
+  val () = add1 (p1)
+  val () = print_point (p1)
+}
+```
+
+未初期化である型には ? という接尾辞が付きます。
+p1は未初期化であるべきなので、その型は point? です。
+add1がpointを取ると型エラーになるわけです。
+初期化を行なえば渡すことができるようになります。
+
+```ocaml
+implement main () = {
+  var p1: point
+  val () = p1.x := 5
+  val () = p1.y := 10
+  val () = add1 (p1)
+  val () = print_point (p1)
+}
+```
+
+関数に参照を渡すのと同様に、ポインタを渡してポインタを直接取り扱うこともできます。
+これには証明器を使うことが要求されますが、ここではポインタの取り扱いに進むことにしましょう。
+この証明と共に扱う方法は他の記事で解説しようと思います。
+
+```ocaml
+fun add1 {l:agz} (pf: !point @ l | p: ptr l): void = {
+  val () = p->x := p->x + 1
+  val () = p->y := p->y + 1
+}
+
+implement main () = {
+  var p1 = @{x=10, y=20}
+  val () = add1 (view@ p1 | &p1)
+  val () = print_point (p1)
+}
+```
+
+C APIとのインターフェイスにおいては、しばしばC言語の構造体を扱わなければなりません。
+ATSでは、ATSのレコードと一致しながらC言語の構造体として振る舞う型を宣言できます。
+つまりATSは構造体を読み書きできるのです。
+次の例ではC言語で構造体を宣言し、C言語でそれを使う関数を作り、
+そしてそれらをどのようにATSでラップするかを示しています。
+
+```ocaml
+%{^
+typedef struct Point {
+  int x;
+  int y;
+} Point;
+
+void print_point (Point* p) {
+  printf("%d@%d\n", p->x, p->y);
+}
+%}
+
+typedef point = $extype_struct "Point" of {x= int, y= int}
+extern fun print_point (p: &point): void = "mac#print_point"
+
+implement main () = {
+  var p1: point
+  val () = p1.x := 10;
+  val () = p1.y := 20;
+  val () = print_point (p1)
+}
+```
+
+$extype_struct キーワードは、与えられた名前のC言語の構造体によって表わされる型を作ります。
+of {x= int, y= int} という接尾辞を使うことで、ATSから見たレコードのレイアウトを宣言しています。
+これはATSに独自の構造を持つ型を作らせる代わりに、C言語の構造体を使わせます。
+main関数からをコンパイルすると次のようなC言語コードが生成されます。
+
+```c
+ATSlocal (Point, tmp1) ;
+
+__ats_lab_mainats:
+/* Point tmp1 ; */
+ats_select_mac(tmp1, x) = 10 ;
+ats_select_mac(tmp1, y) = 20 ;
+print_point ((&tmp1)) ;
+```
+
+これはC言語の構造体の型を直接使っていることに注意してください。
+
+私は zmq_msg_t と zmq_pollitem_t 構造体をラップするラッパーライブラリ
+[0MQ](https://github.com/doublec/ats-libzmq)
+にこのアプローチを使いました。
