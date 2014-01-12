@@ -66,26 +66,26 @@ Flat array on stack is a bit different.
 <table>
 <thead>
 <tr>
-<th>t@ype</th>
-<th>Syntax</th>
-<th>Binding</th>
+<th align="left">t@ype</th>
+<th align="left">Syntax</th>
+<th align="left">Binding</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Array<br />
+<td align="left">Array<br />
 (single initializer)<br />
 </td>
-<td>var !p with pf = @[t][n](e)<br />
+<td align="left">var !p with pf = @[t][n](e)<br />
 </td>
-<td>p:ptr l<br />pf:@[t][n] @ l<br />
+<td align="left">p:ptr l<br />pf:@[t][n] @ l<br />
 </td>
 </tr>
 <tr>
-<td>Array<br />
+<td align="left">Array<br />
 (uninitialized)</td>
-<td>var !p with pf = @[vt][n]()</td>
-<td>p:ptr l<br />pf:@[vt?][n] @ l<br />
+<td align="left">var !p with pf = @[vt][n]()</td>
+<td align="left">p:ptr l<br />pf:@[vt?][n] @ l<br />
 </td>
 </tr>
 </tbody>
