@@ -66,9 +66,9 @@ Flat array on stack is a bit different.
 <table>
 <thead>
 <tr>
-<td>t@ype</td>
-<td>Syntax</td>
-<td>Binding</td>
+<th>t@ype</th>
+<th>Syntax</th>
+<th>Binding</th>
 </tr>
 </thead>
 <tbody>
