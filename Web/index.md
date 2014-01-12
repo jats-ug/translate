@@ -14,5 +14,5 @@ ATS2に関する一次情報は
 
 * [ATSでレコードとC言語の構造体を使う](bluishcoder.co.nz/2011/11/01/using-records-and-c-structs-in-ats.md)
 * [より安全なATSによるC言語の使い方](bluishcoder.co.nz/2010/11/23/more-on-type-safety-using-c-and-ats.md)
-* [BLUISH CODER: ATSの関数](bluishcoder.co.nz/2010/06/13/functions-in-ats.md)
+* [ATSの関数](bluishcoder.co.nz/2010/06/13/functions-in-ats.md)
 * [ATSによる安全なC言語の使い方](bluishcoder.co.nz/2010/06/02/safer-c-code-using-ats.md)
