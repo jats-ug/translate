@@ -170,20 +170,24 @@ extern fun json_loads
   : [l:addr] JSONptr l = "#json_loads"
 ```
 
-The ‘json_array_get’ function is defined to return a proof.
-The ‘minus’ is an ATS standard library proof function.
-It basically states that the result of ‘json_array_get’ is owned by the object originally passed to it.
-This proof must be consumed when the result is no longer needed.
+"json_array_get"関数は証明を返すように定義されています。
+"minus"はATSスタンダードライブラリの証明関数です。
+"json_array_get"の結果は"json_array_get"に渡された元のオブジェクトによって所有されていることを表わしています。
+そこ結果が不要になった時点で、この証明は消費されます。
 
-By requiring this proof, and the need for it to be consumed, we ask the programmer to define the lifetime of the borrowed object.
-If we don’t consume the proof we get a compile error.
-If we call ‘json_decref’ on the owning object then we can’t consume the proof later as the owning object (’a’ in this example) is consumed by the ‘json_decref’.
-This forces the proof to be consumed within the lifetime of the owning object.
+この証明とそれが消費されなければならないということが、
+借用されたオブジェクトの生存期間を定義するよう、プログラマに要請します。
+もし証明を消費できないとコンパイルエラーになります。
 
-Another feature of the ‘json_array_get’ definition is that the ‘index’ parameter is defined as being a natural number.
-It is a compile error to pass a negative number as the index.
+もし"json_decref"を所有しているオブジェクトに対して呼び出すと、
+所有しているオブジェクト(この例では"a"です)は"json_decref"によって消費されてしまっているので、
+それ以降で証明を消費することができません。
+このため所有しているオブジェクトの生存期間で証明が消費されることが強制されます。
 
-The correct ATS code becomes:
+"json_array_get"の定義におけるもう一つの特徴は、"index"パラメータが自然数として定義されていることです。
+マイナスの数をindexとして渡すとコンパイルエラーになります。
+
+正しいATSコードは次のようになるでしょう。
 
 ```ocaml
 implement main () = () where {
@@ -200,4 +204,165 @@ implement main () = () where {
 }
 ```
 
-xxx
+"minus_addback"という証明関数の呼び出しに注意してください。
+これは、証明システムの視点において借用されたオブジェクトを所有しているオブジェクトに返却しています。
+証明関数はコンパイル時に使われるということ覚えておいてください。
+実行時のオーバーヘッドはありません。
+
+リファレンスカウントをインクリメントし、使い終わったらデクリメントすることで、
+借用されたオブジェクトの生存期間を操作することはできます。
+しかしこれは実行時のオーバーヘッドがあります。
+"借用された"オブジェクトのポイントは速度効率にあります。
+型システムを使うことで速度効率を維持して、なおかつ正確なコードに保つことができるのです。
+もちろん"a2"を"a"より延命させたいのであれば、そのリファレンスカウントを操作することもできます。
+
+## 内部メモリへのポインタ
+
+借用されたオブジェクトに似た問題として、
+JSONオブジェクト内部のメモリへのポインタを返すAPI呼び出しがあります。
+そのような最初の例として"json_string_value"を見てみましょう。
+文字列のメモリを誰が所有しているのあ、ドキュメントには書いてありません。
+それを"解放"するためのAPIがないので、
+JSONオブジェクトによって所有されているのではないかと仮定できます。
+janssonのソースコードを調べてみると、
+返却されている文字列は実際にはJSONオブジェクト内部の文字列値へのポインタであることが発見できるでしょう。
+これは文字列の生存期間はJSONオブジェクトの生存期間に紐づいていることを意味しています。
+
+また文字列の値を変更するための"json_string_set"呼び出しもあります。
+この関数は古い内部ポインタを解放して、新しい文字列を確保します。
+"json_string_value"より前に呼び出された関数の結果であるポインタを、
+"json_string_value"呼び出しの後に参照すると、
+解放されたメモリを指してしまっていることになります。
+誤ったC言語プログラムの例を示します。
+
+```c
+int main() {
+  json_t* a = json_string("this is a string");
+  const char* s = json_string_value(a);
+  json_string_set(a, "oops");
+  printf("Old string value: %s\n", s);
+  json_decref(a);
+  return 0;
+}
+```
+
+"json_string_set"の呼び出した後に"json_string_value"の結果を印字しようとすると、
+解放されたメモリを印字してしまいます。
+
+ATSでは、"json_string_value"の返したポインタが生きている場合に、
+"json_set_string"を呼び出したり所有しているJSONオブジェクトのリファレンスカウントをデクリメントしたら
+、コンパイルエラーになるように強制できます。
+先のC言語コードと等価なATSコードを以下に示します。このコードはコンパイルに失敗するはずです。
+
+```ocaml
+implement main () = () where {
+  val a = json_string("this is a string")
+  val () = assert_errmsg(JSONptr_isnot_null a, "json_string failed")
+  val (pf_s | s) = json_string_value(a)
+  val _ = json_string_set(a, "oops")
+  val () = print(s)
+  val () = print_newline()
+  prval () = JSONptr_minus_addback(pf_s, s | a)
+  val () = json_decref(a)
+}
+```
+
+"json_string_set"呼び出しを削除したり"JSONptr_minus_addback"呼び出しの後ろに移動させても、
+コンパイルは通ります。
+
+このしくみを作るためにjansson型のラッパーを修正しましょう。
+これによって"json_string_value"の呼び出し元の数を記録してくれるようになります。
+"json_t"ポインタの線形型は以下のようになります。
+
+```ocaml
+absviewtype JSONptr (l:addr,n:int)
+```
+
+以前はポインタのアドレスがパラメータでした。
+これでJSONptrは整数のカウンタも含むようになりました。
+このカウンタはオブジェクトが生成された時にゼロで初期化されます。
+
+```ocaml
+extern fun json_string
+  (value: string)
+  : [l:addr] JSONptr (l, 0) = "#json_string"
+```
+
+"json_string_value"を呼び出すと、カウンタがインクリメントされます。
+そのため、この呼び出し以降はJSONオブジェクトの型は非ゼロの値を持つことになります。
+
+```ocaml
+extern fun json_string_value
+  {l1:agz} {n:int} (
+    json: !JSONptr (l1, n) >> JSONptr (l1, n+1)
+  ) : [l2:addr] (JSONptr_minus (l1, strptr l2) | strptr l2)
+  = "#json_string_value"
+```
+
+ATSの"X » Y"という構文は"現時点でのオブジェクトの型 » 呼び出し後のオブジェクトの型"という意味です。
+返値は"JSONptr_minus"という証明を保持しています。
+この証明はこれまで使ってきた証明"minus"の変種です。
+この証明は、"n"の値を気にする必要がないように単純化されているという点を除いて、同じ目的で使われます。
+よく似た"JSONptr_minus_addback"もあります。
+
+```ocaml
+absview JSONptr_minus (addr, view)
+extern prfun JSONptr_minus_addback {l1:agz} {v:view} {n:int}
+  (pf1: JSONptr_minus (l1, v), pf2: v |
+   obj: !JSONptr (l1, n) >> JSONptr (l1, n-1)): void
+```
+
+オブジェクト内にあるパラメータ"n"の値を、
+"JSONptr_minus_addback"呼び出しが減少させていることに注意してください。
+"json_string_value"の結果が生きている間に"json_string_set"の呼び出しを許可しないようにできる秘密は、
+有効な文字列のカウンタがゼロであるJSONオブジェクトのみを受け付けるように"json_string_set"を宣言することにあります。
+"json_decref"も同じ方法で修正します。
+つまり、内部の文字列が有効でないオブジェクトに対してのみ呼び出し可能にするのです。
+
+```ocaml
+extern fun json_string_set
+  {l:agz} (
+    json: !JSONptr (l, 0), value: string
+  ) : int = "#json_string_set"
+extern fun json_decref
+  {l:agz} (json: JSONptr (l, 0))
+  : void = "#json_decref"
+```
+
+この変更で型システムは、
+確保していないメモリへのポインタをユーザが保持するミスを犯してしまうのを防止するようになります。
+
+繰り返しますが、このラッパーコードは型検査でのみ使用されます。
+ATSが生成する実行時のコードは生きている文字列のカウンタを持ちません。
+生成されたコードは元のC言語コードとほとんど同じ見た目になるはです。
+
+## 結論
+
+型システムによる補助がない困難な手動によるリソース管理をしているC言語アプリケーションを、
+ATSでラップすることができました。
+APIの使用を安全するために型システムを使う方法を考え出し、
+C言語を正確に使おうとするとき、「誰がこのオブジェクトやメモリを所有しているのだろうか？」と疑問を持つべきなのだと気づかされました。
+
+この記事で紹介した手法のいくつかは、私の発言からはじまったATSメーリングリストでの
+[議論](http://sourceforge.net/mailarchive/forum.php?thread_name=Pine.LNX.4.64.1011210923290.18045%40csa2.bu.edu&forum_name=ats-lang-users)
+を元にしています。
+この記事よりも多くのアイデアを得るために、このスレッドを読んでみてください。
+
+ATSからjanssonの使用を安全にするためにすべきことは他にもあります。
+jansson APIのいくつかは成功か失敗を表わす整数値を返します。
+これらの値を確認することを強制できるでしょう。
+その手法について、私は以前の記事で解説しました。
+jansson APIの一部を使うと、JSONオブジェクトを走査(iteration)できます。
+これらのAPIをラップして、
+イテレータの生存期間や走査中のオブジェクトの変更などに対する安全を保証すべきです。
+
+考えられるもう一つの改良点は、
+間違った型のJSONオブジェクトに対して間違ったAPI呼び出しをできないよう保証することでしょう。
+例えばarray型に対して"json_string_value"を呼び出すことを考えてみましょう。
+このような時、型で特定された関数を呼び出す前に"json_type"をチェックするように強制すべきです。
+
+私が作ったjanssonライブラリのラッパーはgithubの
+[http://github.com/doublec/ats-jansson](http://github.com/doublec/ats-jansson)
+に置いてあります。
+このラッパーは未完成ですが、
+この記事で説明したようなアイデアを試すのには有用だと思います。
