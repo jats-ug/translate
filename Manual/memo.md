@@ -6,7 +6,7 @@ https://github.com/jats-ug/ATS-Postiats/tree/translate_ja/doc/BOOK
 
 ## 翻訳手順
 
-xxx ...構築中...
+...構築中...
 
 http://po4a.alioth.debian.org/
 
