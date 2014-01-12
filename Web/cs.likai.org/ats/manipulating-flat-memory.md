@@ -33,35 +33,32 @@ t@ype もくは viewt@ype であるtによってパラメーター化された�
 
 ## View of memory region
 
-Flat t@ype on its own isn't very useful. If anything, it describes just the layout of memory but doesn't tell you anything else. In particular, it doesn't tell you:
+フラットなt@ypeそれ自体は有用ではありません。
+それどころか、ただメモリのレイアウトについて表現しているだけで、他に何も表わしていません。
+とりわけ次のことを表現していないのです。
 
-* If we do own a piece of memory with that layout.
-* The address of the memory.
-* Whether the memory is well-aligned.
-* How the memory is allocated: from the garbage collector, malloc(), shmget()/shmat(), mmap(), or even on the stack.
+* そのレイアウトのメモリ部分を所有しているかどうか
+* メモリ領域のアドレス
+* メモリ領域のアライメントが正しいかどうか
+* メモリを確保した手段: GCされうるのか, malloc(), shmget()/shmat(), mmap(), スタックに確保されたのか
 
-In order to access flat memory, we need two pieces of information: a proof of the view "t @ l", which states that we have type t at memory location l, and a value of type "ptr l", which is a pointer pointing to memory location l.
-Typically, each heap allocator will also give you a linear proof of an abstract view of the sort "addr -> view" which testifies that location l:addr is allocated by that allocator. This way, the memory allocated from one heap cannot be freed to another heap.
+フラットなメモリを扱うために、2つの情報が必要になります。
+1つ目はview "t @ l"の証明です。これはメモリ上の位置 l に type t を持つことを表現しています。
+2つ目はtype "ptr l"の値です。これはメモリ上の位置 l を指すポインタを表わします。
 
-To allocate flat data structure on stack, ATS introduces a new form of "var" binding.
+一般に、
+それぞれのヒープアロケータは、種"addr -> view"のabstract viewに対する線形論理の証明を同時に返します。
+これはメモリ上の位置 l:addr がそのアロケータによって確保されたことを証明しています。
+この方法で、あるヒープに確保されたメモリ領域を別のヒープに解放することを防止できます。
 
-### Terminology
-
-The dynamic world of ATS has three kind of terms.
-
-* A type (also t@ype, viewt@ype) characterizes an expression.
-* A view characterizes a linear proof term.
-* A prop characterizes a propositional proof term.
-
-After compilation, all linear and propositional proof terms are erased,
-and the program is left with expressions to be evaluated at run-time when someone executes the program.
+フラットなデータ構造をスタック上に確保するために、ATSは"var"束縛という新しい形を導入します。
 
 | t@ype      | Expression                            | Type                                 |
 |:-----------|:--------------------------------------|:-------------------------------------|
 | Tuple      | @(e1, e2, ... en)                     | @(t1, t2, ... tn)                    |
 | Record     | @{lab1 = e1, lab2 = e2, ... labn= en} | @{lab1 = t1, lab2= t2, ... labn= tn} |
 
-Flat array on stack is a bit different.
+スタック上のフラットなarrayは少し異なります。
 
 <table>
 <thead>
@@ -91,4 +88,17 @@ Flat array on stack is a bit different.
 </tbody>
 </table>
 
-xxx
+### Terminology
+
+ATSの動的な世界は3種類の項を持っています。
+
+* type (もしくはt@ypeやviewt@ype) で特徴づけられた式
+* viewで特徴づけられた線形論理による証明の項
+* propで特徴づけられた古典論理による証明の項
+
+コンパイル後には線形論理と古典論理の全ての項は消去されています。
+プログラムにはプログラムが実行された時に評価される式が残ります。
+
+## この文書のTODO
+
+未完
