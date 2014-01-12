@@ -64,12 +64,14 @@ and the program is left with expressions to be evaluated at run-time when someon
 Flat array on stack is a bit different.
 
 <table>
-<tbody>
+<thead>
 <tr>
 <td>t@ype</td>
 <td>Syntax</td>
 <td>Binding</td>
 </tr>
+</thead>
+<tbody>
 <tr>
 <td>Array<br />
 (single initializer)<br />
