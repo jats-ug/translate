@@ -1,4 +1,4 @@
-# ATSのクロージャ
+# BLUISH CODER: ATSのクロージャ
 
 (元記事は http://bluishcoder.co.nz/2010/06/20/closures-in-ats.html です)
 
@@ -100,30 +100,139 @@ end
 
 クロージャをスタックに確保するには "lam" の代わりに "@lam" を使います。
 ここでは "add5" に割り当てています。
-The variable is introduced using ‘var’ instead of ‘val’ which the examples have been using so far.
-‘val’ is for ‘value declarations’ and ‘var’ is for ‘variable declarations’.
-The latter are basically variables allocated on the stack that can be changed during the course of evaluation.
-See the
-[val and var tutorial](http://www.ats-lang.org/TUTORIAL/contents/val-and-var.html)
-for details.
+この変数はこれまでの例で使ってきた "val" ではなく "var" を使って宣言されています。
+"val" は "値の宣言" で、 "var" は "変数の宣言" です。
+後者は基本的にスタックに確保された変数で、評価の最中に更新される可能性があります。
+詳しくは
+[val and var tutorial](http://www.ats-lang.org/htdocs-old/TUTORIAL/contents/val-and-var.html)
+を読んでください。
 
-Variables allocated on the stack have an implicit proof variable that is used to allow access to its address.
-The use of ’!’ in the example appears to be a shorthand provided by ATS that can be used to avoid explicitly managing the proof’s in some circumstances.
-I don’t entirely understand why this is needed or how it works.
-If anyone has any helpful tips please let me know.
-The
-[pointer tutorial](http://www.ats-lang.org/TUTORIAL/contents/pointers.html)
-seems to have some coverage of this.
+スタックに確保された変数は、
+そのアドレスへの操作を許可するために使う暗黙の証明変数を持っています。
+先の例での "!" はATSの略記のようで、ある状況で証明による管理を無効化するために使うようです。
+私はなぜこれが必要で、どうやって機能するのかよく理解できていません。
+助けになる情報がありましたら是非教えてください。
+[pointer tutorial](http://www.ats-lang.org/htdocs-old/TUTORIAL/contents/pointers.html)
+がこの話題について有用でしょう。
 
-For this example I don’t create the closure in a ‘make_adder’ function.
-If the closure was allocated on the stack and returned from ‘make_adder’ it would be an error as we’d be returning a stack allocated object from a stack that just got destroyed.
-In ATS it is guaranteed by the type system that a closure allocated on the stack frame of a function cannot be used once the call to the function returns.
-A compile time warning occurs if this happens:
+この例では "make_adder" 関数からクロージャを作りませんでした。
+もしクロージャをスタックに確保して "make_adder" から抜けると、エラーになるでしょう。
+スタックにオブジェクトを確保したにもかかわらずスタックから抜けることで破壊してしまうためです。
+関数によってスタックフレームに確保されたクロージャを、
+その関数から抜けてから使えないことがATSの型システムによって保証されています。
+そのような場合にはコンパイル時に警告が起きます。
 
 ```
 error(3): a flat closure is needed.
 ```
 
 ## Standard Prelude Higher Order Functions
+
+リストや配列を扱う一般的な高階関数の実装をATSは持っています。
+"map" や "filter" などの関数が使えます。
+次の例では高階関数を使ってリストの要素の和を取っています。
+
+```ocaml
+staload "prelude/DATS/list.dats"
+
+implement main() = () where {
+  val a = '[1,2,3]
+  val x = list_fold_left_cloref<int,int> (lam (a,b) =<cloref> a*b, 1, a)
+  val () = printf("result: %d\n", @(x));
+}
+```
+
+"list_fold_left_cloref" は "prelude/DATS/lists.dats" で定義されています。
+これはC++のテンプレートとよく似た関数テンプレートで、
+インスタンス化するためにテンプレートの型が必要になります。
+この例ではその型は2つともintです。
+このコードは"cloref"を使うために、GCが必要になります。
+
+線形クロージャや関数に使うためのlist_fold_leftの変形があります。
+例えば線形クロージャを使う場合には以下のようになります。
+
+```ocaml
+staload "prelude/DATS/list.dats"
+
+implement main() = () where {
+  val a = '[1,2,3]
+  val clo = lam (pf: !unit_v | a:int,b:int):int =<cloptr> a*b;
+  prval pfu = unit_v ()
+  val x = list_fold_left_cloptr<int,int> (pfu | clo, 1, a)
+  prval unit_v () = pfu
+  val () = cloptr_free(clo)
+  val () = printf("result: %d\n", @(x));
+}
+```
+
+このコードでは "prval" を使っていることに気づくでしょう。
+"list_fold_left_cloptr" の定義は以下のようになっています。
+
+```ocaml
+fun{init,a:t@ype} list_fold_left_cloptr {v:view} {f:eff}
+  (pf: !v | f: !(!v | init, a) -<cloptr,f> init, ini: init, xs: List a):<f> init
+```
+
+この定義は "list_fold_left_cloptr" と引数 "f" が証明引数を必要としていることを示しています。
+("|" というパイプ文字の左側全ては証明引数です。この例では "!v" です。)
+この例では証明引数を使わないため、"unit_v ()" を作り、その後二回目の "prval" で解放します。
+前にも書きましたが、なぜ証明引数を取るのか、なぜクロージャにそれを渡すのか、
+私は理解できていません。
+有識者のコメントを募集しています!
+
+Note that even though this example manually manages memory for the closure it still needs the garbage collector for the allocation of the list stored ‘a’.
+Even with the garbage collector included you can still manage memory manually for efficiency reasons if needed.
+
+If using proof variables, manually managing closure memory, and related functionality proves to much of a burden then ATS provides alternative functions.
+The ‘smlbas’ routines provide much of the ML basis standard library implemented to use ‘cloref1’ function types.
+For example:
+
+```ocaml
+staload "libats/smlbas/SATS/list.sats"
+staload "libats/smlbas/DATS/list.dats"
+dynload "libats/smlbas/DATS/list.dats"
+
+implement main() = () where {
+  val a = list0_of_list1('[1,2,3])
+  val x = foldl<int,int>(lam(a, b) => a + b, 1, a)
+  val () = printf("result: %d\n", @(x));
+}
+```
+
+This needs to be linked against the ‘ats_smlbas’ library to build:
+
+```
+atscc -o closure8 closure8.dats -D_ATS_GCATS -lats_smlbas
+```
+
+I had to pass the types to the ‘foldl’ template to get things to compile.
+Type inference is unfortunately not as simple as in some other functional languages.
+An alternative approach is to specify that you want to use the integer add function:
+
+```ocaml
+  val x = foldl(lam(a, b) => add_int_int(a, b), 1, a)
+```
+
+Unfortunately it wasn’t enough to declare the types for the closure arguments:
+
+```ocaml
+  val x = foldl(lam(a:int, b:int) => a + b, 1, a)
+```
+
+This gives the error:
+
+```
+  error(3): the symbol [+] cannot be resolved: there are too many matches
+```
+
+## 結論
+
+This concludes my explorations of using closures and functions in ATS.
+I find using higher order functions somewhat difficult due to dealing with proofs and having to declare types everywhere.
+
+This would probably be a bit easier if there was reference documentation on the ATS standard library with usage examples.
+Unfortunately I’m not aware of any apart from the library and example source code.
+
+At least it’s possible to use the ‘smlbas’ library and the simplified ‘list0’ and ‘array0’ types to avoid needing to understand the low level details of proofs and types while learning.
 
 xxx
