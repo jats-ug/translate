@@ -180,12 +180,15 @@ fun{init,a:t@ype} list_fold_left_cloptr {v:view} {f:eff}
 私は理解できていません。
 有識者のコメントを募集しています!
 
-Note that even though this example manually manages memory for the closure it still needs the garbage collector for the allocation of the list stored ‘a’.
-Even with the garbage collector included you can still manage memory manually for efficiency reasons if needed.
+この例では手動でクロージャのメモリ管理をしているにもかかわらず、
+リスト"a"の確保のためにGCが必要であることに注意してください。
+GCが内蔵されていたとしても、効率のために必要であれば、
+手動でメモリ管理を行なうことができるのです。
 
-If using proof variables, manually managing closure memory, and related functionality proves to much of a burden then ATS provides alternative functions.
-The ‘smlbas’ routines provide much of the ML basis standard library implemented to use ‘cloref1’ function types.
-For example:
+証明変数の使用し、クロージャーのメモリを手動管理し、より多くの証明をするのであれば、
+ATSには別の関数が用意されています。
+"smlbas" ルーチンは、"cloref1" 関数型が使えるMLの基本的な標準ライブラリを提供しています。
+例を見てみましょう。
 
 ```ocaml
 staload "libats/smlbas/SATS/list.sats"
@@ -199,27 +202,27 @@ implement main() = () where {
 }
 ```
 
-This needs to be linked against the ‘ats_smlbas’ library to build:
+ビルドするには "ats_smlbas" ライブラリをリンクする必要があります。
 
 ```
 atscc -o closure8 closure8.dats -D_ATS_GCATS -lats_smlbas
 ```
 
-I had to pass the types to the ‘foldl’ template to get things to compile.
-Type inference is unfortunately not as simple as in some other functional languages.
-An alternative approach is to specify that you want to use the integer add function:
+コンパイル可能にするために "foldl" テンプレートに型を渡してやる必要があります。
+型推論が他の関数型言語と同じようには働いてくれないのです。
+整数の加算関数を使うことを指定してやるアプローチもあります。
 
 ```ocaml
   val x = foldl(lam(a, b) => add_int_int(a, b), 1, a)
 ```
 
-Unfortunately it wasn’t enough to declare the types for the closure arguments:
+不幸にも、クロージャの引数の型を定義するだけでは不十分です。
 
 ```ocaml
   val x = foldl(lam(a:int, b:int) => a + b, 1, a)
 ```
 
-This gives the error:
+これは次のようなエラーになってしまいます。
 
 ```
   error(3): the symbol [+] cannot be resolved: there are too many matches
