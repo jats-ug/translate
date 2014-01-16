@@ -230,12 +230,14 @@ atscc -o closure8 closure8.dats -D_ATS_GCATS -lats_smlbas
 
 ## 結論
 
-This concludes my explorations of using closures and functions in ATS.
-I find using higher order functions somewhat difficult due to dealing with proofs and having to declare types everywhere.
+これはATSのクロージャと関数の使い方を私なりに調査した結論です。
+証明といたるところに型宣言が必要になるために、
+高階関数の使用はいくぶん難しいことを知りました。
 
-This would probably be a bit easier if there was reference documentation on the ATS standard library with usage examples.
-Unfortunately I’m not aware of any apart from the library and example source code.
+ATSの標準ライブラリのリファレンスマニュアルと使用例があれば、
+いくぶん簡単になるかもしれません。
+不幸にも、ライブラリ本体とサンプルソースコード以外にそのようなものを私は知りません。
 
-At least it’s possible to use the ‘smlbas’ library and the simplified ‘list0’ and ‘array0’ types to avoid needing to understand the low level details of proofs and types while learning.
-
-xxx
+それでも少なくとも "smlbas" ライブラリと簡略化した "list0" と "array0" 型については、
+証明や型に関する低レベルな詳細を理解することなしに、
+使用可能になりました。
