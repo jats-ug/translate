@@ -126,7 +126,7 @@ end
 error(3): a flat closure is needed.
 ```
 
-## Standard Prelude Higher Order Functions
+## 標準Preludeの高階関数
 
 リストや配列を扱う一般的な高階関数の実装をATSは持っています。
 "map" や "filter" などの関数が使えます。
