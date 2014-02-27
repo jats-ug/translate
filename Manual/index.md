@@ -4,7 +4,7 @@
 
 ### ATSプログラミング入門
 
-* 日本語: http://jats-ug.metasepi.org/doc/INT2PROGINATS/
+* 日本語: http://jats-ug.metasepi.org/doc/ATS2/INT2PROGINATS/
 * 元データ: https://github.com/jats-ug/ATS-Postiats/tree/translate_ja/doc/BOOK
 
 ### A Tutorial on Programming Features in ATS
