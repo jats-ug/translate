@@ -155,8 +155,7 @@ HTML/index.html
 リポジトリにコピーして、git pushすれば発行作業は完了です。
 
 ```
-$ make publish_jats_ug
-  cp -rf HTML/* /home/kiwamu/doc/jats-ug.github.io/doc/INT2PROGINATS/
+$ omake publish
 $ cd ~/doc/jats-ug.github.io
 $ git add .
 $ git commit -m "Update doc"
