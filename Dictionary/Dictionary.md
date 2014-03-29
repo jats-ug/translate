@@ -23,3 +23,18 @@
 ## V
 
 ### View
+
+Hongwei曰く...
+
+```
+In Chinese,
+
+'type' is translated to '类型'
+'view' can be translated to '观型'
+
+type -> 实
+view -> 虚
+
+I think the 'at' in 'at-view' roughly means "驻" in Chinese.
+Which means 'staying temporarily'.
+```
