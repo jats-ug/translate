@@ -128,7 +128,8 @@ view はケーパビリティのようなものです。
 
 ## View
 
-To model what the C code does I created an ATS view that represents the layout of the data in memory:
+今回のC言語コードが行なうことをモデル化するために
+私はメモリ中のデータレイアウトを表現する ATS の view を作りました:
 
 ```ocaml
 dataview record_data_v (addr, int) =
@@ -136,15 +137,16 @@ dataview record_data_v (addr, int) =
   | record_data_v_fail (null, 0) of ()
 ```
 
-A ‘view’ is like a standard ML datatype but exists at type checking time only.
-It is erased in the final version of the program so has no runtime overhead.
-This view has two constructors.
-The first is for data held at a memory address l of length n.
-The length is constrained to be greater than 16 + 2 + 1 which is the size of the ‘byte’, ‘ushort’ and ‘padding’ mentioned previously.
-By putting the constraint here we immediately force anyone creating this view to check the length they pass in.
-The second constructor, record_data_v_fail, is for the case of an invalid record buffer.
+'view' は standard ML の datatype に似ていますが、型検査時にのみ存在します。
+これは最終的な実行プログラムでは削除されていて、そのため実行時のオーバーヘッドはありません。
+今回の view は2つのコンスラクタを持っています。
+1番目のコンストラクタは長さ n のメモリアドレス l に保持されたデータを表わします。
+その長さは 16 + 2 + 1 よりも多くなるように強制されています。
+これは前に説明した 'byte', 'ushort', 'padding' を足したサイズです。
+ここで制約することで、この view を生成するコードに渡された長さを検査することを強制することができます。
+2番目のコンストラクタ、record_data_v_fail は無効なレコードバッファの場合を表わします。
 
-The function that creates this view looks like:
+この view を生成する関数は次のようになります:
 
 ```ocaml
 implement get_record (s) =
@@ -158,17 +160,106 @@ in
 end
 ```
 
-Here the len and data are obtained from the SSL structure.
-The length is checked and the view is created and returned along with the pointer to the data and the length.
-If the length check is removed there is a compile error due to the constraint we placed earlier on make_record_data_v.
-Calling code looks like:
+ここでは、len と data は SSL 構造体から得ています。
+この長さは検査され、そして view が生成されて、データへのポインタと長さをともなって返ります。
+もし長さの検査を削除すると、make_record_data_v に設定した強制のためにコンパイルエラーになります。
+呼び出し側コードは次のようになります:
 
 ```ocaml
 val (pf_data | p_data, data_len) = get_record (s)
 ```
 
-p_data is a pointer.
-data_len is an unsigned value and pf_data is our view.
-In my code the pf_ suffix denotes a proof of some sort (in this case the view) and p_ denotes a pointer.
+p_data はポインタです。
+data_len は符号なしの値、pf_data は view です。
+私のコードでは、接尾辞 pf_ はなにかの種 (この例では view) の証明を示し、
+p_ はポインタを示します。
+
+## 証明関数
+
+In ATS we can’t do anything at all with the p_data pointer other than increment, decrement and pass it around.
+To dereference it we must obtain a view proving what is at that memory address.
+To get speciailized views specific for the data we want I created some proof functions that convert the record_data_v view to views that provide access to memory.
+These are the proof functions:
+
+```ocaml
+(* These proof functions extract proofs out of the record_data_v
+   to allow access to the data stored in the record. The constants
+   for the size of the padding, payload buffer, etc are checked
+   within the proofs so that functions that manipulate memory
+   are checked that they remain within the correct bounds and
+   use the appropriate pointer values
+*)
+prfun extract_data_proof {l:agz} {n:nat}
+               (pf: record_data_v (l, n)):
+               (array_v (byte, l, n),
+                array_v (byte, l, n) -<lin,prf> record_data_v (l,n))
+prfun extract_hbtype_proof {l:agz} {n:nat}
+               (pf: record_data_v (l, n)):
+               (byte @ l, byte @ l -<lin,prf> record_data_v (l,n))
+prfun extract_payload_length_proof {l:agz} {n:nat}
+               (pf: record_data_v (l, n)):
+               (array_v (byte, l+1, 2),
+                array_v (byte, l+1, 2) -<lin,prf> record_data_v (l,n))
+prfun extract_payload_data_proof {l:agz} {n:nat}
+               (pf: record_data_v (l, n)):
+               (array_v (byte, l+1+2, n-16-2-1),
+                array_v (byte, l+1+2, n-16-2-1) -<lin,prf> record_data_v (l,n))
+prfun extract_padding_proof {l:agz} {n:nat} {n2:nat | n2 <= n - 16 - 2 - 1}
+               (pf: record_data_v (l, n), payload_length: size_t n2):
+               (array_v (byte, l + n2 + 1 + 2, 16),
+                array_v (byte, l + n2 + 1 + 2, 16) -<lin, prf> record_data_v (l, n))
+```
+
+Proof functions are run at type checking time.
+They manipulate proofs.
+Let’s breakdown what the extract_hbtype_proof function does:
+
+```ocaml
+prfun extract_hbtype_proof {l:agz} {n:nat}
+               (pf: record_data_v (l, n)):
+               (byte @ l, byte @ l -<lin,prf> record_data_v (l,n))
+```
+
+This function takes a single argument, pf, that is a record_data_v instance for an address l and length n.
+This proof argument is consumed.
+Once it is called it cannot be accessed again (it is a linear proof).
+The function returns two things.
+The first is a proof byte @ l which says “there is a byte stored at address l”.
+The second is a linear proof function that takes the first proof we returned, consumes it so it can’t be reused, and returns the original proof we passed in as an argument.
+
+This is a fairly common idiom in ATS.
+What it does is takes a proof, destroys it, returns a new one and provides a way of destroying the new one and bring back the old one.
+Here’s how the function is used:
+
+```ocaml
+prval (pf, pff) = extract_hbtype_proof (pf_data)
+val hbtype = $UN.cast2int (!p_data)
+prval pf_data = pff (pf)
+```
+
+prval is a declaration of a proof variable.
+pf is my idiomatic name for a proof and pff is what I use for proof functions that destroy proofs and return the original.
+
+The !p_data is similar to *p_data in C.
+It dereferences what is held at the pointer.
+When this happens in ATS it searches for a proof that we can access some memory at p_data.
+The pf proof we obtained says we have a byte @ p_data so we get a byte out of it.
+
+A more complicated proof function is:
+
+```ocaml
+prfun extract_payload_length_proof {l:agz} {n:nat}
+               (pf: record_data_v (l, n)):
+               (array_v (byte, l+1, 2),
+                array_v (byte, l+1, 2) -<lin,prf> record_data_v (l,n))
+```
+
+The array_v view repesents a contigous array of memory.
+The three arguments it takes are the type of data stored in the array, the address of the beginning, and the number of elements.
+So this function consume the record_data_v and produces a proof saying there is a two element array of bytes held at the 1st byte offset from the original memory address held by the record view.
+Someone with access to this proof cannot access the entire memory buffer held by the SSL record.
+It can only get the 2 bytes from the 1st offset.
+
+## 安全な memcpy
 
 xxx
