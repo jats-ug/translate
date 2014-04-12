@@ -279,9 +279,9 @@ prfun extract_payload_data_proof {l:agz} {n:nat}
                 array_v (byte, l+1+2, n-16-2-1) -<lin,prf> record_data_v (l,n))
 ```
 
-This returns a proof for an array of bytes starting at the 3rd byte of the record buffer.
-Its length is equal to the length of the record buffer less the size of the payload, and first two data items.
-It’s used during the memcpy call like so:
+これは、レコードバッファの3バイト目から開始する byte 配列を表わす証明を返します。
+その長さはレコードバッファの長さより payload と最初の2つの要素のサイズだけ小さくなります。
+この view は memcpy 呼び出しの際に次のように使われます:
 
 ```ocaml
 prval (pf_dst, pff_dst) = extract_payload_data_proof (pf_response)
@@ -294,11 +294,12 @@ prval pf_response = pff_dst(pf_dst)
 prval pf_data = pff_src(pf_src)
 ```
 
-By having a proof that provides access to only the payload data area we can be sure that the memcpy can not copy memory outside those bounds.
-Even though the code does manual pointer arithmetic (the add_ptr1_bszfunction) this is safe.
-An attempt to use a pointer outside the range of the proof results in a compile error.
+データ領域の payload のみにアクセスできる証明を持っているので、
+私達は memcpy がそれらの範囲外にメモリコピーする可能性がないことを確証できます。
+このコードは手動でポインタ演算をしている (add_ptr1_bszfunction) にもかかわらず安全です。
+証明の範囲外のポインタを使おうとするとコンパイルエラーになります。
 
-The same concept is used when setting the padding to random bytes:
+ランダムなバイト数をパディングするときにも同じコンセプトが使えます:
 
 ```ocaml
 prval (pf, pff) = extract_padding_proof (pf_response, payload_length)
@@ -309,5 +310,82 @@ prval pf_response = pff(pf)a
 ```
 
 ## 実行時の検査
+
+このコードは、各種の長さ変数の範囲を強制するような実行時検査をします:
+
+```ocaml
+if payload_length > 0 then
+    if data_len >= payload_length + padding + 1 + 2 then
+    ...
+...
+```
+
+これらの検査を取り除くとコンパイルエラーになります。
+オリジナルの heartbeat の欠点は実行時検査の不足でした。
+作ったコードはそのような欠陥はありませんし、コンパイル時に解決されます。
+
+## テスト
+
+このコードはビルドしてテストすることができます。
+[ATS2](http://www.ats-lang.org/DOWNLOAD/) をインストールするのが最初のステップです:
+
+```
+$ tar xvf ATS2-Postiats-0.0.7.tgz
+$ cd ATS2-Postiats-0.0.7
+$ ./configure
+$ make
+$ export PATSHOME=`pwd`
+$ export PATH=$PATH:$PATSHOME/bin
+```
+
+それから私の ATS 追加コードと一緒に openssl のコードをコンパイルします:
+
+```
+$ git clone https://github.com/doublec/openssl
+$ cd openssl
+$ git checkout -b ats_safe origin/ats_safe
+$ ./config
+$ make
+$ make test
+```
+
+コードが何をしているのかアイデアを得るために、制約やテストを修正したりこのコードを変更してみてください。
+
+VM 上でテストするために、私は Ubuntu をインストールして、HTTPS を提供するように ngninx
+インスタンスを設定しました:
+
+```
+$ git clone https://github.com/doublec/openssl
+$ cd openssl
+$ git diff 5219d3dd350cc74498dd49daef5e6ee8c34d9857 >~/safe.patch
+$ cd ..
+$ apt-get source openssl
+$ cd openssl-1.0.1e/
+$ patch -p1 <~/safe.patch
+  ...might need to fix merge conflicts here...
+$ fakeroot debian/rules build binary
+$ cd ..
+$ sudo dpkg -i libssl1.0.0_1.0.1e-3ubuntu1.2_amd64.deb \
+               libssl-dev_1.0.1e-3ubuntu1.2_amd64.deb 
+$ sudo /etc/init.d/nginx restart
+```
+
+これであなたは HTTPS サーバ上で heartbleed テスターを使うことができ、それは失敗してくれるはずです。
+
+## 結論
+
+I think the approach of converting unsafe C code piecemeal worked quite well in this instance. Being able to combine existing C code and ATS makes this much easier. I only concentrated on detecting this particular programming error but it would be possible to use other ATS features to detect memory leaks, abstraction violations and other things. It’s possible to get very specific in defining safe interfaces at a cost of complexity in code.
+
+Although I’ve used ATS for production code this is my first time using ATS2. I may have missed idioms and library functions to make things easier so try not to judge the verbosity or difficulty of the code based on this experiement. The ATS community is helpful in picking up the language. My approach to doing this was basically add types then work through the compiler errors fixing each one until it builds.
+
+One immediate question becomes “How do you trust your proof”. The record_data_v view and the proof functions that manipulate it define the level of checking that occurs. If they are wrong then the constraints checked by the program will be wrong. It comes down to having a trusted kernel of code (in this case the proof and view) and users of that kernel can then be trusted to be correct. Incorrect use of the kernel is what results in the stronger safety. From an auditing perspective it’s easier to check the small trusted kernel and then know the compiler will make sure pointer manipulations are correct.
+
+The ATS specific additions are in the following files:
+
+*    d1_both.dats
+*    t1_lib.dats
+*    shared.sats
+*    shared.dats
+*    shared.cats
 
 xxx
