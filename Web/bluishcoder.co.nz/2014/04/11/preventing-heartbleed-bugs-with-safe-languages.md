@@ -37,14 +37,16 @@ OpenSSL の dtls1_process_heartbeat と tls1_process_heartbeat 関数を ATS 言
 
 ## C言語コードをラップする
 
-I’ve written about this approach before.
-ATS allows embedding C directly so the first start was to embed the dtls1_process_heartbeat C code in an ATS file,
-call that from an ATS function and expose that ATS function as the real dtls1_process_heartbeat.
-The code for this is in my first attempt of d1_both.dats.
+[以前このアプローチについて紹介](http://bluishcoder.co.nz/2011/04/24/converting-c-programs-to-ats.html)しました。
+ATS には直接C言語を埋め込めます。
+そこで、手始めに dtls1_process_heartbeat のC言語コードを ATS のファイルに組み込みました。
+そして ATS 関数からそれを呼び出すようにして、その ATS 関数を真の dtls1_process_heartbeat として公開します。
+このコードは私の最初の試みで、[d1_both.dats](https://github.com/doublec/openssl/blob/f40838fd8b2c4ba907865eef54e5cca96dc0c62f/ssl/d1_both.dats) にあります。
 
 ## 安全でない ATS
 
-The second stage was to write the functions using ATS but unsafely.
+2番目の段階は ATS を使って当該の関数を書き直すことでした。
+しかしこの書き直した関数は安全ではありません。
 This code is a direct translation of the C code with no additional typechecking via ATS features.
 It uses usafe ATS code.
 The rewritten d1_both.dats contains this version.
