@@ -2,7 +2,7 @@
 
 (元記事は http://bluishcoder.co.nz/2014/04/11/preventing-heartbleed-bugs-with-safe-languages.html です)
 
-OpenSSL の [Heartbleed バグ](http://heartbleed.com/) はインターネット全体に多大なダメージを与えました。
+OpenSSL の [heartbleed バグ](http://heartbleed.com/) はインターネット全体に多大なダメージを与えました。
 このバグはとても単純で、C言語のような安全でない言語を使ったプログラミングがなぜ問題になるのかを示す教科書的な例です。
 
 より安全なシステムプログラミング言語がこのバグを防止できるかどうかの実験として、
@@ -12,27 +12,28 @@ OpenSSL の [Heartbleed バグ](http://heartbleed.com/) はインターネット
 ここでは ATS2 と呼ばれる ATS の最新版を使っています。
 
 ATS はC言語コードにコンパイルします。
-The function interfaces it generates can exactly match existing C functions and be callable from C.
-I used this feature to replace the dtls1_process_heartbeat and tls1_process_heartbeat functions in OpnSSL with ATS versions.
-These two functions are the ones that were patched to correct the heartbleed bug.
+生成された関数インターフェイスは既存のC言語関数に厳密にマッチし、さらにC言語から呼び出すこともできます。
+OpenSSL の dtls1_process_heartbeat と tls1_process_heartbeat 関数を ATS 言語を使って置換するために、私はこの機能を使いました。
+これら2つの関数は heartbleed バグを修正するためにパッチがあてれた箇所です。
 
-The approach I took was to follow something similar to that outlined by John Skaller on the ATS mailing list:
+私が取ったアプローチは
+[ATS メーリングリストでの John Skaller による次の発言](http://sourceforge.net/p/ats-lang/mailman/message/32204291/)
+とよく似たものです:
 
 ```
-ATS on the other hand is basically C with a better type system.
-You can write very low level C like code without a lot of the scary
-dependent typing stuff and then you will have code like C, that
-will crash if you make mistakes.
+ATS は基本的により良い型システムを持つC言語だ。
+恐しい依存型なしに、かなり低レベルなC言語コードを書くとしよう。
+そしてC言語のコードが手に入る。
+もし君がミスをしていたらクラッシュするだろう。
 
-If you use the high level typing stuff coding is a lot more work
-and requires more thinking, but you get much stronger assurances
-of program correctness, stronger than you can get in Ocaml
-or even Haskell, and you can even hope for *better* performance
-than C by elision of run time checks otherwise considered mandatory,
-due to proof of correctness from the type system. Expect over
-50% of your code to be such proofs in critical software and probably
-90% of your brain power to go into constructing them rather than
-just implementing the algorithm. It's a paradigm shift.
+もし高レベルな型システムを使えば、コーディングにはより多くの作業とより多くの考慮が要求されることになる。
+でも君はプログラムの正確さについてより強い保証が得られるんだ。
+それも OCaml や Haskell を使うよりもさらに強い保証だ。
+さらに実行時の検査を省略することで、君はC言語より *より良い* 効率を望むことだってできる。
+これらは型システムによる正確さの証明によっている。
+クリティカルなソフトウェアにおいて、君のコードの 50% 以上はそのような証明だと思う。
+ひょっとすると君の能力の 90% はアルゴリズムを実装するのではなく、そのような証明できることを構築することに費やされているかもしれない。
+これはパラダイムシフトだよ。
 ```
 
 xxx
