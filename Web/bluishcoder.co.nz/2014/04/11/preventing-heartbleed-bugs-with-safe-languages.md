@@ -78,25 +78,33 @@ val () = OPENSSL_free (buffer)
 
 このコードとC言語コードを比較することは容易でしょう。
 
-## Safer ATS
+## より安全な ATS
 
-The third stage was adding types to the unsafe ATS version to check that the pointer arithmetic is correct and no bounds errors occur.
-This version of d1_both.dats fails to compile if certain bounds checks aren’t asserted.
-If the assertloc at line 123, line 178 or line 193 is removed then a constraint error is produced.
-This error is effectively preventing the heartbleed bug.
+3番目の段階では、ポインタ演算が妥当であることと境界エラーがないことを検査するために、安全でない ATS コードに型を付けました。
+もし境界チェックがアサートされた場合、
+[このバージョンの d1_both.dats](https://github.com/doublec/openssl/blob/12b89f1b2d714835b9257c10bcc5fd210714d07d/ssl/d1_both.dats)
+はコンパイルに失敗します。
+もし行番号 [123](https://github.com/doublec/openssl/blob/12b89f1b2d714835b9257c10bcc5fd210714d07d/ssl/d1_both.dats#l123),
+[178](https://github.com/doublec/openssl/blob/12b89f1b2d714835b9257c10bcc5fd210714d07d/ssl/d1_both.dats#l178),
+[193](https://github.com/doublec/openssl/blob/12b89f1b2d714835b9257c10bcc5fd210714d07d/ssl/d1_both.dats#l193)
+の assertloc を削除すると、制約エラーが発生します。
+このエラーは heartbleed バグを効果的に防止しています。
 
-## Testable Vesion
+## テスト可能なバージョン
 
-The last stage I did was to implement the fix to the tls1_process_heartbeat function and factor out some of the helper routines so it could be shared.
-This is in the ats_safe branch which is where the newer changes are happening.
-This version removes the assertloc usage and changes to graceful failure so it could be tested on a live site.
+最後の段階で私が行なったことは、tls1_process_heartbeat
+に対する修正を実装したことと、共用できるように補助ルーチンのいくつかを取り除いたことです。
+このバージョンは [ats_safe ブランチ](https://github.com/doublec/openssl/tree/ats_safe)
+にあり、新しい修正がほどこしてあります。
+このバージョンでは assertloc は使わず、実地でテストできるように不具合を修正しています。
 
-I tested this version of OpenSSL and heartbleed test programs fail to dump memory.
+私はこのバージョンの OpenSSL をテストして、heartbleed
+テストプログラムがメモリダンプに失敗することを確かめました。
 
-## The approach to safety
+## 安全へのアプローチ
 
-The tls_process_heartbeat function obtains a pointer to data provided by the sender and the amount of data sent from one of the OpenSSL internal structures.
-It expects the data to be in the following format:
+tls_process_heartbeat 関数は送信元によって与えられたデターへのポインタと、OpenSSL 内部の構造体からそのデータの総量を得ます。
+そのデータは次のようなフォーマットであると期待しています:
 
 ```
  byte = hbtype
@@ -105,13 +113,62 @@ It expects the data to be in the following format:
  byte[16]= padding
 ```
 
-The existing C code makes the mistake of trusting the ‘payload length’ the sender supplies and passes that to a memcpy.
-If the actual length of the data is less than the ‘payload length’ then random data from memory gets sent in the response.
+既存のC言語コードは、送信者から供給された 'payload length' を信頼して、それを memcpy に渡たすというミスを犯しています。
+もしデータの実際の長さが 'payload length' よりも小さければ、
+その応答にメモリ中のランダムなデータを送ってしまうことになります。
 
-In ATS pointers can be manipulated at will but they can’t be dereferenced or used unless there is a view in scope that proves what is located at that memory address.
-By passing around views, and subsets of views,
-it becomes possible to check that ATS code doesn’t access memory it shouldn’t.
-Views become like capabilities.
-You hand them out when you want code to have the capability to do things with the memory safely and take it back when it’s done.
+ATS では、ポインタを自由に操作することができます。
+しかしスコープにそのメモリアドレスに配置されたことを立証する view がない場合には、
+それらはデリファレンスされたり使われたりすることはありません。
+view と view のサブセットをたらい回しすることによって、ATS
+コードがアクセスすべきでないメモリにアクセスしていないことを検査することが可能になるのです。
+view はケーパビリティのようなものです。
+そのメモリに安全にアクセスするケーパビリティを持つコードが欲しい時にそれらを渡し、
+アクセスが完了した時にそれを取り戻します。
+
+## View
+
+To model what the C code does I created an ATS view that represents the layout of the data in memory:
+
+```ocaml
+dataview record_data_v (addr, int) =
+  | {l:agz} {n:nat | n > 16 + 2 + 1} make_record_data_v (l, n) of (ptr l, size_t n)
+  | record_data_v_fail (null, 0) of ()
+```
+
+A ‘view’ is like a standard ML datatype but exists at type checking time only.
+It is erased in the final version of the program so has no runtime overhead.
+This view has two constructors.
+The first is for data held at a memory address l of length n.
+The length is constrained to be greater than 16 + 2 + 1 which is the size of the ‘byte’, ‘ushort’ and ‘padding’ mentioned previously.
+By putting the constraint here we immediately force anyone creating this view to check the length they pass in.
+The second constructor, record_data_v_fail, is for the case of an invalid record buffer.
+
+The function that creates this view looks like:
+
+```ocaml
+implement get_record (s) =
+  val len = get_record_length (s)
+  val data = get_record_data (s)
+in
+  if len > 16 + 2 + 1 then
+    (make_record_data_v (data, len) | data, len)
+  else
+    (record_data_v_fail () | null_ptr1 (), i2sz 0)
+end
+```
+
+Here the len and data are obtained from the SSL structure.
+The length is checked and the view is created and returned along with the pointer to the data and the length.
+If the length check is removed there is a compile error due to the constraint we placed earlier on make_record_data_v.
+Calling code looks like:
+
+```ocaml
+val (pf_data | p_data, data_len) = get_record (s)
+```
+
+p_data is a pointer.
+data_len is an unsigned value and pf_data is our view.
+In my code the pf_ suffix denotes a proof of some sort (in this case the view) and p_ denotes a pointer.
 
 xxx
