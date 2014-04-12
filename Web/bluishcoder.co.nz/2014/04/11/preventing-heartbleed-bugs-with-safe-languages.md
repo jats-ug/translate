@@ -374,18 +374,34 @@ $ sudo /etc/init.d/nginx restart
 
 ## 結論
 
-I think the approach of converting unsafe C code piecemeal worked quite well in this instance. Being able to combine existing C code and ATS makes this much easier. I only concentrated on detecting this particular programming error but it would be possible to use other ATS features to detect memory leaks, abstraction violations and other things. It’s possible to get very specific in defining safe interfaces at a cost of complexity in code.
+安全でないC言語コードを完全な動作をするように少しずつ変換するアプローチを紹介しました。
+既存のC言語コードと ATS を結合することができるのでこれはより簡単になります。
+私は特有のプログラミングエラーを発見することに集中しただけでしたが、
+メモリリークの検出や抽象の侵害のような他の ATS の機能を使うことができました。
+コードが複雑になりますが、安全なインターフェイス定義を
+[得ることが可能](http://bluishcoder.co.nz/2012/08/30/safer-handling-of-c-memory-in-ats.html)
+です。
 
-Although I’ve used ATS for production code this is my first time using ATS2. I may have missed idioms and library functions to make things easier so try not to judge the verbosity or difficulty of the code based on this experiement. The ATS community is helpful in picking up the language. My approach to doing this was basically add types then work through the compiler errors fixing each one until it builds.
+私は製品に ATS を使ってきましたが、今回はじめて ATS2 を使いました。
+より簡単に事をはこぶためのイディオムやライブラリ関数を見逃しているかもしれません。
+そのためこの実験でのコードの冗長さや困難さには気にしないでください。
+[ATS コミュニティ](http://www.ats-lang.org/COMMUNITY/)
+はこの言語をピックアップするのに役立ちます。
+これを行なうための私のアプローチは基本的に型を付け、それからコンパイラエラーをそれぞれ修正してビルドが通るようにすることでした。
 
-One immediate question becomes “How do you trust your proof”. The record_data_v view and the proof functions that manipulate it define the level of checking that occurs. If they are wrong then the constraints checked by the program will be wrong. It comes down to having a trusted kernel of code (in this case the proof and view) and users of that kernel can then be trusted to be correct. Incorrect use of the kernel is what results in the stronger safety. From an auditing perspective it’s easier to check the small trusted kernel and then know the compiler will make sure pointer manipulations are correct.
+すぐに思いつく疑問は「どうやって自分で書いた証明を信頼するのか」でしょう。
+record_data_v view とそれを操作する証明関数は検査するレベルを定義しています。
+もしそれらが誤っていたら、プログラムによって検査される制約も誤ってしまいます。
+これはコードの信頼できるカーネル (今回の例では証明と view です) を持つことに帰着します。
+そすればそのカーネルのユーザも妥当であることを信頼できます。
+そのカーネルの間違った利用は結果的により強い安全性をもたらします。
+検査の視点からすると、小さな信頼できるカーネルを検査することはより簡単です。
+そしてポインタ操作が妥当であることをコンパイラが保証してくれることはわかっています。
 
-The ATS specific additions are in the following files:
+ATS 側で追加したのは以下のファイルです:
 
-*    d1_both.dats
-*    t1_lib.dats
-*    shared.sats
-*    shared.dats
-*    shared.cats
-
-xxx
+* [d1_both.dats](https://github.com/doublec/openssl/blob/ats_safe/ssl/d1_both.dats)
+* [t1_lib.dats](https://github.com/doublec/openssl/blob/ats_safe/ssl/t1_lib.dats)
+* [shared.sats](https://github.com/doublec/openssl/blob/ats_safe/ssl/shared.sats)
+* [shared.dats](https://github.com/doublec/openssl/blob/ats_safe/ssl/shared.dats)
+* [shared.cats](https://github.com/doublec/openssl/blob/ats_safe/ssl/shared.cats)
