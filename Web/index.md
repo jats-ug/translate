@@ -12,6 +12,7 @@ ATS2に関する一次情報は
 
 ## BLUISH CODER
 
+* [安全なプログラミング言語を使って heartbleed を防ぐには](bluishcoder.co.nz/2014/04/11/preventing-heartbleed-bugs-with-safe-languages.md)
 * [ATSでレコードとC言語の構造体を使う](bluishcoder.co.nz/2011/11/01/using-records-and-c-structs-in-ats.md)
 * [より安全なATSによるC言語の使い方](bluishcoder.co.nz/2010/11/23/more-on-type-safety-using-c-and-ats.md)
 * [ATSのクロージャ](bluishcoder.co.nz/2010/06/20/closures-in-ats.md)
