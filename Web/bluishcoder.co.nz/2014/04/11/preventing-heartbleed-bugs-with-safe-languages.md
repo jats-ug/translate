@@ -103,7 +103,7 @@ val () = OPENSSL_free (buffer)
 
 ## 安全へのアプローチ
 
-tls_process_heartbeat 関数は送信元によって与えられたデターへのポインタと、OpenSSL 内部の構造体からそのデータの総量を得ます。
+tls_process_heartbeat 関数は送信元によって与えられたデータへのポインタと、OpenSSL 内部の構造体からそのデータの総量を得ます。
 そのデータは次のようなフォーマットであると期待しています:
 
 ```
@@ -176,10 +176,11 @@ p_ はポインタを示します。
 
 ## 証明関数
 
-In ATS we can’t do anything at all with the p_data pointer other than increment, decrement and pass it around.
-To dereference it we must obtain a view proving what is at that memory address.
-To get speciailized views specific for the data we want I created some proof functions that convert the record_data_v view to views that provide access to memory.
-These are the proof functions:
+ATS では、ポインタに対してインクリメント、デクリメント、たらい回す、以外にはどのような操作もすることができません。
+デクリメントするためには、そのメモリアドレスを指すことを立証する view を獲得しなければなりません。
+私達が欲しいデータに特化した特殊な view を得るために、
+record_data_v view からメモリアクセスのための view への変換を行なう証明関数をいくつか作りました。
+以下にその証明関数を示します:
 
 ```ocaml
 (* These proof functions extract proofs out of the record_data_v
@@ -210,9 +211,9 @@ prfun extract_padding_proof {l:agz} {n:nat} {n2:nat | n2 <= n - 16 - 2 - 1}
                 array_v (byte, l + n2 + 1 + 2, 16) -<lin, prf> record_data_v (l, n))
 ```
 
-Proof functions are run at type checking time.
-They manipulate proofs.
-Let’s breakdown what the extract_hbtype_proof function does:
+証明関数は型検査時のみ実行されます。
+それらは証明を扱います。
+extract_hbtype_proof 関数が行なっていることを詳しく見てみましょう:
 
 ```ocaml
 prfun extract_hbtype_proof {l:agz} {n:nat}
@@ -220,16 +221,18 @@ prfun extract_hbtype_proof {l:agz} {n:nat}
                (byte @ l, byte @ l -<lin,prf> record_data_v (l,n))
 ```
 
-This function takes a single argument, pf, that is a record_data_v instance for an address l and length n.
-This proof argument is consumed.
-Once it is called it cannot be accessed again (it is a linear proof).
-The function returns two things.
-The first is a proof byte @ l which says “there is a byte stored at address l”.
-The second is a linear proof function that takes the first proof we returned, consumes it so it can’t be reused, and returns the original proof we passed in as an argument.
+この関数は1つの引数 pf をを取ります。
+この引数はアドレス l で長さ n の record_data_v のインスタンスです。
+この証明引数は消費されます。
+一度呼び出されると、再度アクセスすることはできません (つまり線形の証明です)。
+この関数は2つのことを返します。
+1つ目は証明 byte @ l で、"アドレス l には byte が保管されている" と主張しています。
+2つ目は線形証明関数で、はじめに私達が返した証明を取り、それを消費して再利用できなくした後、引数として渡した元の証明を返します。
 
-This is a fairly common idiom in ATS.
-What it does is takes a proof, destroys it, returns a new one and provides a way of destroying the new one and bring back the old one.
-Here’s how the function is used:
+これは、ATS では非常に一般的なイディオムです。
+証明を取り、それを消費し、新しい証明を返します。
+そして新しい証明を消費する方法と古い証明に戻す方法を提供します。
+次にこの関数の使い方を示します:
 
 ```ocaml
 prval (pf, pff) = extract_hbtype_proof (pf_data)
@@ -237,15 +240,18 @@ val hbtype = $UN.cast2int (!p_data)
 prval pf_data = pff (pf)
 ```
 
-prval is a declaration of a proof variable.
-pf is my idiomatic name for a proof and pff is what I use for proof functions that destroy proofs and return the original.
+prval は証明変数の宣言です。
+pf は私の慣用的な名前で証明を表わします。
+pff を私が使った場合、証明を消費してオリジナルの証明を返す証明関数を表わします。
 
-The !p_data is similar to *p_data in C.
-It dereferences what is held at the pointer.
-When this happens in ATS it searches for a proof that we can access some memory at p_data.
-The pf proof we obtained says we have a byte @ p_data so we get a byte out of it.
+!p_data はC言語の *p_data に似ています。
+それはポインタに保持されている領域をデリファレンスします。
+これが起きると、ATS は p_data
+に位置するメモリにアクセスすることができることを示す証明を探索します。
+この得られた証明 pf は、私達は byte @ p_data
+を持っていて、そこから byte を取り出せるということを主張しています。
 
-A more complicated proof function is:
+より複雑な証明関数は次のようなものです:
 
 ```ocaml
 prfun extract_payload_length_proof {l:agz} {n:nat}
@@ -254,12 +260,54 @@ prfun extract_payload_length_proof {l:agz} {n:nat}
                 array_v (byte, l+1, 2) -<lin,prf> record_data_v (l,n))
 ```
 
-The array_v view repesents a contigous array of memory.
-The three arguments it takes are the type of data stored in the array, the address of the beginning, and the number of elements.
-So this function consume the record_data_v and produces a proof saying there is a two element array of bytes held at the 1st byte offset from the original memory address held by the record view.
-Someone with access to this proof cannot access the entire memory buffer held by the SSL record.
-It can only get the 2 bytes from the 1st offset.
+array_v view はメモリの連続した配列を表わします。
+それが取る3つの引数はそれぞれ、配列に保存されたデータの型と、開始アドレス、要素の数です。
+この関数は record_data_v を消費して、証明を産み出します。
+その証明は、record view に保持されたオリジナルのメモリアドレスから1バイトオフセットした場所から2要素が存在することを主張しています。
+この証明にアクセスできたとしても、SSL
+レコードによって保持されたメモリバッファ全体にアクセスすることはできません。
+1番目の要素のオフセットから2バイトのみしかアクセスできないのです。
 
 ## 安全な memcpy
+
+より複雑な view を見てみましょう:
+
+```ocaml
+prfun extract_payload_data_proof {l:agz} {n:nat}
+               (pf: record_data_v (l, n)):
+               (array_v (byte, l+1+2, n-16-2-1),
+                array_v (byte, l+1+2, n-16-2-1) -<lin,prf> record_data_v (l,n))
+```
+
+This returns a proof for an array of bytes starting at the 3rd byte of the record buffer.
+Its length is equal to the length of the record buffer less the size of the payload, and first two data items.
+It’s used during the memcpy call like so:
+
+```ocaml
+prval (pf_dst, pff_dst) = extract_payload_data_proof (pf_response)
+prval (pf_src, pff_src) = extract_payload_data_proof (pf_data)
+val () = safe_memcpy (pf_dst, pf_src 
+           add_ptr1_bsz (p_buffer, i2sz 3),
+           add_ptr1_bsz (p_data, i2sz 3),
+           payload_length)
+prval pf_response = pff_dst(pf_dst)
+prval pf_data = pff_src(pf_src)
+```
+
+By having a proof that provides access to only the payload data area we can be sure that the memcpy can not copy memory outside those bounds.
+Even though the code does manual pointer arithmetic (the add_ptr1_bszfunction) this is safe.
+An attempt to use a pointer outside the range of the proof results in a compile error.
+
+The same concept is used when setting the padding to random bytes:
+
+```ocaml
+prval (pf, pff) = extract_padding_proof (pf_response, payload_length)
+val () = RAND_pseudo_bytes (pf |
+                            add_ptr_bsz (p_buffer, payload_length + 1 + 2),
+                            padding)
+prval pf_response = pff(pf)a
+```
+
+## 実行時の検査
 
 xxx
