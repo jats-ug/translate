@@ -54,7 +54,7 @@ When installed on a test system it shows the heartbleed bug still.
 It uses all the pointer arithmetic and hard coded offsets as the C code.
 Here’s a snippet of one branch of the function:
 
-```ats
+```ocaml
 val buffer = OPENSSL_malloc(1 + 2 + $UN.cast2int(payload) + padding)
 val bp = buffer
 
