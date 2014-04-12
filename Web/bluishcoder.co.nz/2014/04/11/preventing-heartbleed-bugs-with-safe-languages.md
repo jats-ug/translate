@@ -47,14 +47,15 @@ ATS には直接C言語を埋め込めます。
 
 2番目の段階は ATS を使って当該の関数を書き直すことでした。
 しかしこの書き直した関数は安全ではありません。
-This code is a direct translation of the C code with no additional typechecking via ATS features.
-It uses usafe ATS code.
-The rewritten d1_both.dats contains this version.
+このコードは ATS の機能である追加の型検査なしに、直接C言語コードに翻訳されます。
+これは ATS コードを使っています。
+[書き換えられた d1_both.dats](https://github.com/doublec/openssl/blob/ats/ssl/d1_both.dats)
+はこのバージョンのコードを含んでいます。
 
-The code is quite ugly but compiles and matches the C version.
-When installed on a test system it shows the heartbleed bug still.
-It uses all the pointer arithmetic and hard coded offsets as the C code.
-Here’s a snippet of one branch of the function:
+このコードはまったく醜いものですが、コンパイルでき、C言語の実装に一致しています。
+テスト対象にインストールすると、やはり heartbleed バグは再現します。
+このコードはポインタ演算を使っており、またC言語コードのオフセットがハードコードされています。
+以下にこの関数の一部を抜き出してみます:
 
 ```ocaml
 val buffer = OPENSSL_malloc(1 + 2 + $UN.cast2int(payload) + padding)
@@ -73,8 +74,44 @@ val () = if r >=0 && ptr_isnot_null (get_msg_callback (s)) then
                               buffer, $UN.cast2uint (3 + $UN.cast2int(payload) + padding), s,
                               get_msg_callback_arg (s))
 val () = OPENSSL_free (buffer)
-
-It should be pretty easy to follow this comparing the code to the C version.
 ```
+
+このコードとC言語コードを比較することは容易でしょう。
+
+## Safer ATS
+
+The third stage was adding types to the unsafe ATS version to check that the pointer arithmetic is correct and no bounds errors occur.
+This version of d1_both.dats fails to compile if certain bounds checks aren’t asserted.
+If the assertloc at line 123, line 178 or line 193 is removed then a constraint error is produced.
+This error is effectively preventing the heartbleed bug.
+
+## Testable Vesion
+
+The last stage I did was to implement the fix to the tls1_process_heartbeat function and factor out some of the helper routines so it could be shared.
+This is in the ats_safe branch which is where the newer changes are happening.
+This version removes the assertloc usage and changes to graceful failure so it could be tested on a live site.
+
+I tested this version of OpenSSL and heartbleed test programs fail to dump memory.
+
+## The approach to safety
+
+The tls_process_heartbeat function obtains a pointer to data provided by the sender and the amount of data sent from one of the OpenSSL internal structures.
+It expects the data to be in the following format:
+
+```
+ byte = hbtype
+ ushort = payload length
+ byte[n] = bytes of length 'payload length'
+ byte[16]= padding
+```
+
+The existing C code makes the mistake of trusting the ‘payload length’ the sender supplies and passes that to a memcpy.
+If the actual length of the data is less than the ‘payload length’ then random data from memory gets sent in the response.
+
+In ATS pointers can be manipulated at will but they can’t be dereferenced or used unless there is a view in scope that proves what is located at that memory address.
+By passing around views, and subsets of views,
+it becomes possible to check that ATS code doesn’t access memory it shouldn’t.
+Views become like capabilities.
+You hand them out when you want code to have the capability to do things with the memory safely and take it back when it’s done.
 
 xxx
