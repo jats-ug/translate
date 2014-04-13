@@ -1,6 +1,7 @@
 # BLUISH CODER: 安全なプログラミング言語を使って heartbleed を防ぐには
 
-(元記事は http://bluishcoder.co.nz/2014/04/11/preventing-heartbleed-bugs-with-safe-languages.html です)
+(元記事は http://bluishcoder.co.nz/2014/04/11/preventing-heartbleed-bugs-with-safe-languages.html です。
+この記事は [Hacker News](https://news.ycombinator.com/item?id=7571385) でも話題になりました。)
 
 OpenSSL の [heartbleed バグ](http://heartbleed.com/) はインターネット全体に多大なダメージを与えました。
 このバグはとても単純で、C言語のような安全でない言語を使ったプログラミングがなぜ問題になるのかを示す教科書的な例です。
