@@ -1,18 +1,7 @@
 ATS言語に関する文書の日本語訳
 =============================
 
-## WebにあるATS言語に関する記事
-
-[Web/index.md](Web/index.md)
-
-## ATS言語の公式マニュアル
-
-[Manual/index.md](Manual/index.md)
-
-## ATS言語に関する論文
-
-TODO.
-
-## 用語辞書
-
-[Dictionary/Dictionary.md](Dictionary/Dictionary.md)
+* [Web上のATS言語関連記事](Web/index.md)
+* [ATS言語の公式マニュアル](Manual/index.md)
+* ATS言語に関する論文 (TODO)
+* [用語辞書](Dictionary/Dictionary.md)
