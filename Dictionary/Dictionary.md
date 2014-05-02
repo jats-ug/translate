@@ -8,6 +8,14 @@
 
 引数の数
 
+## B
+
+### Binary
+
+"引数が2つの"
+
+## C
+## D
 ## E
 
 ### Effect
@@ -21,11 +29,40 @@
 C言語の関数のようなクロージャではない関数では、関数に付随する環境がない。
 そのため、C言語の関数は無環境関数と呼ばれる。
 
+## F
+## G
+## H
+## I
+## J
+## K
+## L
+## M
+## N
+
+### Nullary
+
+"引数のない"
+
+## O
+## P
+## Q
+## R
+## S
 ## T
+
+### Ternary
+
+"引数が3つの"
 
 ### Type
 
 "型"
+
+## U
+
+### Unary
+
+"引数が1つの"
 
 ## V
 
@@ -45,3 +82,8 @@ view -> 虚
 I think the 'at' in 'at-view' roughly means "驻" in Chinese.
 Which means 'staying temporarily'.
 ```
+
+## W
+## X
+## Y
+## Z
