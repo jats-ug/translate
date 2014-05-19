@@ -12,6 +12,11 @@
 * 日本語: http://jats-ug.metasepi.org/doc/ATS2/ATS2TUTORIAL/
 * 元データ: https://github.com/jats-ug/ATS-Postiats/tree/translate_ja/doc/BOOK/ATS2TUTORIAL
 
+### Effective ATS
+
+* 日本語: [EffectiveATS.md](EffectiveATS.md)
+* 元データ: https://github.com/jats-ug/ATS-Postiats/tree/translate_ja/doc/EXAMPLE/EFFECTIVATS
+
 ## 翻訳環境
 
 ### 概要
