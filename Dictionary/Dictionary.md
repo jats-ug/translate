@@ -47,6 +47,10 @@ C言語の関数のようなクロージャではない関数では、関数に�
 ## K
 ## L
 
+### Left-value
+
+"左辺値"
+
 ### Linearity restriction
 
 "線形性制限"
