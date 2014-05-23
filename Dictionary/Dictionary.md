@@ -89,6 +89,10 @@ C言語の関数のようなクロージャではない関数では、関数に�
 
 "末尾呼出"
 
+### Tail-recursive call
+
+"末尾再帰呼出"
+
 ### Termination metric
 
 "停止性メトリクス"
