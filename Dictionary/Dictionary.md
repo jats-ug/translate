@@ -80,6 +80,10 @@ C言語の関数のようなクロージャではない関数では、関数に�
 
 "前置"
 
+### Programming with Theorem-Proving (PwTP)
+
+"定理証明によるプログラミング"
+
 ## Q
 ## R
 ## S
