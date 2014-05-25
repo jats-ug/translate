@@ -9,5 +9,5 @@
 * [配列を用いたスタック実装 (An Array-Based Stack Implementation)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/stack-array/main.html)
 * [食事する哲学者の問題 (Dining Philosophers)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/DiningPhil/main.html)
 * [食事する哲学者の問題 その2 (Dining Philosophers)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/DiningPhil2/main.html)
-* http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/IPC-redis/main.html
+* [Redis を用いたプロセス間通信 (Inter-Process Communication based on Redis)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/IPC-redis/main.html)
 * http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/queue-sllist2/main.html
