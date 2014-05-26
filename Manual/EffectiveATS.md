@@ -1,5 +1,7 @@
 # Effective ATS
 
+元データ: https://github.com/jats-ug/ATS-Postiats/tree/translate_ja/doc/EXAMPLE/EFFECTIVATS
+
 * [Redis を用いたプロセス間通信 (Inter-Process Communication based on Redis)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/IPC-redis/main.html)
 * [キューの償却実装 (An Amortized Implementation of Queues)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/queue-sllist2/main.html)
 * [ファイルコピー (Copying Files)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/file-copying/main.html)
