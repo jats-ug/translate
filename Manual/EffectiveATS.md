@@ -13,3 +13,4 @@
 * [配列を用いたスタック実装 (An Array-Based Stack Implementation)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/stack-array/main.html)
 * [食事する哲学者の問題 (Dining Philosophers)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/DiningPhil/main.html)
 * [食事する哲学者の問題 その2 (Dining Philosophers)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/DiningPhil2/main.html)
+* [Sorting Linear Lists](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/sorting-linear-lists/main.html)
