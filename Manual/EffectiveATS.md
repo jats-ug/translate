@@ -1,5 +1,7 @@
 # Effective ATS
 
+元記事: http://www.ats-lang.org/EXAMPLE/EFFECTIVATS/
+
 元データ: https://github.com/jats-ug/ATS-Postiats/tree/translate_ja/doc/EXAMPLE/EFFECTIVATS
 
 * [Redis を用いたプロセス間通信 (Inter-Process Communication based on Redis)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/IPC-redis/main.html)
