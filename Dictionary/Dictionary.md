@@ -8,6 +8,10 @@
 
 引数の数
 
+### At-view
+
+"駐観"
+
 ## B
 
 ### Binary
@@ -93,6 +97,10 @@ C言語の関数のようなクロージャではない関数では、関数に�
 
 "定理証明によるプログラミング"
 
+### Prop
+
+"命題"
+
 ## Q
 ## R
 ## S
@@ -128,20 +136,9 @@ C言語の関数のようなクロージャではない関数では、関数に�
 
 ### View
 
-Hongwei曰く...
+"観"
 
-```
-In Chinese,
-
-'type' is translated to '类型'
-'view' can be translated to '观型'
-
-type -> 实
-view -> 虚
-
-I think the 'at' in 'at-view' roughly means "驻" in Chinese.
-Which means 'staying temporarily'.
-```
+参考: http://comments.gmane.org/gmane.comp.lang.ats.user/1759
 
 ## W
 ## X
