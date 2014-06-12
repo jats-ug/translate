@@ -345,8 +345,8 @@ dataview arrayView (type, int, addr) =
 
 ![](img/fig_array.png)
 
-(1) 配列のそれぞれの要素の型は _T_ ,
-(2) 配列の長さは _I_ ,
+(1) 配列のそれぞれの要素の型は _T_ で、
+(2) 配列の長さは _I_ で、
 (3) 配列はアドレス _L_ から始まりアドレス _L_ + _I_ -1 で終わります。
 
 観 _arrayView_ に関連する2つの観の証明コンストラクタ _ArrayNone_ と _ArraySome_ があります。
@@ -408,9 +408,59 @@ viewdef sllist (a, n, l) = slseg (a, n, l, null)
 ```
 
 片方向リストのセグメントを表現するデータ観を図8のように宣言できます。
+観の列: _T0_ @ ( _L_ + 0 ) ,..., _Tn_ @ ( _L_ + _n_ ) を表わすのに
+( _T0_ ,..., _Tn_ ) @ L と書いていることに注意してください。
+型 _T_ , 整数 _I_ , 2つのアドレス _L1_ と _L2_ が与えらえたとき、
+_slseg_ ( _T_ , _I_ , _L1_ , _L2_ )
+は次のように描かれた片方向リストのセグメントを表わす観です:
+
+![](img/fig_linklist.png)
+
+ここで (1) セグメントのそれぞれの要素の型は _T_ で、
+(2) セグメントの長さは _n_ で、
+(3) セグメントは _L1_ から始まり _L2_ で終わります。
+片方向リストは単純に、NULL ポインタで終わるような片方向リストのセグメントの一種です。
+そしてこれは図8で示された観コンストラクタ _sllist_ の定義を明確に反映されています。
+
+ここで、図9に興味深い例を紹介します。
+図の上側の関数 _array2sllist_ は配列を片方向リストに変換します。
 
 xxx
 
-![](img/fig_linklist.png)
+```ocaml
+(* 図9. 配列から片方向リストへの変換 *)
+fun array2sllist {l:addr, n:nat | n >= 1, 1 <> null}
+  (pf: arrayView (top, n+n, l) | p: ptr(l), s: int(n))
+  : '(sllist (top, n, l) | unit) =
+  if s ieq 1 then
+    let
+       prval ArraySome (pf0, ArraySome (pf1, ArrayNone)) = pf
+       val '(pf1 | _) = setVar (pf1 | p + 1, null)
+    in
+       '(SlsegSome ('(pf0, pf1), SlsegNone) | '())
+    end
+  else
+    let
+       prval ArraySome (pf0, ArraySome (pf1, pf)) = pf
+       val '(pf1 | _) = setVar (pf1 | p + 1, p + 2)
+       val '(rest | _ ) = array2sllist (pf | p + 2, s - 1)
+    in
+       '(SlsegSome ('(pf0, pf1), rest) | '())
+    end
+```
+
+```c
+/* The following program in C corresponds the above one in ATS */
+
+typedef struct slseg { int val; struct slseg * next; } slseg;
+
+void array2sllist (int* p, int size) {
+  int s;
+
+  for (s = size; s > 1; s = s - 1) { *(p+1) = p+2; p = p+2; }
+
+  *(p+1) = 0; /* assign the null pointer */
+}
+```
 
 xxx
