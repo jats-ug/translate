@@ -338,4 +338,79 @@ dataview arrayView (type, int, addr) =
       ArraySome (a, n+1, 1) of (a @ l, arrayView (a, n, l+1)
 ```
 
+配列はおそらくプログラミングにおいて最も一般的に使われるデータ構造です。
+図6で配列を表現するデータ観 (dataview) を宣言しています。
+型 _T_ , 整数 _I_ , アドレス _L_ が与えられたとき、 _arrayView_ ( _T_ , _I_ , _L_ )
+は次のように描写される配列を表わす観です。
+
+![](img/fig_array.png)
+
+(1) 配列のそれぞれの要素の型は _T_ ,
+(2) 配列の長さは _I_ ,
+(3) 配列はアドレス _L_ から始まりアドレス _L_ + _I_ -1 で終わります。
+
+観 _arrayView_ に関連する2つの観の証明コンストラクタ _ArrayNone_ と _ArraySome_ があります。
+これらには次のような関数的な観が割り当てられています:
+
+![](img/exp10.png)
+
+例えば _ArraySome_ に割り当てられた観は、もし 型 _T_ の値が _L_ に保管されていて、型 _T_
+の値を含むサイズ _I_ の配列が _L_ + 1 に保管されているなら、型 _T_ の要素を含むサイズ _I_ + 1
+の配列がアドレス _L_ に保管されていることを意味しています。
+
+```ocaml
+(* 図7. 配列を用いた簡単な関数 *)
+fun getFirst {a:type, n:int, l:addr | n > 0}
+   (pf: arrayView (a,n,l) | p: ptr(l)): '(arrayView (a,n,l) | a) =
+  let
+     prval ArraySome (pf1, pf2) = pf
+     // pf1: a@l and pf2: arrayView (a,n-1,l+1)
+     val '(pf1' | x) = getVar (pf1 | p)
+     // pf1': a@l
+  in
+     '(ArraySome (pf1', pf2) | x)
+  end
+```
+
+ここで単純な関数 _getFirst_ を図7に実装してみます。
+この関数は空ではない配列の最初の要素を獲得します。
+関数 _getFirst_ のヘッダは次の型がこの関数に割り当てられていることを示しています:
+
+![](img/exp10.png)
+
+_getFirst_ の本体内の (馴染みのない) 構文には少し説明が必要でしょう:
+_pf_ は観 _arrayView_ ( _a_ , _n_ , _l_ ) の証明です。
+この証明は、 _pf1_ と _pf2_ がそれぞれ観
+_a_ @ _l_ と _arrayView_ ( _a_ , _n_ - 1 , _l_ + 1 ) の証明のとき
+_ArraySome_ ( _pf1_ , _pf2_ ) の形を取らなければなりません;
+関数 _getVar_ は次の型であると仮定されていることを思い出しましょう:
+
+![](img/exp11.png)
+
+これは _getVar_ を型 __ptr__ ( _L_ ) のポインタに適用するにはなんらかの型 _T_ について _T_ @ _L_
+の証明が要求され、この関数適用が型 _T_ の値および _T_ @ _L_ の証明を返すことを単純に意味しています;
+従って _pf1'_ もまた _a_ @ _l_ の証明で、
+_ArraySome_ ( _pf1'_ , _pf2_ ) は _arrayView_ ( _a_ , _n_ , _l_ ) の証明です。
+_getFirst_ の定義は、動的な計算のコードと観の証明の静的な操作のコードの両方を持っています。
+そしてその後者は、動的な計算が開始する前に消去されます。
+
+### 3.2. 片方向リスト
+
+```ocaml
+(* 図8. 片方向リストのセグメントを表わすデータ観 *)
+dataview slseg (type, int, addr, addr) =
+  | {a:type, l:addr} SlsegNone (a, 0, l, l)
+  | {a:type, n:nat, first, next, last | first <> null}
+    SlsegSome (a, n+1, first, last) of
+      ((a, ptr (next)) @ first, slseg (a, n, next, last))
+
+viewdef sllist (a, n, l) = slseg (a, n, l, null)
+```
+
+片方向リストのセグメントを表現するデータ観を図8のように宣言できます。
+
+xxx
+
+![](img/fig_linklist.png)
+
 xxx
