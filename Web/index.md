@@ -13,8 +13,27 @@ ATS2に関する一次情報は
 ## BLUISH CODER
 
 * [安全なプログラミング言語を使って heartbleed を防ぐには](bluishcoder.co.nz/2014/04/11/preventing-heartbleed-bugs-with-safe-languages.md)
+* Constructing Proofs with dataprop in ATS
+* Ranged integer types and bounds checking
+* An Introduction to using pointers in ATS
+* Implementing a stack with proofs in ATS
+* Safer handling of C memory in ATS
+* Lightweight Tasks Library for ATS
+* ATS library reference
+* Pattern Matching Against Linear Objects in ATS
 * [ATSでレコードとC言語の構造体を使う](bluishcoder.co.nz/2011/11/01/using-records-and-c-structs-in-ats.md)
+* Overloading Functions in ATS
+* Safe destruction in the presence of sharing in ATS
+* Sharing Linear Resources in ATS
+* Converting C Programs to ATS
+* Linear Datatypes in ATS
+* Reading data from a file in ATS
 * [より安全なATSによるC言語の使い方](bluishcoder.co.nz/2010/11/23/more-on-type-safety-using-c-and-ats.md)
+* Dependent Types in ATS
+* Concurrency in ATS
+* [lin と llam を伴うクロージャ](bluishcoder.co.nz/2010/08/02/lin-and-llam-with-closures.md)
 * [ATSのクロージャ](bluishcoder.co.nz/2010/06/20/closures-in-ats.md)
 * [ATSの関数](bluishcoder.co.nz/2010/06/13/functions-in-ats.md)
 * [ATSによる安全なC言語の使い方](bluishcoder.co.nz/2010/06/02/safer-c-code-using-ats.md)
+* ATS Preforking Echo Server
+* ATS - Applied Type System Programming Language
