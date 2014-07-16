@@ -1,8 +1,9 @@
-# BLUISH CODER: lin and llam with closures
+# BLUISH CODER: lin と llam を伴うクロージャ
 
 (元記事は http://bluishcoder.co.nz/2010/08/02/lin-and-llam-with-closures.html です)
 
-While using the ATS wrapper for pthreads I noticed the use of a couple things related to closures that I hadn’t seen before and therefore didn’t get mentioned in my post on ATS closures. The signature for the function to spawn a closure in a thread is:
+[Pthreads](http://en.wikipedia.org/wiki/POSIX_Threads) の [ATS](http://www.ats-lang.org/)
+ラッパーを使っていると、これまで見たことがないクロージャの使い方に私は気が付きました。クロージャをスレッドとして作る関数のシグニチャは次のようなものです:
 
 ```ocaml
 fun pthread_create_detached_cloptr
@@ -10,7 +11,7 @@ fun pthread_create_detached_cloptr
 // end of [pthread_create_detached_cloptr]
 ```
 
-Notice the use of ‘lin’ alongside ‘cloptr1’. When calling this function you can’t use ‘lam’ to create the closure due to the following compile error:
+'cloptr1' と同時に 'lin' を使っていることに注意してください。次のコンパイルエラーのために、この関数では 'lam' を使ってクロージャを作ることができません:
 
 ```ocaml
 (* Using *)
@@ -20,7 +21,7 @@ val () = pthread_create_detached_cloptr(lam () => print_string("hello thread 1\n
 test.dats: ...: error(3) nonlinear function is given a linear type .
 ```
 
-The correct thing to do is to use ‘llam’:
+正しいやり型は 'llam' を使うことです:
 
 ```ocaml
 val () = pthread_create_detached_cloptr(llam () => print_string("hello thread 1\n"));
