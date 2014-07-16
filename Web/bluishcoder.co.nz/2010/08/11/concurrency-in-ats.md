@@ -10,12 +10,12 @@
 
 メーリングリストのアナウンスでは次のように 'parworkshop' を解説しています:
 
-> …'parworkshop' と名付けられたパッケージは、プログラマが 'workshop' を作り、'workers' を借りて、'works' を投稿することなどを可能にします。
+> …'parworkshop' と名付けられたパッケージは、プログラマが 'workshop' を作り、'worker' を借りて、'work' を投稿することなどを可能にします。
 > おそらく、もうお分かりでしょう :) 現時点では、それぞれの 'worker' は Pthreads 上に構築されています。
 > 長期的には、ハードウェア/アーキティクチャを下層として利用する、より洗練された workshop を構築できるでしょう。
 
-この記事では、'parworkshop' の使い方を学ぶために2つの例を紹介します。1つ目は実際には何も計算しないシンプルなものです。2つ目は
-The second is based on a programming example posted on reddit recently.
+この記事では、'parworkshop' の使い方を学ぶために2つの例を紹介します。1つ目は実際には何も計算しないシンプルなものです。2つ目は、最近
+reddit に投稿したプログラム例に基づいています。
 
 ## 単純な例
 
@@ -26,17 +26,17 @@ staload "libats/SATS/parworkshop.sats"
 staload "libats/DATS/parworkshop.dats"
 ```
 
-The SATS file contains the declarations for the functions and datatypes. The DATS file is needed for implementations of some of the template functions.
+この SATS ファイルは関数とデータ型の宣言を含んでいます。この DATS ファイルはテンプレート関数のいくつかを実装するために必要です。
 
-The basic steps to using ‘parworkshop’ involve:
+'parworkshop' を使う作法は次のようなものです:
 
-1. Create a workshop using ‘workshop_make’.
-2. Add workers to the workshop using ‘workshop_add_worker’. Each worker is a native thread.
-3. Insert one or more units of work to be processed by a worker using ‘workshop_insert_work’.
-4. Wait for all units of work to be completed using ‘workshop_wait_blocked_all’.
-5. Tell the workers to quit. This can be done by using ‘workshop_insert_work’ with some sentinel to tell the worker to quit.
-6. Wait for all workers to quit using ‘workshop_wait_quit_all’.
-7. Free the worker using ‘workshop_free’ or ‘workshop_free_vt_exn’.
+1. 'workshop_make' を用いて workshop を生成します。
+2. 'workshop_add_worker' を用いて workshop に worker を追加します。それぞれの worker はネイティブスレッドです。
+3. 'workshop_insert_work' を用いて worker が処理する複数の work を挿入します。
+4. 'workshop_wait_blocked_all' を用いて全ての work が完了するのを待ちます。
+5. worker を終了させます。'workshop_insert_work' を用いて番兵に worker を終了させることができます。
+6. 'workshop_wait_quit_all' を用いて全ての worker が終了するのを待ちます。
+7. 'workshop_free' もしくは 'workshop_free_vt_exn' を用いて worker を解放します。
 
 Each worker created in step 2 above is a native thread. This thread blocks on a queue after being created. ‘workshop_insert_work’ (step 3 above) adds items onto the queue. One of the worker threads will then wake up, call a function that gets the unit of work passed as an argument and then resume blocking on the queue. The function that gets called by the worker thread is one of the parameters in ‘workshop_make’ created in step 1.
 
