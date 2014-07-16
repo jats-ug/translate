@@ -21,25 +21,34 @@ val () = pthread_create_detached_cloptr(lam () => print_string("hello thread 1\n
 test.dats: ...: error(3) nonlinear function is given a linear type .
 ```
 
-正しいやり型は 'llam' を使うことです:
+正しいやり方は 'llam' を使うことです:
 
 ```ocaml
 val () = pthread_create_detached_cloptr(llam () => print_string("hello thread 1\n"));
 ```
 
-The ‘Tips for using ATS’ paper available from the ATSfloat site mentions that ‘llam’ is equivalent to the following ‘lam’ usage:
+[ATSfloat](http://scg.ece.ucsb.edu/ats.html) のサイトから入手できる "Tips for using ATS"
+という論文には 'llam' が次の 'lam' の使い方に相当すると言及されています:
 
 ```ocaml
 val () = pthread_create_detached_cloptr(lam () =<lin,cloptr1> print_string("hello thread 1\n"));
 ```
 
-There wasn’t much usage of lin,cloptr to look at, and little mention of it anywhere, so I asked on the mailing list about it. Hongwei’s reply explains the difference between using ‘lin’ and not using ‘lin’:
+探してもそれ以上 lin と cloptr の使い方は見つかりませんでした。そこで私がこの件を
+[メーリングリストで質問](http://sourceforge.net/p/ats-lang/mailman/ats-lang-users/thread/Pine.LNX.4.64.1008011044170.11828@csa2.bu.edu/)
+したところ、Hongwei は 'lin' を使用する場合と使用しない場合の差異を以下のように説明しました:
 
-> In ATS, it is allowed to create a closure containing some resources in its environment. In the above example, ‘lin’ is used to indicate that [f] is a closure whose enviroment may contain resources.
+> ATS では、その環境にリソースを含むクロージャを作ることができる。
+> 上記の例では、[f] がその環境にリソースを含む可能性のあるクロージャであることを示すために、'lin' を使っている。
 
-In the reply Hongwei shows that a version of pthread_create_detached_cloptr without the ‘lin’ is more restrictive than with it as that would not allow containing resources in the environment of the closure.
+Hongwei はこの返信で、'lin' を使わないことによってクロージャの環境にリソースを含むことができないために、より制限された pthread_create_detached_cloptr
+のバージョンを示しています。
 
-A (somewhat contrived) example of usage below defines a function ‘test’ that takes as an argument a closure tagged as lin,cloptr1. It calls the closure and then frees it. In the ‘main’ function I use the cURL library to call ‘curl_global_init’. This returns a ‘pf_gerr’ resource that is used to track if the correct cURL cleanup routine is called. The following example compiles and runs fine:
+A (somewhat contrived) example of usage below defines a function ‘test’ that takes as an argument a closure tagged as lin,cloptr1.
+It calls the closure and then frees it.
+In the ‘main’ function I use the cURL library to call ‘curl_global_init’.
+This returns a ‘pf_gerr’ resource that is used to track if the correct cURL cleanup routine is called.
+The following example compiles and runs fine:
 
 ```ocaml
 staload "contrib/cURL/SATS/curl.sats"
