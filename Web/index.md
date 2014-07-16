@@ -30,7 +30,7 @@ ATS2に関する一次情報は
 * Reading data from a file in ATS
 * [より安全なATSによるC言語の使い方](bluishcoder.co.nz/2010/11/23/more-on-type-safety-using-c-and-ats.md)
 * Dependent Types in ATS
-* [ATS における並行プログラミング](bluishcoder.co.nz/2010/08/11/concurrency-in-ats.md)
+* [ATSにおける並行プログラミング](bluishcoder.co.nz/2010/08/11/concurrency-in-ats.md)
 * [lin と llam を伴うクロージャ](bluishcoder.co.nz/2010/08/02/lin-and-llam-with-closures.md)
 * [ATSのクロージャ](bluishcoder.co.nz/2010/06/20/closures-in-ats.md)
 * [ATSの関数](bluishcoder.co.nz/2010/06/13/functions-in-ats.md)

@@ -1,22 +1,25 @@
-# BLUISH CODER: Concurrency in ATS
+# BLUISH CODER: ATSにおける並行プログラミング
 
 (元記事は http://bluishcoder.co.nz/2010/08/11/concurrency-in-ats.html です)
 
 [ATS](http://www.ats-lang.org/)
-はオペレーティングシステムのネイティブスレッドを使った並行プログラミングが可能です。
-It provides a wrapper around pthreads and a higher level API for creating worker threads and using them for parallel computation called ‘parworkshop.
+ではオペレーティングシステムのネイティブスレッドを使った並行プログラミングが可能です。
+[Pthreads](http://en.wikipedia.org/wiki/POSIX_Threads)
+のラッパーと、ワーカースレッドの生成する高レベル API、そしてそれらを使って
+'parworkshop' と呼ばれる並列計算を提供しています。
 
 メーリングリストのアナウンスでは次のように 'parworkshop' を解説しています:
 
-> …a package named ‘parworkshop’ that allows the programmer to build a ‘workshop’, hire ‘workers’, submit ‘works’, etc.
-> Hopefully, you get the idea :) Right now, each ‘worker’ is built on top of a pthread.
-> In the long run, I expect that more sophisticated workshops can be built to better take advantage of the underlying hardware/architecture.
+> …'parworkshop' と名付けられたパッケージは、プログラマが 'workshop' を作り、'workers' を借りて、'works' を投稿することなどを可能にします。
+> おそらく、もうお分かりでしょう :) 現時点では、それぞれの 'worker' は Pthreads 上に構築されています。
+> 長期的には、ハードウェア/アーキティクチャを下層として利用する、より洗練された workshop を構築できるでしょう。
 
-In this post I’ve done two examples using ‘parworkshop’ to learn how to use it. The first is simple with no actual computation done. The second is based on a programming example posted on reddit recently.
+この記事では、'parworkshop' の使い方を学ぶために2つの例を紹介します。1つ目は実際には何も計算しないシンプルなものです。2つ目は
+The second is based on a programming example posted on reddit recently.
 
-## Simple example
+## 単純な例
 
-To use ‘parworkshop’ include two files:
+'parworkshop' を使うために、2つのファイルをインクルードします:
 
 ```ocaml
 staload "libats/SATS/parworkshop.sats"
