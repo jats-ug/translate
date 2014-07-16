@@ -44,11 +44,11 @@ val () = pthread_create_detached_cloptr(lam () =<lin,cloptr1> print_string("hell
 Hongwei はこの返信で、'lin' を使わないことによってクロージャの環境にリソースを含むことができないために、より制限された pthread_create_detached_cloptr
 のバージョンを示しています。
 
-A (somewhat contrived) example of usage below defines a function ‘test’ that takes as an argument a closure tagged as lin,cloptr1.
-It calls the closure and then frees it.
-In the ‘main’ function I use the cURL library to call ‘curl_global_init’.
-This returns a ‘pf_gerr’ resource that is used to track if the correct cURL cleanup routine is called.
-The following example compiles and runs fine:
+次の(いくらか不自然な)使用例では、lin,cloptr1 とタグのついたクロージャを引数に取る関数 'test'
+を定義しています。この例ではクロージャを呼び出した後、解放しています。'main'
+関数は 'curl_global_init' 関数を呼び出して cURL ライブラリを使っています。この関数は、cURL
+のクリーンアップルーチンが正しく呼び出されるかどうか追跡するために使う 'pf_gerr'
+リソースを返します。次の例はコンパイルして実行できます:
 
 ```ocaml
 staload "contrib/cURL/SATS/curl.sats"
@@ -65,13 +65,15 @@ in
 end;
 ```
 
-Compile with something like:
+次のようにしてコンパイルできます:
 
 ```
 atscc -o example example.dats -lcurl
 ```
 
-Notice that in the closure passed to ‘test’ the ‘pf_gerr’ resource is used. The means that resource is captured by the closure. A version without using ‘lin’ and ‘llam’ is:
+クロージャは 'test' 関数から渡された 'pf_gerr'
+リソースを使っていることに注意してください。これは、リソースがクロージャによって捕捉されることを意味しています。'lin' と 'llam'
+を使わないバージョンは次のようになります:
 
 ```ocaml
 staload "contrib/cURL/SATS/curl.sats"
@@ -88,13 +90,14 @@ in
 end;
 ```
 
-This produces the compile error showing that without the ‘lin’ tag a closure cannot capture resources:
+このコードは、'lin'
+タグがないのでクロージャがリソースを捕捉できないために、コンパイルエラーを引き起こします:
 
 ```
 example.dats: ...: the linear dynamic variable [pf_gerr] is expected to be local but it is not.
 ```
 
-A version that works without using ‘lin’:
+次のように修正すれば 'lin' を使わずに動作します:
 
 ```ocaml
 staload "contrib/cURL/SATS/curl.sats"
@@ -112,6 +115,7 @@ in
 end; 
 ```
 
-Here we have to explicitly pass the resource around in a number of places. The use of ‘lin’ and ‘llam’ makes the code shorter and easier to understand. In a later reply Hongwei goes on to say:
+このコードでは、複数の箇所でリソースを明示的に渡しています。'lin' と 'llam'
+を使うことで、コードを短かくそして理解しやすくできます。後の返信で、Hongwei は続けて次のようにコメントしています:
 
-> While linear closures containing resources may not be common, linear proof functions are common and very useful for manipulating and tracking resources.
+> リソースを含む線形クロージャは一般的ではないかもしれないが、線形証明関数は一般的でリソースを操作し追跡するためにとても有用だ。
