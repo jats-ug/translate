@@ -188,15 +188,25 @@ x = -1
 
 ## より複雑な例
 
-While the previous example is simple it does show the basic steps that need to be done in most ‘parworkshop’ usage. But in most parallel programming tasks you want the worker thread to process some data and return a result somehow. This result is then used for further processing. There are a few examples in the ATS distribution that show how to do this. I’ll cover one approach below.
+前の例は単純なものでしたが、ほとんど 'parworkshop' の使い方に必要な基本的なステップを示しています。しかしほとんどの並列プログラミングでは、worker
+スレッドになんらかのデータを処理させて、どうにかして結果を返したくなるでしょう。それからこの結果は後の処理に使われれるでしょう。ATS
+の配付版にはこのようなやり方を示す
+[いくつかの例](https://svn.code.sf.net/p/ats-lang/code/trunk/doc/EXAMPLE/MULTICORE/)
+があります。以下ではこのアプローチを解説しようと思います。
 
-A thread on programming.reddit.com recently resulted in a number of implementations of a simple programming task in various programming languages. Some of these were implemented in concurrent languages and I tried my hand at a version in ATS using ‘parworkshop’.
+[programming.reddit.com のあるスレッド](http://www.reddit.com/r/programming/comments/cy4m6/and_e_appears_from_nowhere_quick_numeric/)
+ではある単純なプログラミングタスクを様々なプログラミング言語で実装していました。それらのいくつかは並行な言語で実装されていました。そこで私は
+'parworkshop' を用いて ATS のバージョンを作ってみることにしました。
 
-The task involves approximating the value of the mathematical constant ‘e’ by taking the following approach (description from here):
+そのタスクは次のアプローチを使って数学定数 'e' の近似値を求めるものです (詳細は [こちら](http://www.mostlymaths.net/2010/08/and-e-appears-from-nowhere.html) を見てください):
 
-> Select a random number between 0 and 1. Now select another and add it to the first. Keep doing this, piling on random numbers. How many random numbers, on average, do you need to make the total greater than 1? The answer is e.
+> 0 と 1 の間のランダムな数を選びます。
+> さらに別のランダムな数を選び、それを1つ目に加えます。
+> これをランダムな数に対して繰り返しします。
+> 合計が 1 より大きくなるのに必要だったランダムな数の個数の平均が e です。
 
-The code to do this is fairly simple in ATS and you can see it in the completed result later. I ended up with a function called ‘n_attempts’ that takes the number of iterations to try and returns the count of the total number of attempts. This can then be divided by the iterations to get the average and therefore the estimation of ‘e’:
+このタスクに対応する ATS コードはまったく単純で、この記事の最後に完全なコードを入手できます。反復回数を取って試行回数の合計値を返す
+'n_attempts' と呼ばれる関数を作りました。そしてこれを反復回数で割ると平均が得られるので、'e' を見積ることができます:
 
 ```ocaml
 fun n_attempts (n:int): int
@@ -204,12 +214,14 @@ fun n_attempts (n:int): int
 var e = n_attempts(10000000) / double_of_int(10000000)
 ```
 
-To make use of multiple cores I decided on creatng a worker thread for each core. Each of these worker threads would run a portion of the total number of desired iterations. The unit of work is a data type ‘command’ that can be one of two things:
+マルチコアでを活用するために、それぞれのコアに worker スレッドを生成することにしました。これらそれぞれの
+worker スレッドは要求された反復回数全体の一部を実行しようとします。work
+要素は次の2つの事柄を表わしうるデータ型 'command' です:
 
-1. ‘Compute’ which tells the worker thread to perform a number of iterations. The ‘Compute’ contains a pointer to an integer that is used to hold the result produced by the worker thread.
-2. ‘Quit’ which tells the worker thread to exit.
+1. 'Compute' は worker スレッドに反復を実行させます。'Compute' は worker スレッドが生成した結果を保持する整数を指すポインタを含んでいます。
+2. 'Quit' は worker スレッドを終了させます。
 
-This data type is defined as:
+このデータ型は次のように定義されます:
 
 ```ocaml
 dataviewtype command = 
@@ -219,9 +231,11 @@ dataviewtype command =
 viewtypedef work = command
 ```
 
-Notice the use of ‘dataviewtype’ instead of ‘datatype’. The latter would require linking against the garbage collector to manage reclamation of the allocated data types. The former results in a ‘linear data type’ which needs to be explicitly free’d and therefore doesn’t need the garbage collector. My goal was to make this example not need the garbage collector.
+'datatype' の代わりに 'dataviewtype'
+を使っていることに注意してください。前者を使うには確保したデータ型を回収するガベージコレクタをリンクしなければなりません。後者は明示的に解放される必要がある
+'線形データ型' をもたらし、そのためガベージコレクタが不要なのです。私のゴールはガベージコレクタが不要な実装を作ることでした。
 
-The worker thread function looks like:
+worker スレッド関数は次のようになります:
 
 ```ocaml
 fun fwork {l:addr}
@@ -235,9 +249,13 @@ fun fwork {l:addr}
   | ~Quit () => 0
 ```
 
-It basically switches on the value of the work unit using a ‘case’ statement. In the case of ‘Quit’ it returns ‘0’ to exit the worker thread. In the case of ‘Compute’ it calls n_attempts with the number of iterations and stores the result in the integer pointer. It then returns ‘1’ for the worker thread to wait for more work units. The use of the ’~’ before the type in the ‘case’ statement tells ATS to release the memory for the linear type (‘Compute’ and ‘Quit’) so we don’t need to do it manually.
+このコードは基本的に 'case' 式を用いて work 要素の値で分岐しています。'Quit'
+の場合、worker スレッドを終了させるために '0' を返します。'Compute'
+の場合、反復回数ともなって n_attempts を呼び出して、結果を整数へのポインタに格納します。そして
+worker スレッドに '1' を返して、次の work 要素を待ち合わせさせます。'case' 式での型の直前に '~' を使うことで ATS
+に、線形型 ('Compute' と 'Quit') のメモリを解放させています。そのため手動で解放する必要がありません。
 
-When adding the work items to the workshop I create an array of ‘int’ to hold the results. I use a linear array and manually manage the memory:
+work 要素を workshop に追加するとき、結果を保持する 'int' の配列生成します。ここでは線形配列を使って、手動でメモリ管理をしています:
 
 ```ocaml
 #define NCPU 2
@@ -248,7 +266,8 @@ val () = array_ptr_initialize_elt<int>(!arr, NCPU, 0)
 val () = array_ptr_free {int} (pf_gc_arr, pf_arr | arr)
 ```
 
-When inserting the work items I need to create a ‘Compute’ and pass it a pointer to the ‘int’ where the result is stored. This pointer points to a single element of this array. The code to do this is:
+work 要素を挿入するとき、結果を格納する 'int' へのポインタを渡して 'Compute'
+を生成しなければなりません。このポインタは先の配列の単一の要素を指します。そのコードは次のようになります:
 
 ```ocaml
 fun loop {l,l2:agz} {n:nat} .< n >. (
@@ -268,41 +287,54 @@ fun loop {l,l2:agz} {n:nat} .< n >. (
   ...
 ```
 
-This code does some proof manipulations to take the proof that provides access to the entire array, and returns a proof for accessing a particular element. This ensures at compile time that the worker thread function can only ever access the memory for that single element. The magic that does this is ‘array_v_uncons’:
+このコードは、配列全体へのアクセスを提供する証明を取り、一部の要素へアクセスする証明を返すような証明操作をしています。これは
+worker スレッド関数が単一の要素のメモリにのみアクセスできることをコンパイル時に保証します。その魔法は 'array_v_uncons' にあります:
 
 ```ocaml
 prval (pf1, pf2) = array_v_uncons{int}(pf)
 ```
 
-‘pf’ is the proof obtained for the entire array (the ‘pf_arr’ returned from ‘array_ptr_alloc’). ‘array_v_uncons’ consumes this and returns two proofs. The first (‘pf1’ here) is an ‘int @ l’ for access to the first item in the array. The second (‘pf2’ here) is for the rest of the array.
+'pf' は配列全体にアクセスする証明 ('array_ptr_alloc' から返される 'pf_arr') です。'array_v_uncons'
+はこの証明を消費して2つの証明を返します。1つ目 'pf1' は配列の最初の要素にアクセスするための
+'int @ l' です。2つ目 'pf2' は配列の残りにアクセスするための証明です。
 
-We can now pass ‘pf1’ to ‘Compute’ along with the pointer to that integer. This is repeated until there are no more array items to process. Notice the recursive call to ‘loop’ increments the pointer by the size of an ‘int’. ATS is allowing us to efficiently work directly with C memory, but safely by requiring proofs that we can access the memory and that it contains valid data.
+これで整数へのポインタとともに 'pf1' を 'Compute'
+に渡すことができます。これを処理する配列の要素がなくなるまで繰り返します。'loop'
+への末尾呼出が 'int' サイズだけポインタを増加させていることに注意してください。ATS
+はC言語のメモリを効率良く扱えますが、安全のためにメモリアクセスの証明と有効なデータを含むことを要求します。
 
-The following line occurs after the ‘loop’ recursive call:
+'loop' 再帰呼出の後に次の行があります:
 
 ```ocaml
 prval () = pf := array_v_cons{int}(pf1, pf2)
 ```
 
-This is needed because ‘array_v_uncons’ consumed our proof held in ‘pf’. But the ‘loop’ definition states that ‘pf’ must not be consumed (that’s the ’!’ in “pf: !array_v(int, n, l2)”). This last line sets the proof of ‘pf’ back to the original by consing together the ‘pf1’ and ‘pf2’ we created when consuming ‘pf’.
+この行は、'array_v_uncons' によって 'pf' に保持された証明が消費されてしまっているために必要です。けれども
+("pf: !array_v(int, n, l2)" に '!' が付いているため) 'loop' の定義では 'pf' は消費されてはいけないのです。この最後の行は
+'pf' を消費したときに生成した 'pf1' と 'pf2' を一緒に繋げることで元の 'pf' の証明を復元しています。
 
-The other bit of trickery here is:
+他にも少しトリッキーな箇所があります:
 
 ```ocaml
 extern prfun __ref {l:addr} (pf: ! int @ l): int @ l
 prval xf = __ref(pf1)
 ```
 
-The ‘Compute’ constructor consumes the proof it is passed. If we pass ‘pf1’ it would be consumed and can’t be used in the ‘array_v_cons’ call later. This code creates a new proof ‘xf’ that is the same as the existing ‘pf1’ proof and passes it to the ‘Compute’ constructor. We later consume this proof manually inside the ‘fwork’ function. You probably noticed this code in the ‘fwork’ example earlier:
+'Compute' コンストラクタ渡された証明を消費します。もし 'pf1'
+を渡してしまうと、それは消費されてしまい、後の 'array_v_cons'
+呼び出しで使うことができません。このコードは既にある証明 'pf1'
+と同じ新しい証明 'xf' を生成して、それを 'Compute' コンストラクタに渡します。後で
+'fwork' 関数の中でこの証明を手動で消費します。以前の例の
+'fwork' 中で、以下のコードに気がついていたかもしれません:
 
 ```ocaml
 extern prfun __unref {l:addr} (pf: int @ l):void
 prval () = __unref(pf_p)
 ```
 
-This thread on the ATS mailing list discusses this and a better way of handling the issue using a ‘__borrow’ proof function which I haven’t yet implemented.
+このコードについて ATS メーリングリストにて、まだ私が使ったことがなかった '__borrow' 証明関数を用いたより良い方法について議論がありました。
 
-The entire program is provided below. Hopefully it’s easy to follow given the previous simple example and the above explanation of the more complicated bits:
+プログラム全体は以下のようになります。前の単純な例と上記の少しこみいった説明で理解しやすいと思います:
 
 ```ocaml
 staload "libc/SATS/random.sats"
@@ -416,8 +448,18 @@ in
 end
 ```
 
-Hongwei Xi has cleaned this up a bit by replacing ‘__ref’ and ‘__unref’ with ‘__borrow’ and using a stack allocated linear array for the results. This is included in the ATS distribution as randcomp_mt.dats. Looking at that code will hopefully help clarify how these things work when compared to this code I wrote.
+Hongwei Xi が '__ref' と '__unref' を '__borrow' で置き換え、スタックに確保された線形配列に結果を格納することで、このコードを少し綺麗にしてくれました。そのコードは
+[randcomp_mt.dats](https://svn.code.sf.net/p/ats-lang/code/trunk/doc/EXAMPLE/MULTICORE/randcompec_mt.dats)
+として ATS の配付版に含まれています。私が書いたコードと比較することで、その仕組みを理解する助けになればと思います。
 
-Compiling a single threaded version of the code (I posted it in the reddit thread here runs in about 30 seconds on my dual core machine. The ‘parworkshop’ version runs in about 16 seconds. The single threaded version uses ‘drand48’ whereas the ‘parworkshop’ version uses ‘dthread48_r’. The latter is needed otherwise the threads are serialized over a lock in ‘drand48’ for the random number state and the runtime is even slower than the single threaded version. Compiling with ‘-O3’ passed to ‘atscc’ speeds things up quite a bit too.
+[redditに投稿](http://www.reddit.com/r/programming/comments/cy4m6/and_e_appears_from_nowhere_quick_numeric/c0w6upk)
+したように、単一スレッドのバージョンを実行すると、私のデュアルコアのマシンで 30 秒かかりました。'parworkshop'
+を使ったバージョンは 16 秒でした。単一スレッドのバージョンでは 'drand48' を、'parworkshop' バージョンでは 'dthread48_r'
+を使いました。後者を使わないと、乱数の状態のために 'drand48'
+でのロックが発生して、スレッドがシリアライズされて、結果として単一スレッドのバージョンよりも実行時間が遅くなってしまいます。また速度をかせぐために
+'atscc' に '-O3' オプションを渡してコンパイルしました。
 
-My first attempt at using ‘parworkshop’ for this task is in this gist paste. Instead of a linear data type to hold the unit of work I used a linear closure and called it in the ‘fwork’ function to get the result. I took this approach originally based on the existing MULTICORE examples in ATS. In the end I opted for the linear datatype approach as I felt it was clearer.
+'parworkshop' を使ったこのタスクに対する最初の試みは [この gist](https://gist.github.com/doublec/514898)
+です。work 要素を保持するための線形データ型の代わりに、線形クロージャを作り、結果を取得するために 'fwork'
+関数中で呼び出しました。ATS に既にある例 MULTICORE
+に基づいてこのアプローチを取りました。結局、線形データ型のアプローチを選択したことで、より明確になったと感じました。
