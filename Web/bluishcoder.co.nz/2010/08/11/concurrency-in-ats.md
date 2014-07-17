@@ -28,7 +28,7 @@ staload "libats/DATS/parworkshop.dats"
 
 この SATS ファイルは関数とデータ型の宣言を含んでいます。この DATS ファイルはテンプレート関数のいくつかを実装するために必要です。
 
-'parworkshop' を使う作法は次のようなものです:
+'parworkshop' を使うステップは次のようなものです:
 
 1. 'workshop_make' を用いて workshop を生成します。
 2. 'workshop_add_worker' を用いて workshop に worker を追加します。それぞれの worker はネイティブスレッドです。
@@ -38,9 +38,12 @@ staload "libats/DATS/parworkshop.dats"
 6. 'workshop_wait_quit_all' を用いて全ての worker が終了するのを待ちます。
 7. 'workshop_free' もしくは 'workshop_free_vt_exn' を用いて worker を解放します。
 
-Each worker created in step 2 above is a native thread. This thread blocks on a queue after being created. ‘workshop_insert_work’ (step 3 above) adds items onto the queue. One of the worker threads will then wake up, call a function that gets the unit of work passed as an argument and then resume blocking on the queue. The function that gets called by the worker thread is one of the parameters in ‘workshop_make’ created in step 1.
+上記ステップ2で生成される worker はネイティブスレッドです。生成された後、このスレッドはキューでブロックします。(上記ステップ3で)
+'workshop_insert_work' はキューに要素を追加します。worker スレッドの1つが起きて、引数として渡された work
+を受け取って関数を呼び出します。そしてキューのブロックを解除します。worker スレッドによって呼び出された関数は、ステップ1で
+'workshop_make' に渡した引数の1つです。
 
-The definition of ‘workshop_make is:
+'workshop_make' の定義は次のようになります:
 
 ```ocaml
 fun{a:viewt@ype} workshop_make {n:pos} (
@@ -49,13 +52,20 @@ fun{a:viewt@ype} workshop_make {n:pos} (
 ) : WORKSHOPptr a
 ```
 
-From this you can see that ‘workshop_make’ is a template function that takes two arguments. The template function is parameterized over the type of the work item (the ‘a’ in the definition). The first of the two arguments is a number for the initial size of the queue that is used for adding work items. The second is a pointer to the function that gets called in a worker thread when a work item is added to the queue. That function must have the definition:
+上記のコードから、'workshop_make' は2つの引数を取る関数テンプレートであることが分かります。これは
+(この定義では 'a' である) work 要素の型がパラメータ化された関数テンプレートです。2つの引数の内、1つ目は
+work 要素を追加するのに使われるキューの初期サイズを表わす数です。2つ目は work
+要素がキューに追加された時に worker スレッドで呼び出される関数へのポインタです。
+その関数は次の型を持つ必要があります:
 
 ```ocaml
 {l:agz} (!WORKSHOPptr (a, l), &a >> a?) -<fun1> int
 ```
 
-This means the worker thread function receives as an argument the created workshop (ie. the result from ‘workshop_make’) and a reference to the work item. It returns an ‘int’ value. The return value of this worker function tells the worker thread whether it should quit or continue processing queue items. The return values are:
+This means the worker thread function receives as an argument the created workshop (ie. the result from ‘workshop_make’) and a reference to the work item.
+It returns an ‘int’ value.
+The return value of this worker function tells the worker thread whether it should quit or continue processing queue items.
+The return values are:
 
 * return status > 0 : the worker is to continue
 * return status = 0 : the worker is to quit
