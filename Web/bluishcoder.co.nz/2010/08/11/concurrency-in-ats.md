@@ -62,16 +62,17 @@ work 要素を追加するのに使われるキューの初期サイズを表わ
 {l:agz} (!WORKSHOPptr (a, l), &a >> a?) -<fun1> int
 ```
 
-This means the worker thread function receives as an argument the created workshop (ie. the result from ‘workshop_make’) and a reference to the work item.
-It returns an ‘int’ value.
-The return value of this worker function tells the worker thread whether it should quit or continue processing queue items.
-The return values are:
+この型は、worker スレッド関数が生成された
+(すなわち、'workshop_make' の返値である) workshop
+と work 要素へのリファレンスを引数として取ることを意味しています。その返値の型は
+'int' です。この worker 関数の返値は、worker
+スレッドが終了すべきか継続してキューの要素を処理すべきか、当該スレッドに通知します。その返値が:
 
-* return status > 0 : the worker is to continue
-* return status = 0 : the worker is to quit
-* return status = ~1 : the worker is to pause
+* > 0 なら worker は実行継続します
+* = 0 なら worker は終了します
+* = ~1 なら worker は休止します
 
-For example, a worker function that takes an ‘int’ as the unit of work and prints the value of it could be:
+例えば、'int' 型のwork の要素を取りその値を印字する worker 関数は、次のようになります:
 
 ```ocaml
 fun fwork {l:addr} (
@@ -84,7 +85,8 @@ in
 end
 ```
 
-In this example if the value of the ‘int’ is less than zero then the worker thread will quit. To create a workshop and some workers using this function:
+この例では、もし 'int' の値がゼロより小さければ worker は終了します。この関数を用いて
+workshop といくつかの worker を生成します:
 
 ```ocaml
 val ws = workshop_make<int>(1, fwork)
@@ -92,7 +94,9 @@ val _ = workshop_add_worker(ws)
 val _ = workshop_add_worker(ws)
 ```
 
-Notice that the type of the work unit (the ‘int’) is passed as a template parameter to ‘workshop_make’, very similar to C++ syntax for explicit use of template functions. To add work items:
+work 要素の型 (つまり 'int') がテンプレートパラメータとして 'workshop_make'
+に渡されていることに注意してください。これはテンプレート関数の明示的な使用という点で
+C++ の構文と良く似ています。次に work 要素を追加します:
 
 ```ocaml
 val () = workshop_insert_work(ws, 1)
@@ -100,7 +104,8 @@ val () = workshop_insert_work(ws, 2)
 val () = workshop_insert_work(ws, 3)
 ```
 
-This will queue three items which will cause the threads to wake up and start processing them. We can then use ‘workshop_wait_blocked_all’ to wait for them to finish and post work items telling the worker threads to quit:
+このコードは3つの要素をキューに挿入し、スレッドを起こしてそれらを処理させます。それから 'workshop_wait_blocked_all'
+を用いてそれらが完了するのを待ち合わせて、worker スレッドを終了させる work 要素を挿入します:
 
 ```ocaml
 val () = workshop_wait_blocked_all(ws)
@@ -111,14 +116,16 @@ val () = while(i < nworker) let
          in i := i + 1 end  
 ```
 
-This uses ‘workshop_get_nworker’ to get a count of the number of worker threads that exist. Then loops up to this count inserting a work item less than zero to cause those worker threads to exit. The final steps are to wait until they quit and free the workshop:
+このコードは 'workshop_get_nworker' を用いて、現存する worker スレッドの数を得ます。それからスレッドの数だけループして、それらの
+worker スレッドを終了させるようにゼロより小さい work 要素を挿入します。最後のステップではそれらが終了するまで待ち合わせた後、workshop
+を解放します:
 
 ```ocaml
 val () = workshop_wait_quit_all(ws)
 val () = workshop_free(ws)
 ```
 
-The complete program is:
+完全なプログラムは次のようになります:
 
 ```ocaml
 staload "libats/SATS/parworkshop.sats"
@@ -158,13 +165,14 @@ in
 end
 ```
 
-This can be compiled with (assuming it’s in a file called ‘eg1.dats’):
+このコード (そのファイル名が 'eg1.dats' だとすると)
+は次のようにコンパイルできます:
 
 ```
 atscc -o eg1 eg1.dats -D_ATS_MULTITHREAD -lpthread
 ```
 
-Running it gives:
+実行すると次の出力が得られます:
 
 ```
 $ ./eg1
@@ -175,9 +183,10 @@ x = -1
 x = -1
 ```
 
-Note that ‘parworkshop’ makes use of the type system to ensure that resources are used correctly. It is a compile time error for example not to call ‘workshop_free’.
+'parworkshop' は型システムを利用して、リソースが正しく使用されることを保証していることに注意してください。上記の例で
+'workshop_free' を呼び出さない場合、コンパイル時エラーになります。
 
-## More complex example
+## より複雑な例
 
 While the previous example is simple it does show the basic steps that need to be done in most ‘parworkshop’ usage. But in most parallel programming tasks you want the worker thread to process some data and return a result somehow. This result is then used for further processing. There are a few examples in the ATS distribution that show how to do this. I’ll cover one approach below.
 
