@@ -373,20 +373,20 @@ val a = cons(1, cons(2, cons(10, cons(12, nil))))
 
 ## 赤黒木
 
-The paper
+論文
 [Dependently Typed Datastructures](http://www.ats-lang.org/PAPER/DTDS-waaapl99.pdf)
-has an example of using dependently typed datatypes to implement
-[red-black trees](http://en.wikipedia.org/wiki/Red-black_tree). The paper uses the language
-[DML](http://www.cs.bu.edu/~hwxi/DML/DML.html). I’ve translated this to ATS in the example that follows.
+には依存型のデータ型を用いた
+[赤黒木](http://en.wikipedia.org/wiki/Red-black_tree)
+の例があります。この論文では [DML](http://www.cs.bu.edu/~hwxi/DML/DML.html) 言語を使っています。私はこの例を ATS に翻訳してみました。
 
-A red-black tree is a balanced binary tree which satisfies the following conditions:
+赤黒木は次の条件を満たすような平衡二分木です:
 
-* All nodes are marked with a colour, red or black.
-* All leaves are marked black and all other nodes are either red or black.
-* For every node there are the same number of black nodes on every path connecting the node to a leaf. This is called the black height of the node.
-* The two sons of every red node must be black.
+* 全てのノードは赤もしくは黒の色をもつ。
+* 全ての葉は黒で、その他のノードは赤もしくは黒。
+* 任意のノードについて、そのノードから葉を結ぶ全てのパスには同じ個数の黒ノードがある。これはそのノードの黒高さと呼ばれる。
+* 全ての赤ノード2つの子は黒でなければならない。
 
-These constraints can be defined in the red-black tree datatype ensuring that the tree is always balanced and correct as per the conditions above. It becomes impossible to implement functions that produce a tree that is not a correct red-black tree since it won’t typecheck. This can be defined as:
+これらの制約は赤黒木のデータ型で定義でき、上記の条件を満たし常のバランスするような木を保証できます。正しい赤黒木でない木を生成する関数を実装することが、型検査によって不可能になるのです。これは次のように定義できます:
 
 ```ocaml
 sortdef color = {c:nat | 0 <= c; c <= 1}
@@ -403,13 +403,16 @@ datatype rbtree(int, int, int) =
        of (rbtree(cl, bh, 0), int, rbtree(cr, bh, 0))
 ```
 
-The type rbtree is indexed by (int, int, int). These are the color of the node, the black height of the tree and the number of color violations respectively. The later is a count of the number of times a red node is followed by another red node. From the conditions given earlier it can be seen than a correct rbtree should always have a color violation number of zero.
+型 rbtree は (int, int, int) をインデックスとしています。それらはそれぞれ、ノードの色、木の黒高さ、色の違反回数です。最後のインデックスは赤ノードが連続する回数です。最初の条件から、正しい rbtree は必ず色の違反回数がゼロにならなければなりません。
 
-The constructor, E, is a leaf node. This node is black, has a height of zero and no color violations. It is a valid rbtree.
+コンストラクタ E は葉ノードです。このノードは黒で、高さはゼロ、色の違反はありません。この木は有効な rbtree です。
 
-The constructor B is a black node. It takes 3 arguments. The left child node, the integer value stored as the key, and the right child node. The type for a node constructed by B is black, has a height one greater than the child nodes and no color violations. Note that the black height of the two child nodes must be equal.
+コンストラクタ B は黒ノードです。このコンストラクタは3つの引数を取ります。それらは、左の子ノード、ノードに保管される整数値、右の子ノードです。B でコンストラクトされたノードの型は、黒で、子ノードより1大きい高さを持ち、色の違反はありません。2つの子ノードの黒高さは等しくなければならないことに注意してください。
 
-The constructor R is a red node. It takes 3 arguments, the same as the B constructor. As this is a red node it doesn’t increase the black height so uses the same value of the child nodes. The color violations value is calculated by adding the color values of the two child nodes. If either of those are red then the color violations will be non-zero.
+コンストラクタ R は赤ノードです。このコンストラクタは3つの引数を取り、それらは B コンストラクタと同じものです。
+As this is a red node it doesn’t increase the black height so uses the same value of the child nodes.
+The color violations value is calculated by adding the color values of the two child nodes.
+If either of those are red then the color violations will be non-zero.
 
 The type for a function that inserts a key into the tree can now be defined as:
 
@@ -420,9 +423,12 @@ fun insert {c:color} {bh:nat} (
   ): [c:color] [bh:nat] rbtree(c, bh, 0)
 ```
 
-This means our implementation of insert must return a correct rbtree. It cannot have a color violations value that is not zero so it must conform to the conditions we outlined earlier. If it doesn’t, it won’t compile.
+This means our implementation of insert must return a correct rbtree.
+It cannot have a color violations value that is not zero so it must conform to the conditions we outlined earlier.
+If it doesn’t, it won’t compile.
 
-When inserting a node into the tree we can end up with a tree where the red-black tree conditions are violated. A function restore is defined below that pattern matches the combinations of invalid nodes and performs the required transformations to return an rbtree with no violations:
+When inserting a node into the tree we can end up with a tree where the red-black tree conditions are violated.
+A function restore is defined below that pattern matches the combinations of invalid nodes and performs the required transformations to return an rbtree with no violations:
 
 ```ocaml
 fun restore {cl,cr:color} {bh:nat} {vl,vr:nat | vl+vr <= 1} (
@@ -438,11 +444,17 @@ fun restore {cl,cr:color} {bh:nat} {vl,vr:nat | vl+vr <= 1} (
     | (a,x,b) =>> B(a,x,b)
 ```
 
-The type of the restore function states that it takes a left and right node, one of which may have a color violation, and returns a correctly formed red-black tree node. It’s time consuming and error prone to look at the code and determine that it covers all the required cases to return a correctly formed tree. However the type checker will do this for us thanks to the constraints that have defined on the function and the rbtree type. It won’t compile if any of the pattern match lines are removed for example.
+The type of the restore function states that it takes a left and right node, one of which may have a color violation, and returns a correctly formed red-black tree node.
+It’s time consuming and error prone to look at the code and determine that it covers all the required cases to return a correctly formed tree.
+However the type checker will do this for us thanks to the constraints that have defined on the function and the rbtree type.
+It won’t compile if any of the pattern match lines are removed for example.
 
 The use of =>> in the last pattern match line is explained in the
 [tutorial on pattern matching](http://www.ats-lang.org/htdocs-old/TUTORIAL/contents/pattern-matching.html).
-The ATS typechecker will typecheck each pattern line independently of the others. This can cause a typecheck failure in the last match since it doesn’t take into account the previous patterns and can’t determine that the color violation value of a in the result will be zero. By using =>> we tell ATS to typecheck the clause under the assumption that the other clauses have not been taken. Since they all handle the non-zero color violation case this line will then typecheck.
+The ATS typechecker will typecheck each pattern line independently of the others.
+This can cause a typecheck failure in the last match since it doesn’t take into account the previous patterns and can’t determine that the color violation value of a in the result will be zero.
+By using =>> we tell ATS to typecheck the clause under the assumption that the other clauses have not been taken.
+Since they all handle the non-zero color violation case this line will then typecheck.
 
 The insert function itself is implemented as follows:
 
@@ -478,7 +490,8 @@ from the ATS website.
 
 ## Linear constraints
 
-The constraints generated by the dependent types must be ‘linear’ constraints. An example of a linear constraint is the definition of ‘list_append’ earlier:
+The constraints generated by the dependent types must be ‘linear’ constraints.
+An example of a linear constraint is the definition of ‘list_append’ earlier:
 
 ```ocaml
 fun{a:t@ype} list_append {n1,n2:nat} (
@@ -486,7 +499,8 @@ fun{a:t@ype} list_append {n1,n2:nat} (
   ): list (a, n1+n2)
 ```
 
-The result type containing n1+n2 will typecheck fine. However an example that won’t typecheck is the following definition of a list_concat:
+The result type containing n1+n2 will typecheck fine.
+However an example that won’t typecheck is the following definition of a list_concat:
 
 ```ocaml
 fun{a:t@ype} list_concat {n1,n2:nat} (
@@ -494,14 +508,19 @@ fun{a:t@ype} list_concat {n1,n2:nat} (
   ): list (a, n1*n2)
 ```
 
-The n1*n2 results in a non-linear constraint being generated and the ATS typechecker cannot resolve this. The solution for this is to use theoreom-proving. See chapter 6 in the
+The n1*n2 results in a non-linear constraint being generated and the ATS typechecker cannot resolve this.
+The solution for this is to use theoreom-proving.
+See chapter 6 in the
 [ATS user guide](http://www.ats-lang.org/htdocs-old/DOCUMENT/MISC/manual_main.pdf)
 for details and an example using concat.
 
 ## Closing notes
 
-Although I create my own list types in these examples, ATS has lists, vectors and many other data structures in the standard library.
+Although I create my own list types in these examples,
+ATS has lists, vectors and many other data structures in the standard library.
 
-There’s a lot more that can be done with ATS and dependent types. For more examples see the papers mentioned at the beginning at throughout this post. The paper
+There’s a lot more that can be done with ATS and dependent types.
+For more examples see the papers mentioned at the beginning at throughout this post.
+The paper
 [Why Dependent Types Matter](http://lambda-the-ultimate.org/node/693)
 is also useful reading for more on the topic.
