@@ -233,7 +233,7 @@ n で定義されているためです。前の多相的なリストの例での
 
 ## フィルタ
 
-It is not always possible to know the exact length of a result list which could make encoding the type problematic. A filter function that takes a list and returns a result list containing only those elements that return true when passed to a predicate function for example. In this case the typechecker would need to be able to call the predicate function to be able to determine the length of the result list. The following does not type check:
+結果のリストの正確な長さをいつも知ることができるとは限りません。型にエンコードできるか問題になります。例として、1つのリスト取って、述語関数に渡すと真を返すような要素だけを含む結果のリストを返すような、フィルタ関数を挙げることができます。この場合、型検査器は述語関数を呼び出して、結果のリストの長さを決定できなければなりません。次のコードは型検査を通りません:
 
 ```ocaml
 fun{a:t@ype} list_filter {m:nat} (
@@ -245,7 +245,7 @@ fun{a:t@ype} list_filter {m:nat} (
   | cons (x, xs) => if f(x) then cons(x, list_filter(xs, f)) else list_filter(xs, f)
 ```
 
-In this erroneous example the result is defined as a list of length m. But it won’t be of length m if the result of the predicate function means elements are skipped. A definition that typechecks uses an existential type definition (the [n:nat]) to define the result length as being a different value:
+この誤った例では、その結果は長さ m のリストとして定義されています。しかし述語関数が要素をスキッップしてしまったら、結果は長さ m になりません。異なる値を持つ結果の長さを定義するために、存在量化型 ([n:nat]) を使ってみます:
 
 ```ocaml
 fun{a:t@ype} list_filter {m:nat} (
@@ -257,7 +257,7 @@ fun{a:t@ype} list_filter {m:nat} (
   | cons (x, xs) => if f(x) then cons(x, list_filter(xs, f)) else list_filter(xs, f)
 ```
 
-This unfortunately means that the typechecker won’t detect some examples of erroneous code. We’d like this to fail to compile if it results in a result list which is larger than the original list which should be impossible:
+不幸にも上記のコードは、型検査器が誤ったコードを検出できない場合があることを意味してしまっています。元のリストより長いリストを結果として返す以下のようなコードをコンパイルエラーにしたいのです:
 
 ```ocaml
 fun{a:t@ype} list_filter {m:nat} (
@@ -269,7 +269,7 @@ fun{a:t@ype} list_filter {m:nat} (
   | cons (x, xs) => if f(x) then cons(x, cons(x, list_filter(xs, f))) else list_filter(xs, f)
 ```
 
-The solution to this is to limit the existential type in the result to be all natural numbers less than or equal to the length of the input list:
+この問題に対する解決策は、結果の存在量化型を入力のリストの長さ以下の自然数に限定することです:
 
 ```ocaml
 fun{a:t@ype} list_filter {m:nat} (
@@ -281,14 +281,15 @@ fun{a:t@ype} list_filter {m:nat} (
   | cons (x, xs) => if f(x) then cons(x, list_filter(xs, f)) else list_filter(xs, f)
 ```
 
-Note the [n:nat | n <= m] which defines the limit. This will now fail to compile the erroneous code but sucessfully compile the correct code. It won’t catch all possible errors but is better at catching some errors that the previous version.
+[n:nat | n <= m] が境界を定義していることに注意してください。このおかげで誤ったコードはコンパイルに失敗し、正しいコードはコンパイルに成功するようになります。エラーの可能性全てを捕えることはできませんが、前のバージョンよりもエラーの捕捉という点ではより良いものでしょう。
 
-The complete example program is in
-[dt4.dats](http://bluishcoder.co.nz/ats/dt4.dats) ([html](http://bluishcoder.co.nz/ats/dt4.html)).
+このプログラムの完全な例は
+[dt4.dats](http://bluishcoder.co.nz/ats/dt4.dats) ([html](http://bluishcoder.co.nz/ats/dt4.html))
+にあります。
 
-## Drop
+## ドロップ
 
-The implementation of a list_drop function, which removes the first n items from a list, also has a similar problem to that of list_filter. This definition won’t typecheck:
+リストから先頭の n 要素を取り除く、list_drop 関数の実装もまた list_filter と似た問題をかかえています。以下の定義は型検査を通りません:
 
 ```ocaml
 fun{a:t@ype} list_drop {m:nat} (
@@ -300,7 +301,9 @@ fun{a:t@ype} list_drop {m:nat} (
   | cons (x, xs2) => if count > 0 then list_drop(xs2, count - 1) else xs
 ```
 
-Like list_filter this is due to the wrong size being used in the result list. We could use the same solution as list_filter which is to set the size using an existential type definition but in this case we actually know the result size. It is based on the count that is passed as an argument. The result list size should be the same as the input list, less the count. Here’s the new definition:
+list_filter のように、このエラーは結果のリストで使っている長さが誤っているためです。list_filter
+と同じ解決策を使って、存在量化型で長さを決めることもできますが、この場合には結果の長さは判明しています。引数として渡される
+count を使います。結果のリストの長さは、入力のリストの長さから count を減じた長さと等しくなるべきです。新しい定義は次のようになります:
 
 ```ocaml
 fun{a:t@ype} list_drop {m,n:nat | n <= m} (
@@ -312,12 +315,15 @@ fun{a:t@ype} list_drop {m,n:nat | n <= m} (
   | cons (x, xs2) => if count > 0 then list_drop(xs2, count - 1) else xs
 ```
 
-This version will typecheck correctly. It will give a compile time error if the implementation incorrectly produces a list that is not exactly the expected size. It will also be a compile time error if the given count of items to drop is greater than the size of the list.
+上記のバージョンは型検査を正常に通ります。もし誤った実装が期待された長さと異なるリストを生成したら、コンパイル時エラーになります。ドロップする要素数 count がリストの長さより大きい場合にも、コンパイル時エラーになります。
 
-This is done by making count a singleton integer. Its type is an integer of a specific value, called n. When n is declared we state that it must be less than the size of the list, m, as seen by the definition {m,n:nat | n <= m}. The result list is required to be of size m-n.
+この検査は count をシングルトン整数にすることで実現しています。その型は n という特別な値の整数です。n
+はリストのサイズ m 以下になるように {m,n:nat | n <= m} で定義されています。結果のリストは長さ m-n
+であることを要求されています。
 
-The complete example program is in
-[dt5.dats](http://bluishcoder.co.nz/ats/dt5.dats) ([html](http://bluishcoder.co.nz/ats/dt5.html)).
+このプログラムの完全な例は
+[dt5.dats](http://bluishcoder.co.nz/ats/dt5.dats) ([html](http://bluishcoder.co.nz/ats/dt5.html))
+にあります。
 
 ## Lists that depend on their values
 
