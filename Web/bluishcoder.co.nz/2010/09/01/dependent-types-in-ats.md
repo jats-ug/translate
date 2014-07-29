@@ -56,7 +56,9 @@ ATS のドキュメントではこの制約された言語は ATS の '静的な
 
 ## 単純なリスト
 
-Before I get into datatypes that use dependent types, I’ll do a quick overview of non-dependent types for those not familiar with ATS syntax. A basic ‘list’ type that can contain integers can be defined in ATS as:
+依存型を用いたデータ型に入る前に、ATS
+の構文に馴染みのない人のために依存型ではない型についておさらいしてみましょう。整数を含む基本的な
+'リスト' 型は次のように ATS で定義できます:
 
 ```ocaml
 datatype list =
@@ -64,13 +66,13 @@ datatype list =
   | cons of (int, list)
 ```
 
-With this type defined a list of integers can be created using the following syntax:
+この定義された型を用いて、整数のリストは次の構文を使って生成できます:
 
 ```ocaml
 val a = cons(1, cons(2, cons(3, cons(4, nil))))
 ```
 
-Functions that operate over lists can use pattern matching to deconstruct the list:
+リストを操作する関数ではリストを分解するためにパターンマッチを使うことができます:
 
 ```ocaml
 fun list_length(xs: list): int = 
@@ -84,19 +86,19 @@ fun list_append(xs: list, ys:list): list =
   | cons (x, xs) => cons(x, list_append(xs, ys))
 ```
 
-A complete example program is in
+プログラムの完全な例は
 [dt1.dats](http://bluishcoder.co.nz/ats/dt1.dats) ([html](http://bluishcoder.co.nz/ats/dt1.html)).
-This can be built with the command:
+にあります。このプログラムは次のコマンドでビルドできます:
 
 ```
 atscc -o dt1 -D_ATS_GCATS dt1.dats
 ```
 
-Note the -D_ATS_GCATS. This tells the ATS compiler to link against the garbage collector. This is needed as types defined with datatype are allocated on the heap and require the garbage collector to be released.
+-D_ATS_GCATS に注意してください。このオプションは ATS コンパイラにガベージコレクタをリンクさせます。このオプションは、データ型で定義した型をヒープに確保するために必要で、その解放にガーベッジコレクタを要求します。
 
-## Polymorphic Lists
+## 多相的なリスト
 
-Instead of a list of integers we might want lists of different types. A list that is polymorphic can be defined using:
+整数のリストの代わりに、異なる型のリストを作りたいとしましょう。多相的なリストは次のように定義できます:
 
 ```ocaml
 datatype list (a:t@ype) =
@@ -104,7 +106,9 @@ datatype list (a:t@ype) =
   | cons (a) of (a, list a)
 ```
 
-Here the list can hold elements that are of any size. This is what the t@ype refers to. The functions that operate on these polymorphic lists are similar to the non-polymorphic list versions. The difference is they are ‘template’ functions and are parameterized by the template type:
+このリストはどのようなサイズの要素も保持することができます。その要素は t@ype
+によって参照されています。このような多相的なリストを操作する関数は多相的でないリストのバージョンと良く似ています。異なる点は、それらの関数が
+'テンプレート' 関数であることと、テンプレート型によってパラメータ化されていることです:
 
 ```ocaml
 fun{a:t@ype} list_length (xs: list a): int = 
@@ -124,15 +128,17 @@ fun{a,b:t@ype} list_zip(xs: list a, ys: list b): list ('(a,b)) =
   | (_, _) => nil ()
 ```
 
-The {a:t@ype} immediately after the fun keyword identifies the function as a template function. These are very similar to C++ style templates. See the
+fun キーワード直後の {a:t@ype} によってその関数はテンプレート関数とみなされます。これは C++
+スタイルのテンプレートにとても良く似ています。より詳しくは
 [ATS Parametric Polymorphism and Templates tutorial](http://www.ats-lang.org/htdocs-old/TUTORIAL/contents/templates.html)
-for more details.
+を参照してください。
 
-This example adds a definition for list_zip now that lists of things other than integers can be created. In this example we return a list of tuples. Each tuple contains the elements from the original source lists.
+この例では整数以外の値のリストを生成でき、さらに list_zip
+の定義を追加しています。この例の定義ではタプルのリストを返しています。それぞれのタプルは元のリストの要素を含んでいます。
 
-The complete example program is in
-[dt2.dats](http://bluishcoder.co.nz/ats/dt2.dats) ([html](http://bluishcoder.co.nz/ats/dt2.html)).
-The example program has the following code:
+完全なプログラム例は
+[dt2.dats](http://bluishcoder.co.nz/ats/dt2.dats) ([html](http://bluishcoder.co.nz/ats/dt2.html))
+にあります。プログラム例は次のようなコードを含んでいます:
 
 ```ocaml
 val a = cons(1, cons(2, cons(3, cons(4, nil))))
@@ -144,13 +150,15 @@ val d = list_zip(a, c) // <== different lengths!
 val lend = list_length(d)
 ```
 
-Note that the length of list a is 4, whereas the length of list d is 8. Calling list_zip with these two different lengthed lists results in a list of length 4 being returned.
+リスト c の長さが 8 であるのに、リスト a の長さが 4 であることに注意してください。2つの異なる長さのリストに list_zip
+を呼び出すと、この場合、長さ 4 のリストが返ります。
 
-We can encode the length of a list as part of the type to get a compile error if an attempt is made to zip two lists with different lengths. The length that is part of the type would be a dependent type (as the length is the value of an expression - the integer length of the list).
+リストの長さを型の一部にエンコードすることで、異なる長さの2つのリストを zip
+しようとしたらコンパイルエラーにすることができます。型の一部となった長さが依存型です。
 
-## Dependently Typed Lists
+## 依存型のリスト
 
-The following datatype definition defines a polymorphic list of length n, where n is an integer:
+次のデータ型は、長さ n の多相的なリストを定義しています。このとき n は整数です:
 
 ```ocaml
 datatype list (a:t@ype, int) =
@@ -158,9 +166,12 @@ datatype list (a:t@ype, int) =
   | {n:nat} cons (a, n+1) of (a, list (a, n))
 ```
 
-It is very similar to the previous polymorphic list definition except for the additional int. The type constructor for nil has this set to 0. A nil list is a list of length 0. The cons type constructor shows that the cons of a list of length n will be a list of length n+1. The {n:nat} constrains the type of n to be natural numbers (non-negative integers).
+これは、int が追加されたことを除いて、前の多相的なリストの定義と良く似ています。nil
+型コンストラクタはこの int を 0 に設定しています。リストが nil の時、リストの長さは 0 なのです。cons
+型コンストラクタは長さ n のリストの cons が、長さ n+1 のリストになることを表わしています。{n:nat}
+は (非負の整数である) 自然数を表わす n の型を制約しています。
 
-The implementation of the functions shown previous for this new list type are function templates as they were in the previous example. They also have the additional parameter for the length value:
+この新しいリスト型に対する関数の実装は、前の例と同様に関数テンプレートです。またこれらの関数は長さの値を表わす追加のパラメータを取ります:
 
 ```ocaml
 fun{a:t@ype} list_length {n:nat} (xs: list (a, n)): int n = 
@@ -179,7 +190,7 @@ fun{a,b:t@ype} list_zip {n:nat} (xs: list (a, n), ys: list (b, n)): list ('(a,b)
   | (cons (x, xs), cons (y, ys)) => cons('(x,y), list_zip(xs, ys))
 ```
 
-Notice the type of the return value of list_length is the type for the specific integer value of n - which is the length of the list. This means that any error in the implementation that would result in a different value being returned is a compile time error. For example, this won’t typecheck:
+list_length の返値の型は、リストの長さである n で特殊化された整数値の型であることに注意してください。これはこの実装に異なった値を返すようなエラーがあっても、コンパイル時エラーになることを意味しています。例えば、以下のコードは型検査を通りません:
 
 ```ocaml
 fun{a:t@ype} list_length {n:nat} (xs: list (a, n)): int n = 
@@ -188,7 +199,7 @@ fun{a:t@ype} list_length {n:nat} (xs: list (a, n)): int n =
   | cons (_, xs) => 1 + list_length(xs)
 ```
 
-Similarly the type of the return value of list_append is defined as being a list of length n1+n2. That is, the sum of the length of the two input lists. The following will fail with a compile error:
+同様に list_append の返値の型は、長さ n1+n2 のリストとして定義されます。つまり、入力された2つのリストの長さの合計です:
 
 ```ocaml
 fun{a:t@ype} list_append {n1,n2:nat} (xs: list (a, n1), ys: list (a, n2)): list (a, n1+n2) =
@@ -197,12 +208,30 @@ fun{a:t@ype} list_append {n1,n2:nat} (xs: list (a, n1), ys: list (a, n2)): list 
   | cons (x, xs) => cons(x, list_append(xs, ys))
 ```
 
-It is now a compile error to pass lists of different lengths to list_zip. This is because both input arguments are defined to be of the same length n. This list_zip usage from the previous polymorphic list example is now a compile error.
+次のコードはコンパイルエラーになります:
 
-The complete example program is in
-[dt3.dats](http://bluishcoder.co.nz/ats/dt3.dats) ([html](http://bluishcoder.co.nz/ats/dt3.html)).
+```ocaml
+fun{a,b:t@ype} list_zip {n:nat} (xs: list (a, n), ys: list (b, n)): list ('(a,b), n) =
+  case+ (xs, ys) of
+  | (nil (), nil ()) => nil ()
+  | (cons (x, xs), cons (y, ys)) => cons('(x,y), list_zip(xs, ys))
 
-## Filter
+implement main() = let
+  val a = cons(1, cons(2, cons(3, cons(4, nil))))
+  val b = cons(5, cons(6, cons(7, cons(8, nil))))
+  val c = list_append(a, b)
+  val d = list_zip(a, c) // <== different lengths!
+```
+
+このコンパイルエラーは、異なる長さのリストを list_zip に渡していることに起因します。両方の引数が同じ長さ
+n で定義されているためです。前の多相的なリストの例での list_zip
+の使い方は、このコードではコンパイルエラーになるのです。
+
+このプログラムの完全な例は
+[dt3.dats](http://bluishcoder.co.nz/ats/dt3.dats) ([html](http://bluishcoder.co.nz/ats/dt3.html))
+にあります。
+
+## フィルタ
 
 It is not always possible to know the exact length of a result list which could make encoding the type problematic. A filter function that takes a list and returns a result list containing only those elements that return true when passed to a predicate function for example. In this case the typechecker would need to be able to call the predicate function to be able to determine the length of the result list. The following does not type check:
 
