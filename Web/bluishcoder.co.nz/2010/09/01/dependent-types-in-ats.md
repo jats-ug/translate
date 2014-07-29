@@ -325,9 +325,9 @@ fun{a:t@ype} list_drop {m,n:nat | n <= m} (
 [dt5.dats](http://bluishcoder.co.nz/ats/dt5.dats) ([html](http://bluishcoder.co.nz/ats/dt5.html))
 にあります。
 
-## Lists that depend on their values
+## 要素に依存したリスト
 
-The previous list examples were datatypes that were dependant on the size of the list. It’s also possible to depend on the value stored in the list itself. The following is the definition for a list that can only hold even numbers:
+これまでのリストの例はリストの長さに依存したデータ型でした。リスト自身に保管されている要素に依存することも可能です。次の定義は偶数のみを含むことができるリストです:
 
 ```ocaml
 datatype list =
@@ -335,16 +335,17 @@ datatype list =
   | {x:int | (x mod 2) == 0 } cons of (int x, list)
 ```
 
-The cons constructor takes an int and a list. It is dependant on the value of the int with the constraint that the value of the int must be divisible by 2. It is now a compile error to put an odd number into the list. This won’t typecheck due to the attempt to pass the odd number 3 to cons:
+cons コンストラクタは整数とリストを取ります。リストは、整数の値が2で割り切れなければならないという制約付きで、その整数の値に依存しています。ここでリストに奇数を入れようとするとコンパイルエラーになります。奇数 3 を cons に渡そうとしているため、以下のコードは型検査を通りません:
 
 ```ocaml
 val a = cons(2, cons(3, cons(10, cons(6, nil))))
 ```
 
-The complete example program is in
-[dt6.dats](http://bluishcoder.co.nz/ats/dt6.dats) ([html](http://bluishcoder.co.nz/ats/dt6.html)).
+このプログラムの完全な例は
+[dt6.dats](http://bluishcoder.co.nz/ats/dt6.dats) ([html](http://bluishcoder.co.nz/ats/dt6.html))
+にあります。
 
-Another example of a list that depends on its values might be a list where all elements must be less than 100 and in order. It should be a type error to construct an unordered list.
+要素に依存したリストの別の例として、全ての要素が 100 未満で順番に格納されたリストがあるでしょう。整列されていないリストをコンストラクトしようとすると、このリストは型エラーになります。
 
 ```ocaml
 datatype olist (int) =
@@ -352,24 +353,25 @@ datatype olist (int) =
   | {x,y:int | x <= y} cons (x) of (int x, olist (y))
 ```
 
-An olist is dependent on an int. This int is an integer value that all elements consed to the list must be less than. The nil constructor uses 100 for the value to show that all items must be less than 100. Like the previous example, the cons constructor depends on the first argument. It uses this in the constraint to ensure it is less than the dependant value of the tail list (the y).
+olist は int に依存しています。そのリストに cons された全ての要素は、この int で表わされた整数値より小さくなるべきです。nil コンストラクタは、全ての要素が 100 より小さくなることを示す値として 100 を使います。これまでの例のように、cons コンストラクタは1つ目の引数に依存しています。その引数は tail リストの依存型の値 y 以下になることを強制されています。
 
-Out of order construction like the following will be a type error:
+次のような順序が乱れたリストのコンストラクトは型エラーになります:
 
 ```ocaml
 val a = cons(1, cons(12, cons(10, cons(12, nil))))
 ```
 
-Whereas this is fine:
+一方、次のコードは問題ありません:
 
 ```ocaml
 val a = cons(1, cons(2, cons(10, cons(12, nil))))
 ```
 
-The complete example program is in
-[dt7.dats](http://bluishcoder.co.nz/ats/dt7.dats) ([html](http://bluishcoder.co.nz/ats/dt7.html)).
+このプログラムの完全な例は
+[dt7.dats](http://bluishcoder.co.nz/ats/dt7.dats) ([html](http://bluishcoder.co.nz/ats/dt7.html))
+にあります。
 
-## Red-Black Trees
+## 赤黒木
 
 The paper
 [Dependently Typed Datastructures](http://www.ats-lang.org/PAPER/DTDS-waaapl99.pdf)
