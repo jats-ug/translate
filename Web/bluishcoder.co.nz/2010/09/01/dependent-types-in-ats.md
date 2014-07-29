@@ -2,47 +2,59 @@
 
 (元記事は http://bluishcoder.co.nz/2010/09/01/dependent-types-in-ats.html です)
 
-Dependent types are types that depend on the values of expressions.
-[ATS](http://www.ats-lang.org/) uses dependent types and in this post I hope to go through some basic usage that I’ve learnt as I worked my way through the documentation, examples and various papers.
+依存型は式の値に依存した型のことです。[ATS](http://www.ats-lang.org/)
+では依存型を使うことができます。この記事では私がドキュメントと例、そして様々な論文を通じて学んだ、いくかの基本的な使用法を紹介しようと思います。
 
-While learning about dependent types in ATS I used the following resources:
+ATS における依存型を学習するにあたって、私は以下の文書を参考にしました:
 
 * [Tutorial on ATS datatypes](http://www.ats-lang.org/htdocs-old/TUTORIAL/contents/datatypes.html)
 * [Tutorial on Parametric Polymorphism and Templates](http://www.ats-lang.org/htdocs-old/TUTORIAL/contents/templates.html)
 * [Dependently Typed Datastructures](http://www.ats-lang.org/PAPER/DTDS-waaapl99.pdf)
 * [Eliminating Array Bound Checking Through Dependent Types](http://www.cs.bu.edu/~hwxi/academic/papers/pldi98.ps)
 
-Most of the examples that follow are based on examples in those resources.
+これから紹介する例のほとんどは、これらの文書の例に基づいています。
 
-## Sorts and Types
+## 種 (Sort) と型 (Type)
 
-Some dependently typed languages allow types to depend on values expressed in the language itself. ATS provides a restricted form of dependent types. The expressions that types can depend on are in a restricted constraint language rather than the full language of ATS. This constraint language is itself typed and to prevent confusion they call the types in that language ‘sorts’. References to ‘sort’ in this post refer to types in that constraint language. References to ‘type’ refers to types in the core ATS language itself.
+依存型の言語のいくつかは、その言語自身で表現された値に依存した型を許します。ATS
+の依存型はその意味では限定的です。型が依存できる式は、ATS
+言語全体ではなく制限された制約付きの言語によるものです。この制約付きの言語はそれ自身が型付けされていて、混乱を避けるためにこの言語の型は
+'種 (sort)' と呼ばれます。
+この記事で '種 (sort)' と呼んだ場合はこの制限された言語における型を指します。また
+'型 (type)' と呼んだ場合には ATS 言語コアの型を指します。
 
-Here is an example of the difference. The following is an example of a function that takes two numbers and returns the result of them added together. This is in a hypothetical dependently typed language where types can depend on language values itself:
+その違いを例で見てみましょう。次のコードは2つの数を取り、それらを加え合わせた値を返す関数の例です。これは型がその言語の値自身に依存できる仮の依存型言語によるものです:
 
 ```ocaml
 fun add(a: int, b: int): int (a+b) = a + b
 ```
 
-Here the result type is the exact integer type of the two numbers added together. A mistake in the body of the code that resulted in anything but the sum of the two numbers would be a type error. In ATS this function would look like:
+上記では、結果の型は正確に2つの数を加え合わせた整数型になっています。なんらかのコードの本体の誤りがあったとしても、2つの数の和は型エラーになります。ATS ではこの関数は次のようになります:
 
 ```ocaml
 fun add {m,n:int} (a: int m, b: int n): int (m+n) = a + b
 ```
 
-Notice here the introduction of {m,n:int}. This is the ‘constraint language’ used for values that the types in ATS can depend on. Here we declare two values, m and n, of sort int. The two arguments to add are a and b and they are of type int m and int n respectively. They are the type of the exact integer represented by the m and n. The result type is an integer which is the sum of these two values. Note that the dependent type in ATS (the m, n and m+n) are variables and computations expressed in the constraint language, not variables in ATS (the a, b, and a+b).
+ここで {m,n:int} が導入されていることに注意してください。これは ATS の型が依存できる値を表現する '制約された言語'
+です。ここでは種 int であるような2つの値 m と n を宣言しています。加える2つの引数は a と b で、それらの型はそれぞれ
+int m と int n です。それらの型は m と n
+によって正確に表わされた整数です。その結果の型はそれら2つの値の合計した整数です。ATS
+における依存型 (m, n, m+n) は制約された言語で表現された変数と計算であって、ATS
+の変数ではないことに注意してください。a, b, a+b は ATS の変数です。
 
-Having a restricted constraint language for type values simplifies the type checking process. All computations in this language are pure and have no effects. Sorts and functions in the language must terminate. This avoids infinite loops and exceptions during typechecking.
+型の値に対して制約された言語を使うことで、型検査のプロセスを単純化できます。この言語において全ての計算は純粋で、作用を持ちません。この言語において種と関数は必ず終端します。無限ループや型検査中の例外を回避できるのです。
 
-For more information on the reasoning behind restricted dependent types see
+制限された依存型についてより詳細に知りたい場合には、
 [Dependent Types in Practical Programming](http://www.ats-lang.org/PAPER/DML-popl99.pdf)
-and
-[other papers at the ATS website](http://www.ats-lang.org/PAPER/).
+や
+[ATS ウェブサイトにあるその他の論文](http://www.ats-lang.org/PAPER/)
+を参照してください。
 
-In ATS documentation the restricted constrainted language is called the ‘statics’ of ATS and is documented in chapter 5 of the
-[ATS user guide](http://www.ats-lang.org/htdocs-old/DOCUMENT/MISC/manual_main.pdf).
+ATS のドキュメントではこの制約された言語は ATS の '静的な部分 (statics)'
+と呼ばれ、[ATS user guide](http://www.ats-lang.org/htdocs-old/DOCUMENT/MISC/manual_main.pdf)
+の5章で解説されています。
 
-## Simple Lists
+## 単純なリスト
 
 Before I get into datatypes that use dependent types, I’ll do a quick overview of non-dependent types for those not familiar with ATS syntax. A basic ‘list’ type that can contain integers can be defined in ATS as:
 
