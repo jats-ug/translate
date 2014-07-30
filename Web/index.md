@@ -26,7 +26,7 @@ ATS2に関する一次情報は
 * Safe destruction in the presence of sharing in ATS
 * Sharing Linear Resources in ATS
 * Converting C Programs to ATS
-* Linear Datatypes in ATS
+* [ATSにおける線形データ型](bluishcoder.co.nz/2011/02/27/linear-datatypes-in-ats.md)
 * Reading data from a file in ATS
 * [より安全なATSによるC言語の使い方](bluishcoder.co.nz/2010/11/23/more-on-type-safety-using-c-and-ats.md)
 * [ATSにおける依存型](bluishcoder.co.nz/2010/09/01/dependent-types-in-ats.md)
