@@ -58,41 +58,28 @@ implement main(argc, argv) =
     if http_server(argv[1]) = 0 then () else $raise Error ()
 ```
 
-The ‘extern fun’ definitions are what allows the ATS code to call the C code. Instead of providing a body for these functions I assign a string like,
-“mac#syntax”.
-This tells ATS that this function is implemented in C with the name of the C function after the #.
-The ‘mac’ before the # gives instructions to ATS about how to use the C function.
-More on the # syntax is available
-[in this mailing list post](http://sourceforge.net/p/ats-lang/mailman/message/27338271/).
+'extern fun' による定義で、C言語コードを ATS コードから呼び出せるようにしています。それらの関数の本体を書く代わりに "mac#syntax" のような文字列を割り当てています。これはこの関数が で、C言語で実装された関数で、# の後ろに続くC言語関数名であることを ATS に知らせています。# の前にある 'mac' はC言語関数をどのように扱うかを ATS に指示します。[このメーリングリストでの投稿](http://sourceforge.net/p/ats-lang/mailman/message/27338271/) が # 構文についてより詳細に解説しています。
 
-The program can be compiled and tested with:
+このプログラムは次のコマンドでコンパイルできます:
 
 ```
 atscc -o http-server http-server.dats -levent
 ```
 
-There isn’t much advantage in this program vs the C program.
-There’s the slight benefit of the compile time checking that argv isn’t referenced out of bounds but that’s it.
-However, now that it’s embedded in ATS we can start converting code.
+C言語プログラムに対して、このプログラムには特に利点はありません。わずかなコンパイル時検査は argv が範囲外参照をしないことですが、ただそれだけです。けれども、これで ATS にコーオを埋め込めたので、コードの翻訳を開始できます。
 
 ## http-server2.dats
 
-The first function I tackled at converting was http_server.
-The resulting ATS code is in
+最初に私が翻訳に取り組んだ関数は http_server でした。結果の ATS コードは
 [http-server2.dats](http://bluishcoder.co.nz/ats/http-server.dats)
-([pretty-printed html](http://bluishcoder.co.nz/ats/http-server2.html)).
-For this code I need to call libevent functions from ATS.
-libevent uses C structures to hold state - these structures are abstract in that C code can’t look inside them.
-All access is via libevent functions.
-The structures used by http_server are:
+([pretty-printed html](http://bluishcoder.co.nz/ats/http-server2.html))
+です。このコードのためには ATS から libevent の関数を呼び出さなければなりません。libevent は状態を保持するためにC言語の構造体を使います。これらの構造体は抽象的なもので、C言語コードからその中身をのぞけません。それらへのアクセスは libevent の関数を経由させます。http_server で使っている構造体は以下です:
 
 * event_base
 * evhttp
 * evhttp_request
 
-libevent has functions to manage the allocation and freeing of these structures. If you’ve been reading my
-[other ATS posts](http://bluishcoder.co.nz/tags/ats/)
-on safer C usage you’ll know that these can be represented as abstract viewtypes. The type wrapper for event_base looks like:
+libevent はこれらの構造体を確保/解放する関数を持っています。もしより安全なC言語の使い方を解説した [私の ATS に関する記事](http://bluishcoder.co.nz/tags/ats/) を読んでいるなら、これらは抽象観型 (abstract viewtypes) で表現できることをご存知でしょう。event_base の型ラッパーは次のようになります:
 
 ```ocaml
 absviewtype event_base (l:addr)
