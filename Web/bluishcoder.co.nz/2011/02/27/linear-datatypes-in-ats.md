@@ -69,7 +69,7 @@ in
 end
 ```
 
-The definition of the list looks the same but uses the keyword dataviewtype. This makes list a linear type. Functions that accept linear types will show in the argument list whether they consume or leave unchanged the linear type. This is denoted by an exclamation mark prefixed to the type. For example:
+このリストの定義はキーワード dataviewtype を使っていることを除いて同じに見えます。このコードはリストを線形型で作っています。線形型を受け取る関数は、線形型を消費するか無変更のままにするかを引数リストに明示します。これは型の直前に付ける感嘆符で表わします。例えば:
 
 ```ocaml
 // Consumes (free's) the linear type
@@ -89,9 +89,9 @@ implement main() = let
 in () end
 ```
 
-Notice in the new definition of fold that the xs argument type is prefixed with an exclamation mark meaning it does not consume the linear type. This allows calling fold multiple times on the same list.
+fold の新しい定義では、線形型を消費しないことを意味する感嘆符が xs 引数の型の直前に付いていることに注意してください。このおかげで、同じリストに fold を何度でも呼び出すことができます。
 
-The implementation of fold had to be changed slightly to use the linear type without consuming it. The body of the function is:
+fold の実装は線形型を消費せずに使うために、少し変更する必要がありました。関数本体は次のようになります:
 
 ```ocaml
 case+ xs of
@@ -99,13 +99,13 @@ case+ xs of
 | cons (x, !xs1) => let val s = fold(f, f(s, x), !xs1) in fold@ xs; s end
 ```
 
-Notice the fold@ call and the use of !. xs is a linear value (ie. our linear list). Because the linear value matches a pattern in a case statement that has a ! then the type of the linear value xs changes to be cons(int, an_address) where an_address is a memory address. xs1 is assigned the type ptr(an_address) where the value of xs is stored at address an_address. This is why the !xs1 is needed later. Since xs1 is now a pointer it must be dereferenced before calling fold again to pass the actual list. This pattern matching process is known as ‘unfolding a linear value’ in the documentation.
+fold@ 呼び出しと ! が使われていることに注意してください。xs は線形値 (つまり線形リスト) です。線形値は case 文で ! をともなってパターンマッチされるので、an_address をメモリアドレスとすると線形値 xs の型は cons(int, an_address) に変化します。xs1 には、xs の値が an_address アドレスに格納された型 ptr(an_address) が割り当てられます。これがその後で !xs1 が必要になる理由です。ここで xs1 はポインタなので、fold に実際のリストを再度渡す前にデリファレンスされなければなりません。このパターンマッチの処理はドキュメントでは '線形値の unfold (unfolding a linear value)' と表現されています。
 
-As the type of xs has changed during the pattern matching we need to change it back in the body of the pattern. The fold@ call returns the type of xs from cons(int,an_address) back to cons(int,list int). This is referred to as ‘folding a linear value’ in the documentation.
+xs の型はパターンマッチ中では変化してしまっているので、パターン本体の中で元に戻す必要があります。fold@ 呼び出しは xs の型を cons(int,an_address) から cons(int,list int) に戻します。これはドキュメントでは '線形値の fold' と呼ばれています。
 
-After using the list a in main we need to free the memory. This is done with the free function which iterates over the list consuming each element. Notice that free does not have an exclamation mark prefixed to the argument type.
+main の中でリスト a を使った後はメモリを解放してやる必要があります。free 関数を使えば、リストのそれぞれの要素について繰り返し解放してくれます。free 関数は引数の型の前に感嘆符を持たないことに注意してください。
 
-Each line in the case statement in free has a ~ prefixed to the constructor to be pattern matched against. This is known as a destruction pattern. If a linear value matches the pattern then the pattern variables are bound and the linear value is free’d. The result of this is free walks the list freeing each element.
+free 関数の case 文のそれぞれの行では、パターンマッチするコンストラクタの前に ~ が付いています。これはデストラクトパターン (destruction pattern) と呼ばれます。もし線形値がそのパターンにマッチしたら、パターン変数が束縛されて線形値は解放されます。その結果 free はリストを辿ってそれぞれの要素を解放するのです。
 
 ```ocaml
 case+ xs of
@@ -113,4 +113,4 @@ case+ xs of
   | ~cons (x, xs) => free(xs)
 ```
 
-There’s a lot of detail going on under the hood but the code between the two versions is very similar. ATS makes it relatively easy to deal with the complexities of manual memory management and fails at compile time if it’s not managed correctly. Much of my interest in ATS is how to write low level code that manages memory safely.
+内部について詳細な違いはありますが、2つのバージョンのコードはとても良く似ています。手動によるメモリ管理の複雑さの扱いを、ATS は比較的容易にしてくれます。さらにもしその管理が誤っていたらコンパイル時エラーにしてくれます。ATS に対する私の興味の大部分は、どうやって安全にメモリ管理をする低レベルのコードを書くか、ということにあります。
