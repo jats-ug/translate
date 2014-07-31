@@ -2,11 +2,11 @@
 
 (元記事は http://bluishcoder.co.nz/2011/02/27/linear-datatypes-in-ats.html です)
 
-A datatype in ATS is similar to types defined in languages like ML and Haskell. They are objects allocated in the heap controlled by the garbage collector. The programmer does not need to explicitly free the memory or manage the lifetime of the object.
+ATS におけるデータ型 (datatype) は ML や Haskell のような言語において定義される型と似ています。それらはガベージコレクタによって管理されたヒープに確保されるオブジェクトです。プログラマが明示的にメモリを解放したり、オブジェクトの生存期間を管理する必要はありません。
 
-A dataviewtype is similar to a datatype in that it is an object allocated on the heap. A dataviewtype is a linear type. The programmer must explicitly free the memory allocated and control the lifetime of the object. The type checker tracks usage of the linear type and ensures at the type level that it is consumed and that dangling references to it are not kept around.
+データ観型 (dataviewtype) もヒープに確保されるオブジェクトであるという点においてはデータ型と似ています。データ観型は線形型です。プログラマは確保されたメモリを明示的に解放しなければなりませんし、オブジェクトの生存期間を制御しなければなりません。型検査器は線形型の使用を追跡して、それが消費されてその宙ぶらりんな参照が保持されないことを型レベルで保証します。
 
-To compare the datatype and dataviewtype I’ll start with a simple definition of a list type using datatype:
+データ型とデータ観型を比較するために、データ型を用いたリスト型の単純な定義から始めましょう:
 
 ```ocaml
 datatype list (a:t@ype) =
@@ -28,21 +28,21 @@ in
 end
 ```
 
-This program defines a list type that can hold instances of a particular type. A function fold is defined that performs a fold on a list. The main routine creates a list, a, and performs two folds. One to get a sum of the list and the other to get the product. The results of these are printed.
+このプログラムは、特定の型のインスタンスを保持するリスト型を定義しています。関数 fold がリストの fold を行なうように定義されています。main ルーチンはリスト a を作り、2回 fold を行ないます。その1つはリストの和を求め、もう1つは積を求めます。最後にそれらの結果が印字されます。
 
-The fold function is similar to function templates in C++. The syntax fun {seed:t@type}{a:t@ype} defines a function template with two arguments. The type of the seed for the fold and the type of the list elements. When fold is called the function is instantiated with the actual types used.
+fold 関数は C++ のテンプレート関数に似ています。構文 fun {seed:t@type}{a:t@ype} は2つの引数を取る関数テンプレートを定義しています。それらは fold 関数のための seed の型と、リスト要素の型です。fold が呼び出されると、この関数は実際に使われる型でインスタンス化されます。
 
-add_int_int and mul_int_int are two ATS prelude functions that are defined to perform addition and multiplication respectively on two integers.
+add_int_int と mul_int_int は2つの整数についてそれぞれ加算と乗算を行なうように定義された ATS prelude の関数です。
 
-Notice there is no manual memory management. The list held in a is on the garbage collected heap. This ATS program must be built with -D_ATS_GCATS to link in the garbage collector to reclaim memory used by the list type:
+手動のメモリ管理が不要であることに注意してください。a に保持されているリストはガベージコレクタによって管理されたヒープの中にあります。この ATS プログラムは、ガベージコレクタとリンクして list 型が使うメモリを回収するために -D_ATS_GCATS 付きでビルドする必要があります:
 
 ```
 atscc -D_ATS_GCATS test.dats
 ```
 
-The above example shows that programming with datatypes is very similar to any other garbage collected functional programming language.
+上記の例は、データ型を使ったプログラミングが他のガベージコレクタを持つ関数型プログラミング言語ととても良く似ていることを示しています。
 
-The following is the same program converted to use dataviewtype:
+次のコードは同じプログラムをデータ観型を使うように書き直したものです:
 
 ```ocaml
 dataviewtype list (a:t@ype) =
