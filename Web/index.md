@@ -25,7 +25,7 @@ ATS2に関する一次情報は
 * Overloading Functions in ATS
 * Safe destruction in the presence of sharing in ATS
 * Sharing Linear Resources in ATS
-* Converting C Programs to ATS
+* [C言語のプログラムをATSに翻訳する](bluishcoder.co.nz/2011/04/24/converting-c-programs-to-ats.md)
 * [ATSにおける線形データ型](bluishcoder.co.nz/2011/02/27/linear-datatypes-in-ats.md)
 * Reading data from a file in ATS
 * [より安全なATSによるC言語の使い方](bluishcoder.co.nz/2010/11/23/more-on-type-safety-using-c-and-ats.md)
