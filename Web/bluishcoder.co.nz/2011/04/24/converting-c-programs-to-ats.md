@@ -16,11 +16,11 @@ gcc -o http-server http-server.c -levent
 
 ## http-server.dats
 
-The first step at embedding this in my ATS program was to create
+ATS プログラムに先のコードを埋め込む最初のステップでは
 [http-server.dats](http://bluishcoder.co.nz/ats/http-server.dats)
 ([pretty-printed html](http://bluishcoder.co.nz/ats/http-server.html))
-with the same C code embedded in the ATS program.
-The C include files are enclosed as follows:
+のように同じC言語コードをそのまま ATS プログラムに埋め込みました。
+C言語のインクルードファイルは次のように囲みます:
 
 ```ocaml
 %{^
@@ -30,7 +30,7 @@ The C include files are enclosed as follows:
 #}
 ```
 
-The ‘%{^’ marker tells ATS that this is C code that should be placed at the top of any compiled ATS code. The rest of the C code was embedded as-is using ‘%{‘:
+'%{^' という印はその中身がC言語コードで、コンパイル済み ATS コードの先頭に配置すべきであることを ATS に教えます。残りのC言語コードは '%{' を使ってそのまま埋め込みました:
 
 ```ocaml
 %{
@@ -44,7 +44,7 @@ guess_content_type(const char *path)
 %}
 ```
 
-Code in beween the ‘%{…%}’ markers is inserted in the compiled ATS code directly. I made a small change to remove the C main function and factor parts of that out into a http-server function so I could write a main in ATS that calls it. The ATS code to call the C code looks like:
+'%{…%}' で囲まれたコードはコンパイル済み ATS コードに直接挿入されます。C言語の main 関数を削除して、その中身を取り出して http-server にしました。これでそれを呼び出す main を ATS で書けるようになりました。C言語コードを呼び出す ATS コードは次のようになります:
 
 ```ocaml
 extern fun syntax():void = "mac#syntax"
@@ -58,7 +58,11 @@ implement main(argc, argv) =
     if http_server(argv[1]) = 0 then () else $raise Error ()
 ```
 
-The ‘extern fun’ definitions are what allows the ATS code to call the C code. Instead of providing a body for these functions I assign a string like, “mac#syntax”. This tells ATS that this function is implemented in C with the name of the C function after the #. The ‘mac’ before the # gives instructions to ATS about how to use the C function. More on the # syntax is available
+The ‘extern fun’ definitions are what allows the ATS code to call the C code. Instead of providing a body for these functions I assign a string like,
+“mac#syntax”.
+This tells ATS that this function is implemented in C with the name of the C function after the #.
+The ‘mac’ before the # gives instructions to ATS about how to use the C function.
+More on the # syntax is available
 [in this mailing list post](http://sourceforge.net/p/ats-lang/mailman/message/27338271/).
 
 The program can be compiled and tested with:
@@ -67,14 +71,20 @@ The program can be compiled and tested with:
 atscc -o http-server http-server.dats -levent
 ```
 
-There isn’t much advantage in this program vs the C program. There’s the slight benefit of the compile time checking that argv isn’t referenced out of bounds but that’s it. However, now that it’s embedded in ATS we can start converting code.
+There isn’t much advantage in this program vs the C program.
+There’s the slight benefit of the compile time checking that argv isn’t referenced out of bounds but that’s it.
+However, now that it’s embedded in ATS we can start converting code.
 
 ## http-server2.dats
 
-The first function I tackled at converting was http_server. The resulting ATS code is in
+The first function I tackled at converting was http_server.
+The resulting ATS code is in
 [http-server2.dats](http://bluishcoder.co.nz/ats/http-server.dats)
 ([pretty-printed html](http://bluishcoder.co.nz/ats/http-server2.html)).
-For this code I need to call libevent functions from ATS. libevent uses C structures to hold state - these structures are abstract in that C code can’t look inside them. All access is via libevent functions. The structures used by http_server are:
+For this code I need to call libevent functions from ATS.
+libevent uses C structures to hold state - these structures are abstract in that C code can’t look inside them.
+All access is via libevent functions.
+The structures used by http_server are:
 
 * event_base
 * evhttp
