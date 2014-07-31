@@ -2,24 +2,25 @@
 
 (元記事は http://bluishcoder.co.nz/2011/04/24/converting-c-programs-to-ats.html です)
 
-I tend to use [ATS](http://ats-lang.org/) as a low level programming language - a better, safer, C. Often I start with a C program and slowly add ATS features as I go. I do this so I can utilize existing C code, write my higher level functionality in ATS, and slowly convert parts of the C to ATS to add compile time safety and resource utilisation checks. ATS facilitates this by allowing C to be embedded in ATS programs directly.
+私は、C言語よりもより良く安全な低レベルのプログラミング言語として [ATS](http://ats-lang.org/) を使う傾向があります。しばしば私はC言語のプログラムから出発して、少しずつ ATS の機能を付け加えます。このようなことをするために、私は既存のC言語コードを利用します。次に ATS を使って高位の関数を書き、最後にコンパイル時の安全性とリソースの利用を検査を追加するために、C言語の部品を ATS に翻訳します。ATS はプログラム中に直接C言語を埋め込むことを許可しているので、このようなことを容易です。
 
 ## http-server.c
 
-Recently I needed an HTTP server that I could embed in a program to serve simple pages and proxy requests, with modifications, to another server. I decided on using [libevent](http://libevent.org/) since it has HTTP functionality integrated with the event system. The libevent 2 distribution has an http-server sample program and I started with [a slightly modified version of that](http://bluishcoder.co.nz/ats/http-server.c). The C sample can be compiled with:
+最近私は、単純なページを配信し、リクエストをプロキシして修正した後、別のサーバに投げるようなプログラムに組み込むための HTTP サーバが必要になりました。イベントシステムと統合した HTTP 通信をしたかったので、[libevent](http://libevent.org/) を使うことに決めました。libevent 2 配付版の中には http-server サンプルプログラムがありました。そこで [それを少し修正したバージョン](http://bluishcoder.co.nz/ats/http-server.c) から始めることにしました。このC言語サンプルコードは次のようにコンパイルできます:
 
 ```
 gcc -o http-server http-server.c -levent
 ```
 
-Running it with a path to a docroot as an argument starts an HTTP server on port 8080. Requests are served with the files from the docroot. The special URL ‘/dump’ prints details of the request on standard output.
+引数にドキュメントルートのパスを渡してこのプログラムを起動すると 8080 ポートに HTTP サーバが起動します。リクエストを受けるとドキュメントルートからファイルを配信します。特殊な URL '/dump' はリクエストの詳細を標準出力に印字します。
 
 ## http-server.dats
 
 The first step at embedding this in my ATS program was to create
 [http-server.dats](http://bluishcoder.co.nz/ats/http-server.dats)
 ([pretty-printed html](http://bluishcoder.co.nz/ats/http-server.html))
-with the same C code embedded in the ATS program. The C include files are enclosed as follows:
+with the same C code embedded in the ATS program.
+The C include files are enclosed as follows:
 
 ```ocaml
 %{^
