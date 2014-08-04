@@ -87,9 +87,16 @@ viewtypedef event_base0 = [l:addr | l >= null ] event_base l
 viewtypedef event_base1 = [l:addr | l >  null ] event_base l
 ```
 
-This defines event_base as an abstract view type with an address, l. It’s effectively a C pointer of type event_base*. The two viewtypedef statements define aliases for an event_base type that can be NULL (event_base0) and an event_base type that cannot be NULL (event_base1). Defining these typedef’s makes it easier to tell which functions accept NULL objects and which don’t. It also allows defining functions without having to have universal type quantifiers everywhere (eg, the {l:addr} in function definitions). Similar wrappers are done for evhttp and evhttp_request.
+This defines event_base as an abstract view type with an address, l.
+It’s effectively a C pointer of type event_base*.
+The two viewtypedef statements define aliases for an event_base type that can be NULL (event_base0) and an event_base type that cannot be NULL (event_base1).
+Defining these typedef’s makes it easier to tell which functions accept NULL objects and which don’t.
+It also allows defining functions without having to have universal type quantifiers everywhere (eg, the {l:addr} in function definitions).
+Similar wrappers are done for evhttp and evhttp_request.
 
-event_base objects are created and destroyed with event_base_new and event_base_free. Events are dispatched using event_base_dispatch. The ATS definitions for these look like:
+event_base objects are created and destroyed with event_base_new and event_base_free.
+Events are dispatched using event_base_dispatch.
+The ATS definitions for these look like:
 
 ```ocaml
 extern fun event_base_new(): event_base0 = "mac#event_base_new"
@@ -97,7 +104,10 @@ extern fun event_base_free (p: event_base1):void = "mac#event_base_free"
 extern fun event_base_dispatch (base: !event_base1):int = "mac#event_base_dispatch"
 ```
 
-This says that event_base_new returns a possible NULL event_base and event_base_free takes a non-NULL event_base. Abstract viewtype’s are linear objects which means the compile time type system checks that they are destroyed and that they aren’t used after destruction. event_base_free consumes the linear type (For it not to consume the type it would have to define the argument with a ! like p: !event_base1). You can see this in the definition of event_base_dispatch which has the ! annotation in the argument to say it doesn’t consume the type.
+This says that event_base_new returns a possible NULL event_base and event_base_free takes a non-NULL event_base.
+Abstract viewtype’s are linear objects which means the compile time type system checks that they are destroyed and that they aren’t used after destruction.
+event_base_free consumes the linear type (For it not to consume the type it would have to define the argument with a ! like p: !event_base1).
+You can see this in the definition of event_base_dispatch which has the ! annotation in the argument to say it doesn’t consume the type.
 
 Code to create and destroy an event_base will look like:
 
@@ -110,9 +120,17 @@ val _  = event_base_dispatch(base)
 val () = event_base_free(base)
 ```
 
-Note the assert_errmsg call. The ~ operator returns true if base is not NULL. So the assert checks that base is non-NULL and the type system tracks this. It knows that base from then on is a non-NULL pointer (ie. The event_base1 typedef). This allows it to be passed to event_base_free. Without this assert (or other check for non-NULL-ness) there would be a compile error.
+Note the assert_errmsg call.
+The ~ operator returns true if base is not NULL.
+So the assert checks that base is non-NULL and the type system tracks this.
+It knows that base from then on is a non-NULL pointer (ie.
+The event_base1 typedef).
+This allows it to be passed to event_base_free.
+Without this assert (or other check for non-NULL-ness) there would be a compile error.
 
-Similar wrappers are done for the other libevent functions that http_server uses. evhttp_set_cb and evhttp_set_gencb are a little different however. Their C definitions look like:
+Similar wrappers are done for the other libevent functions that http_server uses.
+evhttp_set_cb and evhttp_set_gencb are a little different however.
+Their C definitions look like:
 
 ```ocaml
 void evhttp_set_gencb(struct evhttp *http,
@@ -121,7 +139,10 @@ int evhttp_set_cb(struct evhttp *http, const char *path,
     void (*cb)(struct evhttp_request *, void *), void *cb_arg);
 ```
 
-They take a C function as a callback and an argument to pass to that C function. The callback is called by libevent when a particular URL is accessed. The argument is typed as a void* but we can do better in ATS. Here’s the ATS definitions:
+They take a C function as a callback and an argument to pass to that C function.
+The callback is called by libevent when a particular URL is accessed.
+The argument is typed as a void* but we can do better in ATS.
+Here’s the ATS definitions:
 
 ```ocaml
 typedef evhttp_callback (t1:viewtype) = (!evhttp_request1, !t1) -<fun1> void
@@ -134,13 +155,22 @@ extern fun evhttp_set_gencb {a:viewtype} (http: !evhttp1,xi
                                           arg: !a): void = "mac#evhttp_set_gencb"
 ```
 
-The typedef defines an alias for referring to the callback function. It is parameterized over the type of the argument. The definition states that an evhttp_callback is a C function (the fun1, see
+The typedef defines an alias for referring to the callback function.
+It is parameterized over the type of the argument.
+The definition states that an evhttp_callback is a C function (the fun1, see
 [Functions in ATS](http://bluishcoder.co.nz/2010/06/13/functions-in-ats.html)
-) that takes two arguments. A non-NULL evhttp_request object that is not consumed, and an object of type t1 where t1 is any viewtype. It is also not consumed. The function returns void. An evhttp_callback (event_base) is therefore a C function that takes an event_base as the second argument.
+) that takes two arguments.
+A non-NULL evhttp_request object that is not consumed, and an object of type t1 where t1 is any viewtype.
+It is also not consumed.
+The function returns void.
+An evhttp_callback (event_base) is therefore a C function that takes an event_base as the second argument.
 
 evhttp_set_cb is a
 [polymorphic function](http://www.ats-lang.org/htdocs-old/DOCUMENT/INTPROGINATS/HTML/x1059.html).
-The arg parameter can be any viewtype. The callback paramter is a evhttp_callback parameterized over this same type. This means that the callback must accept as an argument the same type as the argument we pass to evhttp_set_cb. evhttp_set_cb and evhttp_set_gencb are called like:
+The arg parameter can be any viewtype.
+The callback paramter is a evhttp_callback parameterized over this same type.
+This means that the callback must accept as an argument the same type as the argument we pass to evhttp_set_cb.
+evhttp_set_cb and evhttp_set_gencb are called like:
 
 ```ocaml
  val _ = evhttp_set_cb {ptr} (http, "/dump", dump_request_cb, null)
