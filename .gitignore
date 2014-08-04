@@ -1,5 +1,9 @@
 *~
 .omakedb
 .omakedb.lock
+/Paper/*/*.aux
+/Paper/*/*.dvi
+/Paper/*/*.fls
+/Paper/*/*.log
 OMakefile.omc
 OMakeroot.omc
