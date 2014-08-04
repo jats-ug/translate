@@ -151,10 +151,7 @@ extern fun dump_request_cb (request: !evhttp_request1, arg: !ptr): void = "mac#d
 extern fun send_document_cb (request: !evhttp_request1, arg: !string): void = "mac#send_document_cb"
 ```
 
-http-example2.dats adds an additional callback to cause the server to exit.
-The server exit is done by breaking out of the event loop using event_base_loopexit.
-That function needs an event_base so I pass this as the callback argument.
-In this case there is no C function to wrap so I create the callback function as an ATS anonymous function:
+http-example2.dats ではサーバを終了させる追加のコールバックを用意しています。event_base_loopexit を用いてイベントループを終了させればサーバ終了は完了します。この終了関数には event_base が必要なので、コールバックの引数として渡すことにしました。この場合、ラップするC言語関数がありません。そこで、ATS の無名関数を使ってコールバック関数を作りました:
 
 ```ocaml
 val _ = evhttp_set_cb {event_base1} (http,
@@ -163,21 +160,21 @@ val _ = evhttp_set_cb {event_base1} (http,
                                      base)
 ```
 
-The equivalent callback function in C would need to cast the void* argument to a base_event*. I don’t need to do this in ATS as the callback argument is correctly typed thanks to the definition of evhttp_set_cb and evhttp_callback as described above.
+C言語の等価なコールバック関数は void* 引数を base_event* にキャストしなければなりません。上記に示した evhttp_set_cb と evhttp_callback の定義のおかげで、コールバック引数は正しく型付けされているので、ATS ではこのようなキャストは必要ありません。
 
-The ignore call is to help make the ATS code a bit more readable. event_base_loopexit returns an integer but the callback returns void. We need to consume the return value of event_base_loopexit. In ATS this needs to be done using the verbose syntax let val _ = ... in () end. ignore is a macro that hides this:
+ignore 呼び出しは ATS コードを少し読みやすくするためのものです。event_base_loopexit は整数を返しますが、このコールバックは void を返します。そして event_base_loopexit の返値を消費しなくてはなりません。ATS ではこのために let val _ = ... in () end という冗長な構文を使う必要があります。ignore はこれを隠蔽するマクロです:
 
 ```ocaml
 macdef ignore (x) = let val _ = ,(x) in () end
 ```
 
-This version of http-server2.dats provides a little bit more type safety than the C version. It still utilizes a lot of the C code. There is no overhead from ATS - all the wrappers are defined in terms of the existing C functions. They provide additional checking at compile time, no extra run time code is generated. Although the wrappers look verbose, they’d usually be in a libevent ATS module. The resulting ATS code is a little smaller and clearer if you ignore the wrapper’s the sample code includes.
+http-server2.dats のこのバージョンはC言語バージョンよりも少し強い型安全性が得られています。このバージョンはまだ多くのC言語コードを利用しています。ATS による実行時のオーバヘッドはありません。全てのラッパーは既存のC言語関数の項で定義されています。追加の検査はコンパイル時に行なわれ、余計な実行時コードは生成されません。これらのラッパーは冗長に見えますが、libevent ATS モジュールになります。サンプルコードに含まれるラッパーを除けば、得られた ATS コードは小さく簡潔なものです。
 
-## Next steps
+## 次の一歩
 
-The next steps would be to start converting the existing functions, or to add extra functionality in ATS (like I did with the quit callback). I’ll do a followup post on anything interesting or new found during the remaining conversion. Otherwise you might like to try it as an exercise in learning ATS.
+次の一歩は既存の関数を翻訳することでしょう。もしくは (私が追加した終了コールバックのような) ATS 側への機能追加かもしれません。以降の記事では、残った関数の翻訳においての発見や興味深い事柄を説明しようと思います。もしくは読者が ATS を学ぶための練習としてやってみるのも良いかもしれません。
 
-One interesting thing to look at would be how to handle the very callback oriented libevent code. This can make code difficult to follow. Writing libevent code that does HTTP requests looks something like:
+はげしくコールバック指向な libevent コードをどのように扱うかは、興味深いことでしょう。このようなコードは理解しにくいかもしれません。HTTP リクエストをおこなう libevent コードは次のように書けます:
 
 ```ocaml
 fun handle_result(result: string) = ...
@@ -185,10 +182,10 @@ fun handle_result(result: string) = ...
 var () = http_get("http://www.bluishcoder.co.nz", handle_result)
 ```
 
-I much prefer something like the following and have the compiler break the code up into the callback style:
+私は次のようなコードの方が好みです。そして次のようなコードをコンパイラが分解してコールバックスタイルに変換してくれたらと思います:
 
 ```ocaml
 var result = http_get("http://www.bluishcoder.co.nz")
 ```
 
-Languages that have continuations or coroutines make this sort of thing easy. It’d be nice to be able to factor code like this to be easier to read and use in ATS. If anyone has any ideas I’d love to hear them.
+継続やコルーチンを持つ言語はこの種のコードを書きやすくしてくれます。ATS において、このようなコードを読みやすく使いやすくできるのは素晴しいことです。誰かアイデアを持っていたら、是非教えてほしいです。
