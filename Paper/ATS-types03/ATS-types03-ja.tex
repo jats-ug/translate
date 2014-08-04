@@ -1,0 +1,46 @@
+%%
+%% 研究報告用スイッチ
+%% [techrep]
+%%
+%% 欧文表記無しのスイッチ(etitle,jkeyword,eabstract,ekeywordは任意)
+%% [noauthor]
+%%
+
+\documentclass[submit,techreq,noauthor]{ipsj}
+
+
+\usepackage[dvips]{graphicx}
+\usepackage{latexsym}
+
+\def\Underline{\setbox0\hbox\bgroup\let\\\endUnderline}
+\def\endUnderline{\vphantom{y}\egroup\smash{\underline{\box0}}\\}
+\def\|{\verb|}
+
+\setcounter{page}{1}
+
+
+\begin{document}
+
+
+\title{Applied Type System}
+
+\author{Hongwei Xi}{}{}
+
+\begin{abstract}
+The framework Pure Type System (PTS) offers a simple and general approach to designing and formalizing type systems. However, in the presence of dependent types, there often exist some acute problems that make it difficult for PTS to accommodate many common realistic programming features such as general recursion, recursive types, effects (e.g., exceptions, references, input/output), etc. In this paper, we propose a new framework Applied Type System (ATS) to allow for designing and formalizing type systems that can readily support common realistic programming features. The key salient feature of ATS lies in a complete separation of statics, in which types are formed and reasoned about, from dynamics, in which programs are constructed and evaluated. With this separation, it is no longer possible for a program to occur in a type as is otherwise allowed in PTS. We outline a formal development of ATS, establishing various (meta) properties of applied type systems. In addition, we provide some examples taken from ATS, a programming language with its type system rooted in ATS, to demonstrate the expressiveness and flexibility of ATS as a framework for type system design and formalization in support of practical programming.
+
+この翻訳の元論文は http://www.ats-lang.org/PAPER/ATS-types03.pdf です。
+\end{abstract}
+
+\maketitle
+
+\section{はじめに}
+
+
+\begin{acknowledgment}
+\end{acknowledgment}
+
+\begin{thebibliography}{10}
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,16 @@
+LATEX = platex
+BIBTEX = pbibtex
+DVIPDFM = dvipdfmx
+DVIPDFMFLAGS = -p a4 -f ipa.map
+DOCNAME = ATS-types03-ja
+
+TEXDEPS[] =
+	$(DOCNAME).tex
+
+LaTeXDocument($(DOCNAME), $(DOCNAME))
+
+.PHONY: clean
+.DEFAULT: $(DOCNAME).pdf $(DOCNAME).dvi
+
+clean:
+	rm -f *.aux *.dvi *.log *.fls *.out *.bbl *.blg *~ $(DOCNAME).pdf
