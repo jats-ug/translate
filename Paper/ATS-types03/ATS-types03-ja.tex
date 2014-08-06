@@ -59,11 +59,23 @@ Scheme が導入したようなアプローチ、つまり既存の言語に新�
 2章では、{\it ATS} フレームワークの詳細な開発成果を示します。
 {\it ATS} で構成された汎用的な Applied Type System である ATS を形式化し、それから subject reduction と progress theorem を定義します。
 3章では、{\it ATS} を拡張して、一般帰納、パターンマッチ、作用のような一般的で現実的なプログラミングの機能のいくつかに順応させます。
-4章では、Applied Type System の興味深い例をいくつか示します。
+4章では、applied type system の興味深い例をいくつか示します。
 最後に、関連研究と開発の将来の可能性について紹介した後、結論を述べます。
 この論文はオンライン [Xi03] から入手できます。
 
 \section{Applied Type System}
+
+この章では Applied Type System ({\it ATS}) フレームワークの形式化を示します。
+ここでは {\it ATS} で形式化された型システムを表わすのに {\it applied type system} という用語を使います。
+この後の説明では、ATS を静的な要素 (statics) と動的な要素 (dynamics) から成る一般的な applied type system として定義します。
+直感的に、statics と dynamics はそれぞれ型とプログラムを扱っています。
+単純化のために、statics は簡単な純粋型付き言語であると仮定します。
+そしてこの言語の型を {\it 種} ({\it sort}) という名前で呼ぶことにします。
+statics の項を {\it 静的な項} ({\it static term}) と呼びます。
+また dynamics の項を {\it 動的な項} ({\it dynamic term}) と呼びます。
+そして、特別な種 {\it type} の静的な項は dynamics の型として機能します。
+
+\subsection{Statics}
 
 xxx
 
