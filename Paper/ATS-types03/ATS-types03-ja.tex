@@ -75,14 +75,40 @@ statics の項を {\it 静的な項} ({\it static term}) と呼びます。
 また dynamics の項を {\it 動的な項} ({\it dynamic term}) と呼びます。
 そして、特別な種 {\it type} の静的な項は dynamics の型として機能します。
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=14cm]{img/fig1_rules.png}
+\caption{staticsを表わすシグニチャフォーマット規則と分類規則}
+\label{fig:fig1_rules}
+\end{figure}
+
 \subsection{Statics}
 
-xxx
+静的な要素の形式的な表現を示します。
+基礎種を表わすのに {\it b} と書きます。
+2つの特別な基礎種 {\it type} と {\it bool} が存在すると仮定します。
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=12cm]{img/infig21_formaldesc.png}
 \end{figure}
+
+静的な項の変数は $\alpha$ を使って表わし、静的な項の集合を $s$ で表わします。
+静的な定数 {\it sc} を宣言することもできます。
+この定数は、静的な定数コンストラクタ {\it scc} もしくは静的な定数関数 {\it scf} のどちらかです。
+sc種 (sc-sorts) を表わすのに [$\sigma_1$, $\ldots$ ,$\sigma_n$] $\Rightarrow$ {\it b} を使い、これは静的な定数に割り当てられます。
+静的な定数 {\it sc} が与えられたとき、もし {\it sc} になんらかの種 $\sigma_1$, $\ldots$ ,$\sigma_n$ についてsc種 [$\sigma_1$, $\ldots$ ,$\sigma_n$] $\Rightarrow$ {\it b} が割り当てられていて、$i = 1, \ldots ,n$ について $s_i$ に種 $\sigma_i$ を割り当てることができるなら、種 {\it b} の項 {\it sc}[$s_1$, $\ldots$ ,$s_n$] を作ることができます。
+誤解を生じない場合は、{\it sc}[] を {\it sc} と書くことができます。
+sc種は (標準の) 種とは見なされていないことに注意してください。
+
+xxx
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{img/infig21_initialsig.png}
+\end{figure}
+
+
 
 \begin{acknowledgment}
 \end{acknowledgment}
