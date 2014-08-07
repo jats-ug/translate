@@ -116,7 +116,17 @@ sc種は (標準の) 種とは見なされていないことに注意してく�
 \includegraphics[width=11cm]{img/infig21_initialsig.png}
 \end{figure}
 
-\noindent これは
+\noindent これは、その左側は静的な定数で: その右側には一致するsc種が割り当てられています。
+また、それぞれの種 $\sigma$ について、$S_0$ は2つの静的コンストラクタ $\forall_\sigma$ と $\exists_\sigma$ をsc種 [$\sigma \rightarrow_{tp} type$] $\Rightarrow$ {\it type} に割り当てることを仮定しています。
+静的な定数を表わすのに中置表記を使うこともできます。
+例えば、$\rightarrow_{tp} [s_1,s_2]$ を表わすのに $s_1 \rightarrow_{tp} s_2$ のように、$\leq_{tp} [s_1,s_2]$ を表わすのに $s_1 \leq_{tp} s_2$ のように書けます。
+さらに、$\forall_a [\lambda a : \sigma.s]$ と $\exists_a [\lambda a : \sigma.s]$ をそれぞれ $\forall_a : \sigma.s$ と $\exists_a : \sigma.s$ のように書くこともできます。
+staticsの分類規則は図\ref{fig:fig1_rules}で与えられますが、大部分は標準的なものです。
+例えば、$\emptyset \vdash_{S_0} \forall_{type} [\lambda a : type.a \rightarrow_{tp} a] : type$ が導けるので、$\forall a : type.a \rightarrow_{tp} a$ は種typeを割り当てることができる静的な項です。
+なんらかの種 $\sigma_1$, $\ldots$ ,$\sigma_n$ についてsc種 [$\sigma_1$, $\ldots$ ,$\sigma_n$] $\Rightarrow$ {\it type} を割り当てられるなら、静的なコンストラクタ$sc$は型コンストラクタです。
+例えば {\bf 1}, $\rightarrow_{tp}$, $\supset$, $\wedge$, $\forall_\sigma$, $\exists_\sigma$ は全て型コンストラクタですが、$\leq_{tp}$ は型コンストラクタではありません。
+直感的には、{\bf 1} は通常のユニット型を表わし、$\rightarrow_{tp}$ は関数型を作り、$\leq_{tp}$ は型におけるサブタイピング関係を表わします。
+静的なコンストラクタ $\supset$ と $\wedge$ はそれぞれガード型 (guarded types) とアサート型 (asserting types) を作り、これらは後で解説します。
 
 xxx
 
