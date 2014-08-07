@@ -138,7 +138,10 @@ $P \supset s$ という形の型を表わすのに {\it ガード型} ({\it guar
 これらは両方とも次の例で使います。
 
 \noindent {\it Example 1.}
-$int$ を整数を表わす種に、{\bf list} をsc種 $[type,int] \Rightarrow type$ の型コンストラクタとすると、次の静的な項は型になります:
+$int$ を整数
+\footnote{形式的には、それぞれの整数 $n$ について、sc種 $[] \Rightarrow int$ の静的なコンストラクタ $\underline n$ が存在し、$\underline n$[] は $n$ に相当する種 $int$ の静的な項であることを言う必要があります。
+}
+を表わす種に、{\bf list} をsc種 $[type,int] \Rightarrow type$ の型コンストラクタとすると、次の静的な項は型になります:
 
 \begin{figure}[h]
 \centering
