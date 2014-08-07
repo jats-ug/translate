@@ -138,6 +138,26 @@ $P \supset s$ という形の型を表わすのに {\it ガード型} ({\it guar
 これらは両方とも次の例で使います。
 
 \noindent {\it Example 1.}
+$int$ を整数を表わす種に、{\bf list} をsc種 $[type,int] \Rightarrow type$ の型コンストラクタとすると、次の静的な項は型になります:
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{img/infig21_example1_list1.png}
+\end{figure}
+
+\noindent 直感的には、もし {\bf list}[$s$,$n$] がそれぞれの要素の型が $s$ で長さ $n$ のリストを表わす型だとすると、リストの長さを変えないようなリストからリストへの関数を上記の型は意図していると言えます。
+また次の型は、もし与えられたリストが空でなければそのリストのtailを返し、そうでなければ単に例外を発生させるような関数に割り当てることを意図しています。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=14cm]{img/infig21_example1_list2.png}
+\end{figure}
+
+アサート型 $n > 0$ $\wedge$ {\bf list}[$a$, $n-1$] は、長さ $n$ のリストにこの関数を適用した後もしこの関数が返るなら、 $n > 0$ であり返値が長さ $n-1$ のリストであるという不変条件を捕捉しています。
+これはいくぶん興味深い機能で、このExample 2で詳しく解説します。
+Dependent ML [XP99,Xi98] における研究でも既にアサート型がありましたが、
+アサート型の正確な概念はこれまで形式化ざれたことがありませんでした:
+DMLでは、この論文でアサート型と読んでいるものをシミュレートするのにサブセット種を使わねばなりませんでした。
 
 xxx
 
