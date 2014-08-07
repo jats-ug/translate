@@ -128,6 +128,17 @@ staticsの分類規則は図\ref{fig:fig1_rules}で与えられますが、大�
 直感的には、{\bf 1} は通常のユニット型を表わし、$\rightarrow_{tp}$ は関数型を作り、$\leq_{tp}$ は型におけるサブタイピング関係を表わします。
 静的なコンストラクタ $\supset$ と $\wedge$ はそれぞれガード型 (guarded types) とアサート型 (asserting types) を作り、これらは後で解説します。
 
+静的な変数群に種を割り当てるような、静的な可変のコンテキストを表わすのに $\Sigma$ を使います;
+{\bf dom}($\Sigma$) は $\Sigma$ で宣言された静的な変数の組です;
+もし $a : \sigma$ が $\Sigma$ で宣言されていたら、$\Sigma (a) = \sigma$ です。
+例によって、$\Sigma$ において静的な変数 $a$ は一回しか宣言できません。
+もし $\Sigma \vdash s : bool$ が導けるなら、静的な項 $s$ は $\Sigma$ の下の {\it 命題} ({\it proposition}) と呼ばれます。
+(なんらかの静的な可変のコンテキストの下で) 命題を表わすのに $P$ を使います。
+$P \supset s$ という形の型を表わすのに {\it ガード型} ({\it guarded type})、$P \wedge s$ という形の型を表わすのに {\it アサート型} ({\it asserting type}) という名前を使います。
+これらは両方とも次の例で使います。
+
+\noindent {\it Example 1.}
+
 xxx
 
 
