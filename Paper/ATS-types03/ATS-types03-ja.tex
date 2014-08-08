@@ -172,6 +172,23 @@ DMLでは、この論文でアサート型と呼んでいるものをシミュ�
 $S$, $\Sigma$, $\vec{P}$, $P_0$ をそれぞれ 静的なシグニチャ, 静的な可変のコンテキスト, $\Sigma$ の下での命題の組, $\Sigma$ の下での1つの命題であるとします。
 もし次の規則の条件が満たされるなら、関係 $\Sigma$; $\vec{P} \models_S P_0$ は正規の制約関係であると言います:
 
+\begin{enumerate}
+  \item 図\ref{fig:fig2_regularity_rules} の規則ルール全てが有効である; すなわちそれぞれの規則ルールについて、もしルールの根拠が成立するならルールの結論が成立し、なおかつ
+  \item $\Sigma; \vec{P} \models_S s_1 \rightarrow_{tp} s_2 \leq_{tp} s'_1 \rightarrow_{tp} s'_2$ は $\Sigma; \vec{P} \models_S s'_1 \leq_{tp} s_1$ と $\Sigma; \vec{P} \models_S s_2 \leq_{tp} s'_2$ を意味し、なおかつ
+  \item $\Sigma; \vec{P} \models_S P \supset s \leq_{tp} P' \supset s'$ は $\Sigma; \vec{P},P' \models_S P$ と $\Sigma; \vec{P},P' \models_S s \leq_{tp} s'$ を意味し、なおかつ
+  \item $\Sigma; \vec{P} \models_S P \wedge s \leq_{tp} P' \wedge s'$ は $\Sigma; \vec{P},P \models_S P'$ と $\Sigma; \vec{P},P \models_S s \leq_{tp} s'$ を意味し、なおかつ
+  \item $\Sigma; \vec{P} \models_S \forall a : \sigma.s \leq_{tp} \forall a : \sigma.s'$ は $\Sigma , a: \sigma; \vec{P} \models_S s \leq_{tp} s'$ を意味し、なおかつ
+  \item $\Sigma; \vec{P} \models_S \exists a : \sigma.s \leq_{tp} \exists a : \sigma.s'$ は $\Sigma , a: \sigma; \vec{P} \models_S s \leq_{tp} s'$ を意味し、なおかつ
+  \item $\emptyset; \emptyset \models_S scc[s_1,\ldots,s_n] \leq_{tp} scc'[s'_1,\ldots,s'_{n'}]$ は $scc = scc'$ を意味します
+\end{enumerate}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=14cm]{img/fig2_regularity_rules.png}
+\caption{規則ルール}
+\label{fig:fig2_regularity_rules}
+\end{figure}
+
 xxx
 
 
