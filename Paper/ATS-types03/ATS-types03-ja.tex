@@ -82,6 +82,7 @@ statics の項を {\it 静的な項} ({\it static term}) と呼びます。
 \label{fig:fig1_rules}
 \end{figure}
 
+
 \subsection{Statics}
 
 静的な要素の形式的な表現を示します。
@@ -191,9 +192,53 @@ $S$, $\Sigma$, $\vec{P}$, $P_0$ をそれぞれ 静的なシグニチャ, 静的
 
 \noindent $\Sigma; \vec{P} \models_S P_0$ と書くときはいつでも $P \in \vec{P},P_0$ について $\Sigma \vdash_S P : bool$ を導出できることを仮定していることに注意してください。
 
-\noindent ATSのdynamicsを作るとき、制約関係を必要とします。全ての単一の規則条件と同様に、全ての単一の規則ルールはsubject reduction定理(定理1)とprogress定理(定理2)を規定するために後で使うことになります。一般に、{\it ATS} フレームワークは制約関係の上にパラメータ化されています。この時点では、制約関係の決定可能性を気にする必要がありません。それぞれの制約関係 $\models_S$ について、どのような $\Sigma, \vec{P}$ と $P_0$ が与えられても $\Sigma; \vec{P} \models_S P_0$ が満たされるかどうか、決定してくれるオラクルが存在することを単純に仮定することができます。後で、制約関係を決定する実用的なアルゴリズムを持つapplied type systemの例をいくつか紹介します。
+\noindent ATSのdynamicsを作るとき、制約関係を必要とします。全ての単一の規則条件と同様に、全ての単一の規則ルールはsubject reduction定理(定理1)とprogress定理(定理2)を規定するために後で使うことになります。
+一般に、{\it ATS} フレームワークは制約関係の上にパラメータ化されています。
+この時点では、制約関係の決定可能性を気にする必要がありません。
+それぞれの制約関係 $\models_S$ について、どのような $\Sigma, \vec{P}$ と $P_0$ が与えられても $\Sigma; \vec{P} \models_S P_0$ が満たされるかどうか、決定してくれるオラクルが存在することを単純に仮定することができます。
+後で、制約関係を決定する実用的なアルゴリズムを持つapplied type systemの例をいくつか紹介します。
 
-非叙述性 (impredicativity) のために、与えられたシグニチャ $S$ について制約関係 $\models_S$ を厳密に定義できる方法は一般により難しい問題であることは、強調されるべきです。[Xi03] では、モデル理論的なアプローチで私達はこの問題を解決しています。
+非叙述性 (impredicativity) のために、与えられたシグニチャ $S$ について制約関係 $\models_S$ を厳密に定義できる方法が一般により難しい問題であることは、強調されるべきです。
+[Xi03] では、モデル理論的なアプローチで私達はこの問題を解決しています。
+
+
+\subsection{Dynamics}
+
+ATS の dynamics は型付き言語で、種 {\it type} の静的な項は dynamics における型です。
+動的な定数をいくつか宣言することができ、引数 $n$ の動的な定数 $dc$ それぞれに次の形の dc 型を割り当てることができます。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=14cm]{img/infig22_dc-type.png}
+\end{figure}
+
+\noindent このとき $s_1,\ldots,s_n,s$ は型であると仮定しています。
+$dc$ が動的なコンストラクタ $dcc$ である場合、なんらかの型コンストラクタ $scc$ について 型 $s$ は $scc[\vec{s}]$ の形を取れなければなりません。
+すると $dcc$ は $scc$ と関連があると言えるのです。
+静的な項の (空である可能性のある) 列を表わすのに $\vec{s}$ を使っていることに注意してください。
+例えば、次のようにdc型を割り当てることで、2つの動的なコンストラクタ {\it \underline{nil}} と {\it \underline{cons}} を型コンストラクタ {\bf list} と関連付けることができます。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=14cm]{img/infig22_nil_cons.png}
+\end{figure}
+
+このとき、要素の型が $a$ で長さが $n$ のリストを表わす型として {\bf list}$[a,n]$ を使っています。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=14cm]{img/fig3_syntax_dynamics.png}
+\caption{dynamicsの構文}
+\label{fig:fig3_syntax_dynamics}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=8cm]{img/fig4_rules_dynamics.png}
+\caption{動的な可変のコンテキストを表わす形成ルール}
+\label{fig:fig4_rules_dynamics}
+\end{figure}
+
 
 \begin{acknowledgment}
 \end{acknowledgment}
