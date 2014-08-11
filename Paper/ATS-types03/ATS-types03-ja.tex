@@ -77,7 +77,7 @@ statics の項を {\it 静的な項} ({\it static term}) と呼びます。
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=14cm]{img/fig1_rules.png}
+\includegraphics[width=11cm]{img/fig1_rules.png}
 \caption{staticsを表わすシグニチャフォーマット規則と分類規則}
 \label{fig:fig1_rules}
 \end{figure}
@@ -91,7 +91,7 @@ statics の項を {\it 静的な項} ({\it static term}) と呼びます。
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=11cm]{img/infig21_formaldesc.png}
+\includegraphics[width=9cm]{img/infig21_formaldesc.png}
 \end{figure}
 
 静的な項の変数は $\alpha$ を使って表わし、静的な項の集合を $s$ で表わします。
@@ -114,7 +114,7 @@ sc種は (標準の) 種とは見なされていないことに注意してく�
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=11cm]{img/infig21_initialsig.png}
+\includegraphics[width=9cm]{img/infig21_initialsig.png}
 \end{figure}
 
 \noindent これは、その左側は静的な定数で: その右側には一致するsc種が割り当てられています。
@@ -146,7 +146,7 @@ $int$ を整数
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=12cm]{img/infig21_example1_list1.png}
+\includegraphics[width=9cm]{img/infig21_example1_list1.png}
 \end{figure}
 
 \noindent 直感的には、もし {\bf list}[$s$,$n$] がそれぞれの要素の型が $s$ で長さ $n$ のリストを表わす型だとすると、リストの長さを変えないようなリストからリストへの関数を上記の型は意図していると言えます。
@@ -154,7 +154,7 @@ $int$ を整数
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=14cm]{img/infig21_example1_list2.png}
+\includegraphics[width=11cm]{img/infig21_example1_list2.png}
 \end{figure}
 
 アサート型 $n > 0$ $\wedge$ {\bf list}[$a$, $n-1$] は、長さ $n$ のリストにこの関数を適用した後もしこの関数が返るなら、 $n > 0$ であり返値が長さ $n-1$ のリストであるという不変条件を捕捉しています。
@@ -169,6 +169,13 @@ DMLでは、この論文でアサート型と呼んでいるものをシミュ�
 一般に、(ある前提の元に) 与えられた命題が成立するかどうか決定する必要があります。
 そこで、次ような制約関係の概念を導入します。
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=14cm]{img/fig2_regularity_rules.png}
+\caption{規則ルール}
+\label{fig:fig2_regularity_rules}
+\end{figure}
+
 {\bf Definition 1.}
 $S$, $\Sigma$, $\vec{P}$, $P_0$ をそれぞれ 静的なシグニチャ, 静的な可変のコンテキスト, $\Sigma$ の下での命題の組, $\Sigma$ の下での1つの命題であるとします。
 もし次の規則条件が満たされるなら、関係 $\Sigma$; $\vec{P} \models_S P_0$ は正規の制約関係であると言います:
@@ -182,13 +189,6 @@ $S$, $\Sigma$, $\vec{P}$, $P_0$ をそれぞれ 静的なシグニチャ, 静的
   \item $\Sigma; \vec{P} \models_S \exists a : \sigma.s \leq_{tp} \exists a : \sigma.s'$ は $\Sigma , a: \sigma; \vec{P} \models_S s \leq_{tp} s'$ を意味し、なおかつ
   \item $\emptyset; \emptyset \models_S scc[s_1,\ldots,s_n] \leq_{tp} scc'[s'_1,\ldots,s'_{n'}]$ は $scc = scc'$ を意味します
 \end{enumerate}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=14cm]{img/fig2_regularity_rules.png}
-\caption{規則ルール}
-\label{fig:fig2_regularity_rules}
-\end{figure}
 
 \noindent $\Sigma; \vec{P} \models_S P_0$ と書くときはいつでも $P \in \vec{P},P_0$ について $\Sigma \vdash_S P : bool$ を導出できることを仮定していることに注意してください。
 
@@ -209,7 +209,7 @@ ATS の dynamics は型付き言語で、種 {\it type} の静的な項は dynam
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=14cm]{img/infig22_dc-type.png}
+\includegraphics[width=10cm]{img/infig22_dc-type.png}
 \end{figure}
 
 \noindent このとき $s_1,\ldots,s_n,s$ は型であると仮定しています。
@@ -220,10 +220,36 @@ $dc$ が動的なコンストラクタ $dcc$ である場合、なんらかの�
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=14cm]{img/infig22_nil_cons.png}
+\includegraphics[width=10cm]{img/infig22_nil_cons.png}
 \end{figure}
 
-このとき、要素の型が $a$ で長さが $n$ のリストを表わす型として {\bf list}$[a,n]$ を使っています。
+\noindent このとき、要素の型が $a$ で長さが $n$ のリストを表わす型として {\bf list}$[a,n]$ を使っています。
+
+動的な値を動的な項に写像する動的な置換を $\Theta_D$ で表わします。
+また $\Theta_D$ のドメインを {\bf dom}($\Theta_D$) で表わします。
+静的な置換と同じように、動的な置換を形成して適用するような構文を示すことを省きます。
+{\bf dom}($\Theta^1_D$) $\cap$ {\bf dom}($\Theta^2_D$) $= \emptyset$ となるような $\Theta^1_D$ と $\Theta^2_D$ が与えられたとき、$\Theta^1_D$ と $\Theta^2_D$ の和集合を $\Theta^1_D \cup \Theta^2_D$ で表わします。
+
+任意の構文を $\bullet$ で表わすと、$\Sigma = a_1 : \sigma_1,\ldots,a_k : \sigma_k$ において、$\forall a_1:\sigma_1 \ldots \forall a_k:\sigma_k .\bullet$ を $\forall\Sigma.\bullet$ と書くことができます。
+同様に、$\vec{P} = P_1,\ldots,P_m$ において $P_1 \supset (\ldots(P_m \supset \bullet)\ldots)$ を $\vec{P} \supset \bullet$ と書くことができます。
+例えば、dc型は常に $\forall \Sigma.\vec{P} \supset ([s_1,\ldots,s_n] \Rightarrow_{tp} s)$ の形になります。
+動的な定数の宣言を許可するために、シグニチャの定義を次のように拡張する必要があります。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=9cm]{img/infig22_dynamic_sig.png}
+\end{figure}
+
+\noindent さらに、シグニチャを作るために次のような追加のルールが必要になります。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=9cm]{img/infig22_addtional_rule.png}
+\end{figure}
+
+\noindent 動的な項の変数として $x$ を、動的な項として $d$ を用いるとき、dynamicsの構文を図\ref{fig:fig3_syntax_dynamics} に示します。
+引数の個数が $n$ の動的な定数 $dc$ が与えられたとき、引数 $d_1,\ldots,d_n$ への $dc$ の適用を $dc[d_1,\ldots,d_n]$ と書きます。
+$n = 0$ の場合には $dc[]$ の代わりに $dc$ と書くこともできます。
 
 \begin{figure}[h]
 \centering
@@ -239,6 +265,45 @@ $dc$ が動的なコンストラクタ $dcc$ である場合、なんらかの�
 \label{fig:fig4_rules_dynamics}
 \end{figure}
 
+型の導出において帰納的な意味付けに必要なLemma 3を証明するために、標識 $\supset^+(\cdot)$, $\supset^-(\cdot)$, $\wedge(\cdot)$, $\forall^+(\cdot)$, $\forall^-(\cdot)$, $\exists(\cdot)$ を導入します。
+これらの標識がないと、型の導出において帰納的証明を行なうことが、著しく困難になります。
+Lemma 3を証明することも困難になってしまうでしょう。
+
+$\Sigma \vdash_S \Delta [dctx]$ の形の判定は、$\Sigma$ と $S$ の下で $\Delta$ が well-formed な動的な可変のコンテキストであることを示しています。
+このような判定を導出するルールを図\ref{fig:fig4_rules_dynamics}に示します。
+型付けされたコンテキトを $\Sigma; \vec{P}; \Delta$ で表わします。
+次のルールは $\vdash_S \Sigma; \vec{P}; \Delta$ の形の判定を導出しています。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=7cm]{img/infig22_rule_deriving.png}
+\end{figure}
+
+\noindent これは $\Sigma; \vec{P}; \Delta$ が well-formed であることを示しています。
+
+xxx
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=9cm]{img/infig22_ty-var.png}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=9cm]{img/infig22_example2.png}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=9cm]{img/infig22_letin.png}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=9cm]{img/infig22_eval.png}
+\end{figure}
+
+xxx
 
 \begin{acknowledgment}
 \end{acknowledgment}
