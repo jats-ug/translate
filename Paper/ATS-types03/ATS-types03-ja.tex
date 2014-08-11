@@ -57,7 +57,7 @@ Scheme が導入したようなアプローチ、つまり既存の言語に新�
 
 論文の残りは次のような構成になっています。
 2章では、{\it ATS} フレームワークの詳細な開発成果を示します。
-{\it ATS} で構成された汎用的な Applied Type System である ATS を形式化し、それから subject reduction と progress theorem を定義します。
+{\it ATS} で構成された汎用的な Applied Type System である ATS を形式化し、それからsubject reductionとprogress定理を定義します。
 3章では、{\it ATS} を拡張して、一般帰納、パターンマッチ、作用のような一般的で現実的なプログラミングの機能のいくつかに順応させます。
 4章では、applied type system の興味深い例をいくつか示します。
 最後に、関連研究と開発の将来の可能性について紹介した後、結論を述べます。
@@ -170,7 +170,7 @@ DMLでは、この論文でアサート型と呼んでいるものをシミュ�
 
 {\bf Definition 1.}
 $S$, $\Sigma$, $\vec{P}$, $P_0$ をそれぞれ 静的なシグニチャ, 静的な可変のコンテキスト, $\Sigma$ の下での命題の組, $\Sigma$ の下での1つの命題であるとします。
-もし次の規則の条件が満たされるなら、関係 $\Sigma$; $\vec{P} \models_S P_0$ は正規の制約関係であると言います:
+もし次の規則条件が満たされるなら、関係 $\Sigma$; $\vec{P} \models_S P_0$ は正規の制約関係であると言います:
 
 \begin{enumerate}
   \item 図\ref{fig:fig2_regularity_rules} の規則ルール全てが有効である; すなわちそれぞれの規則ルールについて、もしルールの根拠が成立するならルールの結論が成立し、なおかつ
@@ -191,8 +191,9 @@ $S$, $\Sigma$, $\vec{P}$, $P_0$ をそれぞれ 静的なシグニチャ, 静的
 
 \noindent $\Sigma; \vec{P} \models_S P_0$ と書くときはいつでも $P \in \vec{P},P_0$ について $\Sigma \vdash_S P : bool$ を導出できることを仮定していることに注意してください。
 
-xxx
+\noindent ATSのdynamicsを作るとき、制約関係を必要とします。全ての単一の規則条件と同様に、全ての単一の規則ルールはsubject reduction定理(定理1)とprogress定理(定理2)を規定するために後で使うことになります。一般に、{\it ATS} フレームワークは制約関係の上にパラメータ化されています。この時点では、制約関係の決定可能性を気にする必要がありません。それぞれの制約関係 $\models_S$ について、どのような $\Sigma, \vec{P}$ と $P_0$ が与えられても $\Sigma; \vec{P} \models_S P_0$ が満たされるかどうか、決定してくれるオラクルが存在することを単純に仮定することができます。後で、制約関係を決定する実用的なアルゴリズムを持つapplied type systemの例をいくつか紹介します。
 
+非叙述性 (impredicativity) のために、与えられたシグニチャ $S$ について制約関係 $\models_S$ を厳密に定義できる方法は一般により難しい問題であることは、強調されるべきです。[Xi03] では、モデル理論的なアプローチで私達はこの問題を解決しています。
 
 \begin{acknowledgment}
 \end{acknowledgment}
