@@ -334,53 +334,27 @@ xxx
 \footnote{実際には guarded recursive datatypes を、型が型をインデックスするような "依存型" として考えることができます。}
 の間に類似点を見つけた私達は、自然にこれらの統一された表現の探求に導かれました。
 
-For those who are familiar with qualified types [Jon94], which underlies the
-type class mechanism in Haskell, we point out that a qualified type can not be
-regarded as a guarded type.
-The simple reason is that the proof of a guard in an
-applied type system bears no computational meaning, that is, it cannot affect
-the run-time behavior of a program, while a dictionary, which is really the proof
-of some predicate on types in the setting of qualified types, can and is mostly
-likely to affect the run-time behaviour of a program.
+Haskellの型クラスの根底にある qualified types [Jon94] に精通した人に対して、qualified type はガード型と見なせないことを指摘しておきます。
+その単純な理由は、applied type system におけるガードの証明が計算上の意味を持っていないことです。
+つまり、プログラムの実行時の挙動に影響を及ぼすことができないのです。
+しかし、qualified types の環境における型の述語の証明である dictionary はプログラムの実行時の挙動に影響を与えることができ、また好んで使われます。
 
-Another line of closely related work is the formation of a type system in
-support of certified binaries [SSTP02], in which the idea of a complete separation
-between types and programs is also employed.
-Basically, the notions of type
-language and computational language in the type system correspond to the
-notions of statics and dynamics in ATS, respectively, though the type language
-is based on the calculus of constructions extended with inductive definitions
-(CiC) [PPM89,PM93].
-However, the notion of a constraint relation in ATS does
-not have a counterpart in [SSTP02].
-Instead, the equality between two types is
-determined by comparing the normal forms of these types.
-It is not difficult to
-see that an applied type system can also be constructed to certify binaries in
-the sense of [SSTP02] as long as we have an approach to effectively representing
-and verifying proofs of the constraint relation associated with the applied type
-system.
+別方向の関連研究として certified binaries [SSTP02] を用いた型システムの形式化があります。
+これもまた型とプログラムを完全に分離するアイデアです。
+帰納的な定義 (CiC) [PPM89,PM93] を拡張した calculus of constructions にこの型言語は基づいているとはいえ、基本的にこの型システムにおける型言語と計算言語の概念は、それぞれATSのstaticsとdynamicsの概念に相当します。
+けれども、ATS における制約関係の概念は [SSTP02] のものに相当するわけではありません。
+その代わりに、型の正規形を比較することで、2つの型の等価性を決定できます。
+私達が applied type system と関連した制約関係の証明を効果的に表現/検証するアプローチ持っている以上、[SSTP02] の意味での certify binaries に対して applied type system を構築することも困難ではありません。
 
-In summary, we have presented a framework ATS for facilitating the design
-and formalization of type systems to support practical programming.
-With a complete separation between statics and dynamics, ATS works particularly well
-on supporting dependent types in the presence of effects.
-Also, the availability
-of guarded types and asserting types in ATS makes it both more flexible and
-more effective to capture program invariants.
-We also see ATS as a unification
-as well as a generalization of the previous work on a restricted form of dependent
-types [XP99,Xi98] and guarded recursive datatypes [XCC03].
+要約すると、実用的なプログラミングをサポートするための型システムのデザインと形式化を促進するために、{\it ATS} フレームワークを示しました。
+statics と dynamics を完全に分離することで、{\it ATS} は作用の存在下における依存型のサポートに特に威力を発揮します。
+また、{\it ATS} のガード型とアサート型を使うことで、より柔軟により効果的にプログラムの不変条件を捕捉できます
+これまで研究されてきた依存型 [XP99,Xi98] と guarded recursive datatypes [XCC03] の統一化と一般化であると {\it ATS} をとらえることもできます。
 
-A static component in ATS is currently based on a simply typed λ-calculus.
-Therefore, it is natural to study how a static component can be built upon a
-typed λ-calculus supporting polymorphism and/or dependent types.
-Also, we are particularly interested in designing and implementing a functional program-
-ming language with a type system based on ATS, which can then offer a means
-to language extension by mostly implementing new language constructs in terms
-of some existing ones.
-
-xxx
+現時点では {\it ATS} の静的な要素は単純なラムダ計算に基づいています。
+従って、静的な要素が多相性と依存型をサポートする型付きラムダ計算の上に構築できるか研究することができるでしょう。
+また、{\it ATS} に基づく型システムを使って関数型プログラミング言語をデザイン/実装することに、私達は特に興味を持っています。
+それは既存の言語において新しい言語構造を実装ような方法で、言語拡張を行なう手段を提供できるでしょう。
 
 \begin{acknowledgment}
 Assaf Kfouryから本論文のドラフトに対するコメントをもらいました。
