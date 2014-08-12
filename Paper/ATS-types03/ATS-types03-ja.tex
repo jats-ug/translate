@@ -282,27 +282,23 @@ $\Sigma \vdash_S \Delta [dctx]$ の形の判定は、$\Sigma$ と $S$ の下で 
 
 \noindent これは $\Sigma; \vec{P}; \Delta$ が well-formed であることを示しています。
 
-xxx
+$\Sigma; \vec{P}; \Delta$ が well-formed な型付けされたコンテキストで、かつ $\Sigma \vdash_S s:type$ 導出できると仮定したとき、型付け判定は $\Sigma; \vec{P}; \Delta \vdash_S d:s$ の形を取ります。
+制約関係 $\models_S$ が正則であると仮定したとき、このような判定を導くための型付けルールを図\ref{fig:fig5_typingrules_dynamics}に示します。
+$\Sigma \vdash_S \Theta_S : \Sigma_0$ と書くとき、それぞれの $a \in {\bf dom}(\Theta_S) = {\bf dom}(\Sigma)$ について $\Sigma \vdash_S \Theta_S(a) : \Sigma(a)$ が導出できることを意味します。
+型付けルールに関連する明らかな条件のいくつかを省略していることに注意してください。
+例えば、ルール {\bf(ty-$\forall$-intro)} を適用するとき、$\vec{P}$, $\Delta$ もしくは $s$ において値 $a$ は自由に出現 (free occurrences) できません。
+また値の形に、型付けルール {\bf (ty-gua-intro)} と {\bf (ty-$\forall$-intro)} の制約を付けています。
+これは後でATSに作用を導入するための準備です。
+\footnote{実際にはTheorem 2を成立させるために、型付けルール {\bf (ty-gua-intro)} の値に対する制約は、この時点で必要です。}
+技術的な理由で、ルール {\bf (ty-var)} を次のようなルールで置き換えます。
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=9cm]{img/infig22_ty-var.png}
+\includegraphics[width=8cm]{img/infig22_ty-var.png}
 \end{figure}
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=9cm]{img/infig22_example2.png}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=9cm]{img/infig22_letin.png}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=9cm]{img/infig22_eval.png}
-\end{figure}
+\noindent これは {\bf (ty-var)} と {\bf (ty-sub)} を結合しています。
+この置換は Lemma 2 成立させるために必要です。
 
 \begin{figure}[h]
 \centering
@@ -310,6 +306,46 @@ xxx
 \caption{dynamicsの型付けルール}
 \label{fig:fig5_typingrules_dynamics}
 \end{figure}
+
+Before proceeding to the presentation of the rules for evaluating dynamic terms,
+we now sketch a scenario in which a guarded type and an asserting type play an interesting role in enforcing security,
+facilitating further understanding of such types.
+
+\noindent {\it Example 2.}
+Assume that Secret is a proposition constant and password and action are two declared functions,
+which are assigned the following dc-types.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=10cm]{img/infig22_example2.png}
+\end{figure}
+
+The function password can be implemented in a manner so that some secret information must be verified before a call to password returns.
+On one hand,
+the proposition Secret needs to be established before the function call action[hi] can be made,
+where hi denotes the value of the unit type 1.
+On the other hand,
+the proposition Secret is established after the function call password[hi] returns.
+Therefore, a proper means to calling action is through the following program pattern:
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=7cm]{img/infig22_letin.png}
+\end{figure}
+
+\noindent In particular,
+a call to action outside the scope of x is ill-typed since the proposition Secret cannot be established.
+
+In order to assign a call-by-value dynamic semantics to dynamic terms,
+we make use of evaluation contexts, which are defined below:
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=11cm]{img/infig22_eval.png}
+\end{figure}
+
+\noindent {\bf Definition 2.}
+We define redexes and their reductions as follows.
 
 xxx
 
