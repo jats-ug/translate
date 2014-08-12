@@ -313,9 +313,35 @@ xxx
 
 xxx
 
-\subsection{Erasure}
+\subsection{型消去済の動的な項}
 
-xxx
+動的な項から、意味論を維持した型無しのラムダ式に変換する関数を示します。
+次のように形式的に定義された型消去済の動的な項を $e$ で表わします:
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=13cm]{img/infig3_erasure.png}
+\end{figure}
+
+\noindent すると、動的な項から型消去済の動的な項への変換する、次のような関数 $|\cdot|$ を定義できます。
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{img/infig3_trans_erasure.png}
+\end{figure}
+
+\noindent {\bf Theorem 3.}
+$D :: \emptyset; \emptyset; \emptyset \vdash_S d : s$ を仮定したとき
+
+\begin{enumerate}
+  \item もし $d \hookrightarrow^* v$ ならば $|d| \hookrightarrow^* |v|$ です。
+  \item もし $|d| \hookrightarrow^* w$ ならば $d \hookrightarrow^* v$ かつ $|v| = w$ であるような値 $v$ が存在します。
+\end{enumerate}
+
+\noindent {\it Proof.}
+(1) は自明です。(2) は $D$ に対する構造帰納法から得られます。
+
+\noindent Theorem 3 を用いると、型消去済の動的な項 $d$ を単純に評価することで、動的な項 $d$ を評価することができます。
 
 \section{拡張}
 
