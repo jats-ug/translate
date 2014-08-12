@@ -445,6 +445,52 @@ $D :: \emptyset; \emptyset; \emptyset \vdash_S d : s$ を仮定したとき
 
 \section{拡張}
 
+We extend ATS to accommodate some common realistic programming features
+in this section.
+
+General Recursion We introduce a fixed-point operator fix to support general
+recursion in ATS. We now call variables x lam-variables and introduce fix-
+variables f . We use xf for a variable that is either a lam-variable or a fix-
+variable.
+
+xxx fig
+
+The rule (ty-var) needs to be modified and the rule (tyrule-fix) needs to be added to handle the fixed-point operator:
+
+xxx fig
+
+A dynamic term of the form fix f.d is a redex and its reduction is d[f 7→ fix f.d].
+It is straightforward to establish both the subject reduction theorem (Theorem 1)
+and the progress theorem (Theorem 2) for this extension.
+
+Datatypes and Pattern Matching We present an approach to extending
+ATS with support for datatypes and pattern matching and then provide with
+some simple examples. The following is some additional syntax we need.
+
+xxx fig
+
+As usual, we require that any variable x can occur at most once in a pattern.
+Given a value v and a pattern p, we use a judgment of the form v ⇓ p ⇒ Θ D to
+indicate v = p[Θ D ]. The rules for deriving such judgments are given as follows,
+
+xxx fig
+
+and we say that v matches p if v ⇓ p ⇒ Θ D is derivable for some dynamic 1n
+substitution Θ D . Note that in the rule (vp-dcc), the union Θ D ∪ . . . ∪ Θ D,
+which becomes the empty dynamic substitution [] when n = 0, is well-defined
+since any variable can occur at most once in a pattern.
+
+A dynamic term of the form case v of p 1 ⇒ d 1 | · · · | p n ⇒ d n is a redex if
+v ⇓ p i ⇒ Θ D holds for some 1 ≤ i ≤ n, and its reduction is d i [Θ D ]. Note that reducing such a redex may involve nondeterminism if v matches several patterns p i .
+
+xxx fig
+
+The typing rules for pattern matching is given in Figure 6. The meaning of
+a judgment of the form Σ ` p ⇓ s ⇒ Σ 0 ; P ~ 0 ; ∆ 0 is formally captured in the
+following lemma.
+
+Lemma 4.
+
 xxx
 
 \section{Applied Type Systemの例}
