@@ -445,19 +445,24 @@ $D :: \emptyset; \emptyset; \emptyset \vdash_S d : s$ を仮定したとき
 
 \section{拡張}
 
-We extend ATS to accommodate some common realistic programming features
-in this section.
+この章では、 {\it ATS} を拡張して一般的で現実的なプログラミングの機能のいくつかをサポートします。
 
-General Recursion We introduce a fixed-point operator fix to support general
-recursion in ATS. We now call variables x lam-variables and introduce fix-
-variables f . We use xf for a variable that is either a lam-variable or a fix-
-variable.
+\noindent {\bf General Recursion}
+{\it ATS} で一般帰納 (general recursion) をサポートするために、不動点演算子 {\bf fix} を導入します。
+ここでは、変数 $x$ を {\bf lam}-変数と呼び、{\bf fix}-変数 $f$ を導入します。
+ {\bf lam}-変数か {\bf fix}-変数のいずれかである変数を $xf$ で表わします。
 
-xxx fig
+\begin{figure}[h]
+\centering
+\includegraphics[width=6cm]{img/infig3_general_recursion.png}
+\end{figure}
 
 The rule (ty-var) needs to be modified and the rule (tyrule-fix) needs to be added to handle the fixed-point operator:
 
-xxx fig
+\begin{figure}[h]
+\centering
+\includegraphics[width=11cm]{img/infig3_fixed-point_op.png}
+\end{figure}
 
 A dynamic term of the form fix f.d is a redex and its reduction is d[f 7→ fix f.d].
 It is straightforward to establish both the subject reduction theorem (Theorem 1)
@@ -467,13 +472,19 @@ Datatypes and Pattern Matching We present an approach to extending
 ATS with support for datatypes and pattern matching and then provide with
 some simple examples. The following is some additional syntax we need.
 
-xxx fig
+\begin{figure}[h]
+\centering
+\includegraphics[width=9cm]{img/infig3_pattern_match.png}
+\end{figure}
 
 As usual, we require that any variable x can occur at most once in a pattern.
 Given a value v and a pattern p, we use a judgment of the form v ⇓ p ⇒ Θ D to
 indicate v = p[Θ D ]. The rules for deriving such judgments are given as follows,
 
-xxx fig
+\begin{figure}[h]
+\centering
+\includegraphics[width=14cm]{img/infig3_vp-doc.png}
+\end{figure}
 
 and we say that v matches p if v ⇓ p ⇒ Θ D is derivable for some dynamic 1n
 substitution Θ D . Note that in the rule (vp-dcc), the union Θ D ∪ . . . ∪ Θ D,
@@ -483,13 +494,45 @@ since any variable can occur at most once in a pattern.
 A dynamic term of the form case v of p 1 ⇒ d 1 | · · · | p n ⇒ d n is a redex if
 v ⇓ p i ⇒ Θ D holds for some 1 ≤ i ≤ n, and its reduction is d i [Θ D ]. Note that reducing such a redex may involve nondeterminism if v matches several patterns p i .
 
-xxx fig
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{img/fig6_rules_pattern_match.png}
+\caption{パターンマッチの型付けルール}
+\label{fig:fig6_rules_pattern_match}
+\end{figure}
 
 The typing rules for pattern matching is given in Figure 6. The meaning of
 a judgment of the form Σ ` p ⇓ s ⇒ Σ 0 ; P ~ 0 ; ∆ 0 is formally captured in the
 following lemma.
 
 Lemma 4.
+
+xxx
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=9cm]{img/infig3_lemma4_judgement.png}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=10cm]{img/infig3_lemma4_cons_dctype.png}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=6cm]{img/infig3_lemma4_theorem1.png}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=7cm]{img/infig3_lemma4_theorem2.png}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=7cm]{img/infig3_effect_dctype.png}
+\end{figure}
 
 xxx
 
