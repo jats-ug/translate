@@ -397,16 +397,21 @@ $D::\Sigma; \vec{P}; \Delta \vdash_S d:s$ を仮定します。
 \end{enumerate}
 
 \noindent {\it Proof.}
-By induction by h(D). In particular, Lemma 2 is needed to establish (1).
+${\bf h}(D)$ に関する帰納法を使います。
+特に、(1) を成立するために Lemma 2 が必要になります。
 
-The type soundess of ATS rests upon the following two theorems, who proofs
-are largely standard and thus omitted here.
+ATS の型の健全性は次に示す2つの定理に基づいています。
+これらの証明は一般的であるため、ここでは省略します。
 
 \noindent {\bf Theorem 1 (Subject Reduction).}
-Assume both D :: Σ; P ~ ; ∆ ` S d : s and d ,→ d 0 . Then Σ; P ~ ; ∆ ` S d : s is derivable.
+$D :: \Sigma; \vec{P}; \Delta \vdash_S d:s$ と $d \hookrightarrow d'$ の両方を仮定します。
+すると $\Sigma; \vec{P}; \Delta \vdash_S d:s$ を導出できます。
 
 \noindent {\bf Theorem 2 (Progress).}
-Assume D :: ∅; ∅; ∅ ` S d : s. Then d is a value, or d ,→ d 0 holds for some dynamic term d 0 , or d = E[dcf (v 1 , . . . , v n )] for some dynamic term dcf (v 1 , . . . , v n ) that is not a redex.
+$D :: \emptyset;\emptyset;\emptyset \vdash_S d:s$ を仮定します。
+すると、 $d$ は値となるか、
+もしくはなんらかの動的な項 $d'$ について $d \hookrightarrow d'$ が成立するか、
+もしくはなんらかの簡約可能式でない動的な項 $dcf(v_1,\ldots,v_n)$ について $d = E[dcf(v_1,\ldots,v_n)]$ が成立します。
 
 \subsection{型消去済の動的な項}
 
