@@ -389,10 +389,24 @@ $D$ に最後に適用されたルールが {\bf (ty-var')} であるような�
 $D::\Sigma; \vec{P}; \Delta \vdash_S d:s$ を仮定します。
 
 \begin{enumerate}
-  \item xxx
+  \item もし $d = {\bf lam} x.d_1$ かつ $s = s_1 \rightarrow_{tp} s_2$ ならば ${\bf h}(D') \leq {\bf h}(D)$ であるような導出 $D'::\Sigma; \vec{P}; \Delta \vdash_S d:s$ が存在します。なおかつ $D'$ に適用された最後のルールは {\bf (ty-sub)} ではありません。
+  \item もし $d = \supset^+(d_1)$ かつ $s = P \supset s_1$ ならば ${\bf h}(D') \leq {\bf h}(D)$ であるような導出 $D' :: \Sigma; \vec{P}; \Delta \vdash_S d:s$ が存在します。なおかつ $D'$ に適用された最後のルールは {\bf (ty-sub)} ではありません。
+  \item もし $d = \wedge(d_1)$ かつ $s = P \wedge s_1$ ならば ${\bf h}(D') \leq {\bf h}(D)$ であるような導出 $D' :: \Sigma; \vec{P}; \Delta \vdash_S d:s$ が存在します。なおかつ $D'$ に適用された最後のルールは {\bf (ty-sub)} ではありません。
+  \item もし $d = \forall^+(d_1)$ かつ $s = \forall a:\sigma.s_1$ ならば ${\bf h}(D') \leq {\bf h}(D)$ であるような導出 $D' :: \Sigma; \vec{P}; \Delta \vdash_S d:s$ が存在します。なおかつ $D'$ に適用された最後のルールは {\bf (ty-sub)} ではありません。
+  \item もし $d = \exists(d_1)$ かつ $s = \exists a:\sigma.s_1$ ならば ${\bf h}(D') \leq {\bf h}(D)$ であるような導出 $D' :: \Sigma; \vec{P}; \Delta \vdash_S d:s$ が存在します。なおかつ $D'$ に適用された最後のルールは {\bf (ty-sub)} ではありません。
 \end{enumerate}
 
-xxx
+\noindent {\it Proof.}
+By induction by h(D). In particular, Lemma 2 is needed to establish (1).
+
+The type soundess of ATS rests upon the following two theorems, who proofs
+are largely standard and thus omitted here.
+
+\noindent {\bf Theorem 1 (Subject Reduction).}
+Assume both D :: Σ; P ~ ; ∆ ` S d : s and d ,→ d 0 . Then Σ; P ~ ; ∆ ` S d : s is derivable.
+
+\noindent {\bf Theorem 2 (Progress).}
+Assume D :: ∅; ∅; ∅ ` S d : s. Then d is a value, or d ,→ d 0 holds for some dynamic term d 0 , or d = E[dcf (v 1 , . . . , v n )] for some dynamic term dcf (v 1 , . . . , v n ) that is not a redex.
 
 \subsection{型消去済の動的な項}
 
