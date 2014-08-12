@@ -307,37 +307,32 @@ $\Sigma \vdash_S \Theta_S : \Sigma_0$ と書くとき、それぞれの $a \in {
 \label{fig:fig5_typingrules_dynamics}
 \end{figure}
 
-Before proceeding to the presentation of the rules for evaluating dynamic terms,
-we now sketch a scenario in which a guarded type and an asserting type play an interesting role in enforcing security,
-facilitating further understanding of such types.
+ここで、動的な項を評価するルールの表現に進む前に、ガード型とアサート型がセキュリティを強制する興味深い役割を演じるようなシナリオをスケッチしてみましょう。
+これらの型を理解をさらに容易にしてくれるはずです。
 
 \noindent {\it Example 2.}
-Assume that Secret is a proposition constant and password and action are two declared functions,
-which are assigned the following dc-types.
+\underline{$Secret$}は命題定数で、\underline{$password$}と\underline{$action$}が次のようなdc型が割り当てられた2つの関数で宣言されている、と仮定します。
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=10cm]{img/infig22_example2.png}
 \end{figure}
 
-The function password can be implemented in a manner so that some secret information must be verified before a call to password returns.
-On one hand,
-the proposition Secret needs to be established before the function call action[hi] can be made,
-where hi denotes the value of the unit type 1.
-On the other hand,
-the proposition Secret is established after the function call password[hi] returns.
-Therefore, a proper means to calling action is through the following program pattern:
+\noindent \underline{$password$} を呼び出しが返る前になんらかのsecret情報を検証しなければならない、というような方法で関数 \underline{$password$} を実装できます。
+一方では、関数呼び出し \underline{$action$}$[\langle\rangle]$ をする前に、命題 \underline{$Secret$} を成立させなければなりません。
+このとき、$\langle\rangle$ はユニット型 {\bf 1} の値を意味します。
+もう一方、関数呼び出し \underline{$password$}$[\langle\rangle]$ が返った後では、命題 \underline{$Secret$} は成立しています。
+従って、\underline{$action$} 呼び出しは次のプログラムパターンを意味していることになります:
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=7cm]{img/infig22_letin.png}
 \end{figure}
 
-\noindent In particular,
-a call to action outside the scope of x is ill-typed since the proposition Secret cannot be established.
+\noindent 特に $x$ のスコープ外における \underline{$action$} 呼び出しは ill-typed です。
+なぜなら命題 \underline{$Secret$} を成立させることができないからです。
 
-In order to assign a call-by-value dynamic semantics to dynamic terms,
-we make use of evaluation contexts, which are defined below:
+値渡し (call-by-value) の動的な構文を動的な項に割り当てるために、次に定義する評価コンテキストを利用します:
 
 \begin{figure}[h]
 \centering
@@ -345,7 +340,29 @@ we make use of evaluation contexts, which are defined below:
 \end{figure}
 
 \noindent {\bf Definition 2.}
-We define redexes and their reductions as follows.
+簡約可能式 (redex) と簡約 (reducation) を次のように定義します。
+
+\begin{itemize}
+  \item ${\bf app}({\bf lam} x.d, v)$ は簡約可能式で、その簡約は $d[x \mapsto v]$ です。
+  \item $\supset^- (\supset^+ (v))$ は簡約可能式で、その簡約は $v$ です。
+  \item ${\bf let} \wedge (x) = \wedge (v) {\bf in} d$ は簡約可能式で、その簡約は $d[x \mapsto v]$ です。
+  \item $\forall^- (\forall^+ (v))$ は簡約可能式で、その簡約は $v$ です。
+  \item ${\bf let} \exists (x) = \exists (v) {\bf in} d$ は簡約可能式で、その簡約は $d[x \mapsto v]$ です。
+  \item なんらかの値 $v$ に等しく定義された $dcf[v_1,\ldots,v_n]$ は簡約可能式で、その簡約は $v$ です。
+\end{itemize}
+
+\noindent Given two dynamic terms d 1 and d 2 such that d 1 = E[d] and d 2 = E[d 0 ] for
+some redex d and its reduction d 0 , we write d 1 ,→ d 2 and say that d 1 reduces to
+d 2 in one step. We use ,→ ∗ for the reflexive and transitive closure of ,→.
+
+\noindent We assume that the type assgined to each dynamic constant function dcf is
+appropriate, that is, ∅; ∅; ∅ ` S v : s is derivable if ∅; ∅; ∅ ` S dcf [v 1 , . . . , v n ] : s is
+derivable and dcf [v 1 , . . . , v n ] ,→ v holds.
+
+Given a judgment J, we write D :: J to indicate that D is a derivation of J,
+that is, D is a derivation whose conclusion is J.
+
+\noindent {\bf Lemma 1 (Substitution).} We have the following.
 
 xxx
 
