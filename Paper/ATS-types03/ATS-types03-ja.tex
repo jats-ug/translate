@@ -351,18 +351,31 @@ $\Sigma \vdash_S \Theta_S : \Sigma_0$ と書くとき、それぞれの $a \in {
   \item なんらかの値 $v$ に等しく定義された $dcf[v_1,\ldots,v_n]$ は簡約可能式で、その簡約は $v$ です。
 \end{itemize}
 
-\noindent Given two dynamic terms d 1 and d 2 such that d 1 = E[d] and d 2 = E[d 0 ] for
-some redex d and its reduction d 0 , we write d 1 ,→ d 2 and say that d 1 reduces to
-d 2 in one step. We use ,→ ∗ for the reflexive and transitive closure of ,→.
+\noindent なんらかの簡約可能式 $d$ とその簡約 $d'$ について $d_1 = E[d]$ かつ $d_2 = E[d']$ のような2つの動的な項 $d_1$ と $d_2$ が与えられたとき、$d_1 \hookrightarrow d_2$ は1ステップで $d_1$ を $d_2$ に簡約することを意味します。
+$\hookrightarrow$ の再帰的で推移的なクロージャを $\hookrightarrow^*$ で表わします。
 
-\noindent We assume that the type assgined to each dynamic constant function dcf is
-appropriate, that is, ∅; ∅; ∅ ` S v : s is derivable if ∅; ∅; ∅ ` S dcf [v 1 , . . . , v n ] : s is
-derivable and dcf [v 1 , . . . , v n ] ,→ v holds.
+\noindent 動的な定数の関数 $dcf$ それぞれに割り当てられた型が妥当であると仮定します。
+すなわち、もし $\emptyset;\emptyset;\emptyset \vdash_S dcf[v_1,\ldots,v_n]:s$ が導出でき、かつ $dcf[v_1,\ldots,v_n] \hookrightarrow v$ が成立するなら、$\emptyset;\emptyset;\emptyset \vdash_S v:s$ が導出できるとします。
 
-Given a judgment J, we write D :: J to indicate that D is a derivation of J,
-that is, D is a derivation whose conclusion is J.
+判定 $J$ が与えられたとき、$D$ が $J$ の導出であることを示すために $D :: J$ と書きます。
+つまり $D$ が $J$ を結論とする導出であることを意味しています。
 
-\noindent {\bf Lemma 1 (Substitution).} We have the following.
+\noindent {\bf Lemma 1 (Substitution).} 次が成立します。
+
+\begin{enumerate}
+  \item $D :: \Sigma,a : \sigma; \vec{P}; \Delta \vdash_S d:s$ と $D_0 :: \Sigma \vdash_S s_0 : \sigma$ を仮定します。すると $\Sigma; \vec{P}[a \mapsto s_0]; \Delta[a \mapsto s_0] \vdash_S d:s[a \mapsto s_0]$ を導出できます。
+  \item $D :: \Sigma; \vec{P},P; \Delta \vdash_S d:s$ と $\Sigma; \vec{P} \models_S P$ を仮定します。すると $\Sigma; \vec{P}; \Delta \vdash_S d:s$ を導出できます。
+  \item $D :: \Sigma; \vec{P}; \Delta, x:s_1 \vdash_S d_2:s_2$ と $\Sigma; \vec{P}; \Delta \vdash_S d_1:s_1$ を仮定します。すると $\Sigma; \vec{P}; \Delta \vdash_S d_2[x \mapsto d_1]:s_2$ を導出できます。
+\end{enumerate}
+
+\noindent {\it Proof.}
+We can readily prove (1), (2) and (3) by structural induction on D.
+When proving (1) and (2),
+we need to make use of the regularity rules (reg-subst) and (reg-cut), respectively.
+
+\noindent Given a derivation D,
+we use h(D) for the height of D,
+which can be defined in a standard manner.
 
 xxx
 
