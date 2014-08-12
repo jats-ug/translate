@@ -369,13 +369,28 @@ $\hookrightarrow$ の再帰的で推移的なクロージャを $\hookrightarrow
 \end{enumerate}
 
 \noindent {\it Proof.}
-We can readily prove (1), (2) and (3) by structural induction on D.
-When proving (1) and (2),
-we need to make use of the regularity rules (reg-subst) and (reg-cut), respectively.
+$D$ に関する構造帰納法を使って (1),(2),(3) を簡単に証明できます。
+(1)と(2)を証明する際、規則ルール {\bf (reg-subst)} と {\bf (reg-cut)} をそれぞれ利用する必要があります。
 
-\noindent Given a derivation D,
-we use h(D) for the height of D,
-which can be defined in a standard manner.
+\noindent 導出 $D$ が与えられたとき、$D$ の高さを ${\bf h}(D)$ で表わします。
+これは一般的な方法で定義できます。
+
+\noindent {\bf Lemma 2.}
+$D :: \Sigma; \vec{P}; \Delta, x:s_1 \vdash_S d:s_2$ と $\Sigma; \vec{P} \models_S s'_1 \leq_{tp} s_1$ を仮定します。
+すると ${\bf h}(D') = {\bf h}(D)$ となるような導出 $D' :: \Sigma; \vec{P}; \Delta,x:s'_1 \vdash_S d:s_2$ が存在します。
+
+\noindent {\it Proof.}
+証明は $D$ に対する構造帰納法を使ってすぐに得られます。
+$D$ に最後に適用されたルールが {\bf (ty-var')} であるような場合を扱うために、規則ルール {\bf (reg-trans)} を使います。
+
+ルール {\bf (tyrule-eq)} が存在するために、次の反転は一般的なものと少し異なります。
+
+\noindent {\bf Lemma 3 (Inversion).}
+$D::\Sigma; \vec{P}; \Delta \vdash_S d:s$ を仮定します。
+
+\begin{enumerate}
+  \item xxx
+\end{enumerate}
 
 xxx
 
