@@ -37,6 +37,7 @@ Pure Type Systemフレームワーク ({\it PTS}) は型システムをデザイ
 \vspace{2mm}
 
 この翻訳の元論文は http://www.ats-lang.org/PAPER/ATS-types03.pdf で、Japan ATS User Group http://jats-ug.metasepi.org/ によって翻訳されています。
+また、この論文はフルペーパーである http://www.cs.bu.edu/$\sim$hwxi/academic/drafts/ATS.pdf の要約です。
 \end{abstract}
 
 \maketitle
@@ -120,8 +121,8 @@ sc種は (標準の) 種とは見なされないことに注意してくださ�
 \includegraphics[width=9cm]{img/infig21_initialsig.png}
 \end{figure}
 
-\noindent これは、その左側は静的な定数で: その右側には一致するsc種が割り当てられています。
-また、それぞれの種 $\sigma$ について、$S_0$ は2つの静的コンストラクタ $\forall_\sigma$ と $\exists_\sigma$ をsc種 [$\sigma \rightarrow_{tp} type$] $\Rightarrow$ {\it type} に割り当てることを仮定しています。
+\noindent これらは、'':'' の左側は静的な定数で、その右側には一致するsc種が割り当てられています。
+また、それぞれの種 $\sigma$ について、$S_0$ は2つの静的コンストラクタ $\forall_\sigma$ と $\exists_\sigma$ にsc種 [$\sigma \rightarrow_{tp} type$] $\Rightarrow$ {\it type} を割り当てることを仮定しています。
 静的な定数を表わすのに中置表記を使うこともできます。
 例えば、$\rightarrow_{tp} [s_1,s_2]$ を表わすのに $s_1 \rightarrow_{tp} s_2$ のように、$\leq_{tp} [s_1,s_2]$ を表わすのに $s_1 \leq_{tp} s_2$ のように書けます。
 さらに、$\forall_a [\lambda a : \sigma.s]$ と $\exists_a [\lambda a : \sigma.s]$ をそれぞれ $\forall_a : \sigma.s$ と $\exists_a : \sigma.s$ のように書くこともできます。
@@ -152,7 +153,7 @@ $int$ を整数
 \includegraphics[width=9cm]{img/infig21_example1_list1.png}
 \end{figure}
 
-\noindent 直感的には、もし {\bf list}[$s$,$n$] がそれぞれの要素の型が $s$ で長さ $n$ のリストを表わす型だとすると、リストの長さを変えないようなリストからリストへの関数を上記の型は意図していると言えます。
+\noindent 直感的には、もし {\bf list}[$s$,$n$] がそれぞれの要素の型が $s$ で長さ $n$ のリストを表わす型だとすると、リストの長さを変えないようなリストからリストへの関数を、上記の型は意図していると言えます。
 また次の型は、もし与えられたリストが空でなければそのリストのtailを返し、そうでなければ単に例外を発生させるような関数に割り当てることを意図しています。
 
 \begin{figure}[h]
@@ -160,11 +161,11 @@ $int$ を整数
 \includegraphics[width=11cm]{img/infig21_example1_list2.png}
 \end{figure}
 
-アサート型 $n > 0$ $\wedge$ {\bf list}[$a$, $n-1$] は、長さ $n$ のリストにこの関数を適用した後もしこの関数が返るなら、 $n > 0$ であり返値が長さ $n-1$ のリストであるという不変条件を捕捉しています。
-これはいくぶん興味深い機能で、このExample 2で詳しく解説します。
+アサート型 $n > 0$ $\wedge$ {\bf list}[$a$, $n-1$] は、長さ $n$ のリストにこの関数を適用した後、もしこの関数が返るなら、 $n > 0$ であり返値が長さ $n-1$ のリストであるという不変条件を捕捉しています。
+これはいくぶん興味深い機能で、後のExample 2で詳しく解説します。
 Dependent ML [XP99,Xi98] における研究でも既にアサート型がありましたが、
 アサート型の正確な概念はこれまで形式化されたことがありませんでした:
-DMLでは、この論文でアサート型と呼んでいるものをシミュレートするのにサブセット種を使わねばなりませんでした。
+DMLではこの論文でアサート型と呼んでいるものをシミュレートするのにサブセット種を使わねばなりませんでした。
 
 {\it PTS} でのデザインと同様に、{\it ATS} でのデザインにおいても型の等価性は難解な問題です。
 けれどもさらなる研究によって、{\it ATS} における型の等価性はサブタイピング関係 $\leq_{tp}$ によって定義できることが明らかになりました。
@@ -195,13 +196,13 @@ $S$, $\Sigma$, $\vec{P}$, $P_0$ をそれぞれ 静的なシグニチャ, 静的
 
 \noindent $\Sigma; \vec{P} \models_S P_0$ と書くときはいつでも $P \in \vec{P},P_0$ について $\Sigma \vdash_S P : bool$ を導出できることを仮定していることに注意してください。
 
-\noindent ATSのdynamicsを作るとき、制約関係を必要とします。全ての単一の規則条件と同様に、全ての単一の規則ルールはsubject reduction定理(定理1)とprogress定理(定理2)を規定するために後で使うことになります。
+\noindent ATSのdynamicsを作るとき、制約関係を必要とします。全ての単一の規則条件と同様に、全ての単一の規則ルールはsubject reduction定理(Theorem 1)とprogress定理(Theorem 2)を規定するために後で使うことになります。
 一般に、{\it ATS} フレームワークは制約関係の上にパラメータ化されています。
-この時点では、制約関係の決定可能性を気にする必要がありません。
+この時点では、制約関係の決定可能性を気にする必要はありません。
 それぞれの制約関係 $\models_S$ について、どのような $\Sigma, \vec{P}$ と $P_0$ が与えられても $\Sigma; \vec{P} \models_S P_0$ が満たされるかどうか、決定してくれるオラクルが存在することを単純に仮定することができます。
 後で、制約関係を決定する実用的なアルゴリズムを持つapplied type systemの例をいくつか紹介します。
 
-非叙述性 (impredicativity) のために、与えられたシグニチャ $S$ について制約関係 $\models_S$ を厳密に定義できる方法が一般により難しい問題であることは、強調されるべきです。
+非叙述性 (impredicativity) のために、与えられたシグニチャ $S$ について制約関係 $\models_S$ をいかに厳密に定義できるかは、一般にかなり難しい問題です。
 [Xi03] では、モデル理論的なアプローチで私達はこの問題を解決しています。
 
 
@@ -237,6 +238,8 @@ $dc$ が動的なコンストラクタ $dcc$ である場合、なんらかの�
 同様に、$\vec{P} = P_1,\ldots,P_m$ において $P_1 \supset (\ldots(P_m \supset \bullet)\ldots)$ を $\vec{P} \supset \bullet$ と書くことができます。
 例えば、dc型は常に $\forall \Sigma.\vec{P} \supset ([s_1,\ldots,s_n] \Rightarrow_{tp} s)$ の形になります。
 動的な定数の宣言を許可するために、シグニチャの定義を次のように拡張する必要があります。
+
+\clearpage
 
 \begin{figure}[h]
 \centering
@@ -291,8 +294,10 @@ $\Sigma \vdash_S \Theta_S : \Sigma_0$ と書くとき、それぞれの $a \in {
 例えば、ルール {\bf(ty-$\forall$-intro)} を適用するとき、$\vec{P}$, $\Delta$ もしくは $s$ において値 $a$ は自由に出現 (free occurrences) できません。
 また値の形に、型付けルール {\bf (ty-gua-intro)} と {\bf (ty-$\forall$-intro)} の制約を付けています。
 これは後でATSに作用を導入するための準備です。
-\footnote{実際にはTheorem 2を成立させるために、型付けルール {\bf (ty-gua-intro)} の値に対する制約は、この時点で必要です。}
+\footnote{実際にはTheorem 2を成立させるために、型付けルール {\bf (ty-gua-intro)} の値に対する制約は、この時点でも必要です。}
 技術的な理由で、ルール {\bf (ty-var)} を次のようなルールで置き換えます。
+
+\clearpage
 
 \begin{figure}[h]
 \centering
@@ -309,7 +314,7 @@ $\Sigma \vdash_S \Theta_S : \Sigma_0$ と書くとき、それぞれの $a \in {
 \label{fig:fig5_typingrules_dynamics}
 \end{figure}
 
-ここで、動的な項を評価するルールの表現に進む前に、ガード型とアサート型がセキュリティを強制する興味深い役割を演じるようなシナリオをスケッチしてみましょう。
+ここで、動的な項を評価するルールの表現に進む前に、ガード型とアサート型がセキュリティを強制する役割を演じるような、興味深いシナリオをスケッチしてみましょう。
 これらの型を理解をさらに容易にしてくれるはずです。
 
 \noindent {\it Example 2.}
@@ -320,7 +325,7 @@ $\Sigma \vdash_S \Theta_S : \Sigma_0$ と書くとき、それぞれの $a \in {
 \includegraphics[width=10cm]{img/infig22_example2.png}
 \end{figure}
 
-\noindent \underline{$password$} を呼び出しが返る前になんらかのsecret情報を検証しなければならない、というような方法で関数 \underline{$password$} を実装できます。
+\noindent \underline{$password$} を呼び出しが返る前になんらかのsecret情報を検証しなければならない、というような方法で関数 \underline{$password$} を実装することができます。
 一方では、関数呼び出し \underline{$action$}$[\langle\rangle]$ をする前に、命題 \underline{$Secret$} を成立させなければなりません。
 このとき、$\langle\rangle$ はユニット型 {\bf 1} の値を意味します。
 もう一方、関数呼び出し \underline{$password$}$[\langle\rangle]$ が返った後では、命題 \underline{$Secret$} は成立しています。
@@ -356,7 +361,7 @@ $\Sigma \vdash_S \Theta_S : \Sigma_0$ と書くとき、それぞれの $a \in {
 \noindent なんらかの簡約基 $d$ とその簡約 $d'$ について $d_1 = E[d]$ かつ $d_2 = E[d']$ のような2つの動的な項 $d_1$ と $d_2$ が与えられたとき、$d_1 \hookrightarrow d_2$ は1ステップで $d_1$ を $d_2$ に簡約することを意味します。
 $\hookrightarrow$ の再帰的で推移的なクロージャを $\hookrightarrow^*$ で表わします。
 
-\noindent 動的な関数定数 $dcf$ それぞれに割り当てられた型が妥当であると仮定します。
+\noindent それぞれの動的な関数定数 $dcf$ に割り当てられた型が妥当であると仮定します。
 すなわち、もし $\emptyset;\emptyset;\emptyset \vdash_S dcf[v_1,\ldots,v_n]:s$ が導出でき、かつ $dcf[v_1,\ldots,v_n] \hookrightarrow v$ が成立するなら、$\emptyset;\emptyset;\emptyset \vdash_S v:s$ が導出できるとします。
 
 判定 $J$ が与えられたとき、$D$ が $J$ の導出であることを示すために $D :: J$ と書きます。
@@ -459,7 +464,7 @@ $D :: \emptyset; \emptyset; \emptyset \vdash_S d : s$ を仮定したとき
 \includegraphics[width=6cm]{img/infig3_general_recursion.png}
 \end{figure}
 
-ルール {\bf (ty-var)} が変更を受けるために必要で、ルール {\bf (ty-fix)} が不動点演算子の扱いを追加するために必要です:
+ルール {\bf (ty-var)} が変更を受けるために必要で、ルール {\bf (ty-fix)} に不動点演算子の扱いを追加する必要があります:
 
 \begin{figure}[h]
 \centering
@@ -595,8 +600,8 @@ Haskellの型クラスの根底にある qualified types [Jon94] に精通した
 
 要約すると、実用的なプログラミングをサポートするための型システムのデザインと形式化を促進するために、{\it ATS} フレームワークを示しました。
 statics と dynamics を完全に分離することで、{\it ATS} は作用の存在下における依存型のサポートに特に威力を発揮します。
-また、{\it ATS} のガード型とアサート型を使うことで、より柔軟により効果的にプログラムの不変条件を捕捉できます
-これまで研究されてきた依存型 [XP99,Xi98] と guarded recursive datatypes [XCC03] の統一化と一般化であると {\it ATS} をとらえることもできます。
+また、{\it ATS} のガード型とアサート型を使うことで、より柔軟により効果的にプログラムの不変条件を捕捉できます。
+これまで研究されてきた依存型 [XP99,Xi98] と guarded recursive datatypes [XCC03] の統一化と一般化であると、 {\it ATS} をとらえることもできます。
 
 現時点では {\it ATS} の静的な要素は単純なラムダ計算に基づいています。
 従って、静的な要素が多相性と依存型をサポートする型付きラムダ計算の上に構築できるか研究することができるでしょう。
