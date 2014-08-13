@@ -28,11 +28,11 @@
 
 \begin{abstract}
 Pure Type Systemフレームワーク ({\it PTS}) は型システムをデザイン/形式化する単純で一般的なアプローチを提供します。
-けれども依存型の存在を認めると、一般帰納、再帰型、作用 (例: 例外、参照、入出力)、などのような多くの実際のプログラミングの機能に {\it PTS} を適用させることが難しくなります。
+けれども依存型の存在を認めると、一般帰納、再帰型、作用 (例: 例外、参照、入出力)、などのような実際のプログラミングの機能の多くに {\it PTS} を適用させることが難しくなります。
 この論文では、実際のプログラミングの機能をサポートする型システムをたやすくデザイン/形式化できる、新しい Applied Type System ({\it ATS}) フレームワークを提案します。
 {\it ATS} の鍵となる突出した機能は、コンストラクトされて評価されるプログラムを含む動的な部分から、形作られて根拠となる型を含む静的な部分を完全に分離することにあります。
-この分離を用いると、{\it PTS} では許可されていましたが、プログラムが型の中に現われることは不可能になります。
-{\it ATS} の形式的な開発だけでなく、実用的なプログラミングのための型システムを作るフレームワークとして {\it ATS} を使ったいくつかの例も紹介します。
+この分離を用いると、プログラムが型の中に現われることは不可能になります。({\it PTS} では許可されていました。)
+{\it ATS} の形式的な開発だけでなく、実用的なプログラミングのための型システムを作るフレームワークとして {\it ATS} を使った例もいくつか紹介します。
 
 この翻訳の元論文は http://www.ats-lang.org/PAPER/ATS-types03.pdf です。
 \end{abstract}
@@ -340,18 +340,18 @@ $\Sigma \vdash_S \Theta_S : \Sigma_0$ と書くとき、それぞれの $a \in {
 \end{figure}
 
 \noindent {\bf Definition 2.}
-簡約可能式 (redex) と簡約 (reducation) を次のように定義します。
+簡約基 (redex) と簡約 (reducation) を次のように定義します。
 
 \begin{itemize}
-  \item ${\bf app}({\bf lam} x.d, v)$ は簡約可能式で、その簡約は $d[x \mapsto v]$ です。
-  \item $\supset^- (\supset^+ (v))$ は簡約可能式で、その簡約は $v$ です。
-  \item ${\bf let} \wedge (x) = \wedge (v) {\bf in} d$ は簡約可能式で、その簡約は $d[x \mapsto v]$ です。
-  \item $\forall^- (\forall^+ (v))$ は簡約可能式で、その簡約は $v$ です。
-  \item ${\bf let} \exists (x) = \exists (v) {\bf in} d$ は簡約可能式で、その簡約は $d[x \mapsto v]$ です。
-  \item なんらかの値 $v$ に等しく定義された $dcf[v_1,\ldots,v_n]$ は簡約可能式で、その簡約は $v$ です。
+  \item ${\bf app}({\bf lam} x.d, v)$ は簡約基で、その簡約は $d[x \mapsto v]$ です。
+  \item $\supset^- (\supset^+ (v))$ は簡約基で、その簡約は $v$ です。
+  \item ${\bf let} \wedge (x) = \wedge (v) {\bf in} d$ は簡約基で、その簡約は $d[x \mapsto v]$ です。
+  \item $\forall^- (\forall^+ (v))$ は簡約基で、その簡約は $v$ です。
+  \item ${\bf let} \exists (x) = \exists (v) {\bf in} d$ は簡約基で、その簡約は $d[x \mapsto v]$ です。
+  \item なんらかの値 $v$ に等しく定義された $dcf[v_1,\ldots,v_n]$ は簡約基で、その簡約は $v$ です。
 \end{itemize}
 
-\noindent なんらかの簡約可能式 $d$ とその簡約 $d'$ について $d_1 = E[d]$ かつ $d_2 = E[d']$ のような2つの動的な項 $d_1$ と $d_2$ が与えられたとき、$d_1 \hookrightarrow d_2$ は1ステップで $d_1$ を $d_2$ に簡約することを意味します。
+\noindent なんらかの簡約基 $d$ とその簡約 $d'$ について $d_1 = E[d]$ かつ $d_2 = E[d']$ のような2つの動的な項 $d_1$ と $d_2$ が与えられたとき、$d_1 \hookrightarrow d_2$ は1ステップで $d_1$ を $d_2$ に簡約することを意味します。
 $\hookrightarrow$ の再帰的で推移的なクロージャを $\hookrightarrow^*$ で表わします。
 
 \noindent 動的な定数の関数 $dcf$ それぞれに割り当てられた型が妥当であると仮定します。
@@ -411,7 +411,7 @@ $D :: \Sigma; \vec{P}; \Delta \vdash_S d:s$ と $d \hookrightarrow d'$ の両方
 $D :: \emptyset;\emptyset;\emptyset \vdash_S d:s$ を仮定します。
 すると、 $d$ は値となるか、
 もしくはなんらかの動的な項 $d'$ について $d \hookrightarrow d'$ が成立するか、
-もしくはなんらかの簡約可能式でない動的な項 $dcf(v_1,\ldots,v_n)$ について $d = E[dcf(v_1,\ldots,v_n)]$ が成立します。
+もしくはなんらかの簡約基でない動的な項 $dcf(v_1,\ldots,v_n)$ について $d = E[dcf(v_1,\ldots,v_n)]$ が成立します。
 
 \subsection{型消去済の動的な項}
 
@@ -464,7 +464,7 @@ $D :: \emptyset; \emptyset; \emptyset \vdash_S d : s$ を仮定したとき
 \includegraphics[width=11cm]{img/infig3_fixed-point_op.png}
 \end{figure}
 
-\noindent {\bf fix} $f.d$ の動的な項は簡約可能式で、その簡約は $d[f \mapsto {\bf fix} f.d]$ になります。
+\noindent {\bf fix} $f.d$ の動的な項は簡約基で、その簡約は $d[f \mapsto {\bf fix} f.d]$ になります。
 この拡張について、subject reduction定理 (Theorem 1) とprogress定理 (Theorem 2) の両方が素直に成立します。
 
 \noindent {\bf Datatypes and Pattern Matching}
@@ -490,8 +490,8 @@ $D :: \emptyset; \emptyset; \emptyset \vdash_S d : s$ を仮定したとき
 ルール {\bf (vp-dcc)} において、$n = 0$ のとき空の動的な代入 $[]$ になるようなユニオン $\Theta^1_D \cup \ldots \cup \Theta^n_D$ は well-defined であることに注意してください。
 なぜなら、1つのパターン中にどのような変数も最大一度まで登場できるからです。
 
-$1 \leq i \leq n$ について $v \Downarrow p_i \Rightarrow \Theta_D$ が成立するなら、${\bf case}$ $v$ ${\bf of} p_1 \Rightarrow d_1 |\cdots| p_n \Rightarrow d_n$ の形の動的な項は簡約可能式で、その簡約は $d_i[\Theta_D]$ になります。
-もし $v$ が複数のパターン $p_i$ にマッチするなら、このような簡約可能式の簡約は非決定論を引き起こすかもしれないことに注意してください。
+$1 \leq i \leq n$ について $v \Downarrow p_i \Rightarrow \Theta_D$ が成立するなら、${\bf case}$ $v$ ${\bf of} p_1 \Rightarrow d_1 |\cdots| p_n \Rightarrow d_n$ の形の動的な項は簡約基で、その簡約は $d_i[\Theta_D]$ になります。
+もし $v$ が複数のパターン $p_i$ にマッチするなら、このような簡約基の簡約は非決定論を引き起こすかもしれないことに注意してください。
 
 \begin{figure}[h]
 \centering
@@ -602,8 +602,8 @@ statics と dynamics を完全に分離することで、{\it ATS} は作用の�
 それは既存の言語において新しい言語構造を実装ような方法で、言語拡張を行なう手段を提供できるでしょう。
 
 \begin{acknowledgment}
-Assaf Kfouryから本論文のドラフトに対するコメントをもらいました。
-また、Chiyan Chenとは本論文の主題について議論しました。
+Assaf Kfouryからこの論文のドラフトに対するコメントをもらいました。
+また、Chiyan Chenとはこの論文の主題について議論しました。
 感謝します。
 \end{acknowledgment}
 
