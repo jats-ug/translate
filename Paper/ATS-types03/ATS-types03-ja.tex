@@ -97,7 +97,7 @@ statics の項を {\it 静的な項} ({\it static term}) と呼びます。
 \includegraphics[width=9cm]{img/infig21_formaldesc.png}
 \end{figure}
 
-\noindent 静的な項の変数は $\alpha$ を使って表わし、静的な項の集合を $s$ で表わします。
+\noindent 静的な項の変数は $a$ を使って表わし、静的な項の集合を $s$ で表わします。
 静的な定数 {\it sc} を宣言することもできます。
 この定数は、静的な定数コンストラクタ {\it scc} もしくは静的な関数定数 {\it scf} のどちらかです。
 sc種 (sc-sorts) を表わすのに [$\sigma_1$, $\ldots$ ,$\sigma_n$] $\Rightarrow$ {\it b} を使い、これは静的な定数に割り当てられます。
@@ -109,8 +109,8 @@ sc種は (標準の) 種とは見なされていないことに注意してく�
 また $\Theta_S$ のドメインを {\bf dom}($\Theta_S$) で表わします。
 空の写像を表わすのに [] と書きます。
 {\it a} $\notin$ {\bf dom}($\Theta_S$) を仮定したとき、{\it a} から {\it s} へのリンクで $\Theta_S$ を拡張した写像を $\Theta_S$[$a \mapsto s$] と表わします。
-また、$\Theta_S$ を構文 $\bullet$ に適用した結果を表わすのに、[$\Theta_S$] と書きます。
-構文 $\bullet$ は、静的な項、静的な項の列、この後で定義する動的な可変のコンテキスト、のいずれかを表わします。
+また、$\Theta_S$ を構文 $\bullet$ に適用した結果を表わすのに、$\bullet[\Theta_S]$ と書きます。
+構文 $\bullet$ は、静的な項、静的な項の列、この後で定義する動的な可変コンテキスト、のいずれかを表わします。
 
 シグニチャは宣言された静的な定数 $sc$ に割り当てたsc種を表わし、そのシグニチャの形成ルールは図\ref{fig:fig1_rules}で与えられます。
 初期シグニチャ $S_0$ が次の宣言を含むことを仮定しています。
@@ -132,12 +132,12 @@ staticsの分類規則は図\ref{fig:fig1_rules}で与えられますが、大�
 直感的には、{\bf 1} は通常のユニット型を表わし、$\rightarrow_{tp}$ は関数型を作り、$\leq_{tp}$ は型におけるサブタイピング関係を表わします。
 静的なコンストラクタ $\supset$ と $\wedge$ はそれぞれガード型 (guarded types) とアサート型 (asserting types) を作り、これらは後で解説します。
 
-静的な変数群に種を割り当てるような、静的な可変のコンテキストを表わすのに $\Sigma$ を使います;
+静的な変数群に種を割り当てるような、静的な可変コンテキストを表わすのに $\Sigma$ を使います;
 {\bf dom}($\Sigma$) は $\Sigma$ で宣言された静的な変数の組です;
 もし $a : \sigma$ が $\Sigma$ で宣言されていたら、$\Sigma (a) = \sigma$ です。
 例によって、$\Sigma$ において静的な変数 $a$ は一回しか宣言できません。
 もし $\Sigma \vdash s : bool$ が導けるなら、静的な項 $s$ は $\Sigma$ の下の {\it 命題} ({\it proposition}) と呼ばれます。
-(なんらかの静的な可変のコンテキストの下で) 命題を表わすのに $P$ を使います。
+(なんらかの静的な可変コンテキストの下で) 命題を表わすのに $P$ を使います。
 $P \supset s$ という形の型を表わすのに {\it ガード型} ({\it guarded type})、$P \wedge s$ という形の型を表わすのに {\it アサート型} ({\it asserting type}) という名前を使います。
 これらは両方とも次の例で使います。
 
@@ -163,7 +163,7 @@ $int$ を整数
 アサート型 $n > 0$ $\wedge$ {\bf list}[$a$, $n-1$] は、長さ $n$ のリストにこの関数を適用した後もしこの関数が返るなら、 $n > 0$ であり返値が長さ $n-1$ のリストであるという不変条件を捕捉しています。
 これはいくぶん興味深い機能で、このExample 2で詳しく解説します。
 Dependent ML [XP99,Xi98] における研究でも既にアサート型がありましたが、
-アサート型の正確な概念はこれまで形式化ざれたことがありませんでした:
+アサート型の正確な概念はこれまで形式化されたことがありませんでした:
 DMLでは、この論文でアサート型と呼んでいるものをシミュレートするのにサブセット種を使わねばなりませんでした。
 
 {\it PTS} でのデザインと同様に、{\it ATS} でのデザインにおいても型の等価性は難解な問題です。
@@ -180,7 +180,7 @@ DMLでは、この論文でアサート型と呼んでいるものをシミュ�
 \end{figure}
 
 {\bf Definition 1.}
-$S$, $\Sigma$, $\vec{P}$, $P_0$ をそれぞれ 静的なシグニチャ, 静的な可変のコンテキスト, $\Sigma$ の下での命題の組, $\Sigma$ の下での1つの命題であるとします。
+$S$, $\Sigma$, $\vec{P}$, $P_0$ をそれぞれ 静的なシグニチャ, 静的な可変コンテキスト, $\Sigma$ の下での命題の組, $\Sigma$ の下での1つの命題であるとします。
 もし次の規則条件が満たされるなら、関係 $\Sigma$; $\vec{P} \models_S P_0$ は正規の制約関係であると言います:
 
 \begin{enumerate}
@@ -264,7 +264,7 @@ $n = 0$ の場合には $dc[]$ の代わりに $dc$ と書くこともできま�
 \begin{figure}[h]
 \centering
 \includegraphics[width=8cm]{img/fig4_rules_dynamics.png}
-\caption{動的な可変のコンテキストを表わす形成ルール}
+\caption{動的な可変コンテキストを表わす形成ルール}
 \label{fig:fig4_rules_dynamics}
 \end{figure}
 
@@ -272,7 +272,7 @@ $n = 0$ の場合には $dc[]$ の代わりに $dc$ と書くこともできま�
 これらの標識がないと、型の導出において帰納的証明を行なうことが、著しく困難になります。
 Lemma 3を証明することも困難になってしまうでしょう。
 
-$\Sigma \vdash_S \Delta [dctx]$ の形の判定は、$\Sigma$ と $S$ の下で $\Delta$ が well-formed な動的な可変のコンテキストであることを示しています。
+$\Sigma \vdash_S \Delta [dctx]$ の形の判定は、$\Sigma$ と $S$ の下で $\Delta$ が well-formed な動的な可変コンテキストであることを示しています。
 このような判定を導出するルールを図\ref{fig:fig4_rules_dynamics}に示します。
 型付けされたコンテキトを $\Sigma; \vec{P}; \Delta$ で表わします。
 次のルールは $\vdash_S \Sigma; \vec{P}; \Delta$ の形の判定を導出しています。
@@ -488,8 +488,8 @@ $D :: \emptyset; \emptyset; \emptyset \vdash_S d : s$ を仮定したとき
 \includegraphics[width=14cm]{img/infig3_vp-doc.png}
 \end{figure}
 
-\noindent もし、なんらかの動的な代入 $\Theta_D$ について $v \Downarrow p \Rightarrow \Theta_D$ が導出できるなら、$v$ は $p$ にマッチすると言えます。
-ルール {\bf (vp-dcc)} において、$n = 0$ のとき空の動的な代入 $[]$ になるようなユニオン $\Theta^1_D \cup \ldots \cup \Theta^n_D$ は well-defined であることに注意してください。
+\noindent もし、なんらかの動的な置換 $\Theta_D$ について $v \Downarrow p \Rightarrow \Theta_D$ が導出できるなら、$v$ は $p$ にマッチすると言えます。
+ルール {\bf (vp-dcc)} において、$n = 0$ のとき空の動的な置換 $[]$ になるようなユニオン $\Theta^1_D \cup \ldots \cup \Theta^n_D$ は well-defined であることに注意してください。
 なぜなら、1つのパターン中にどのような変数も最大一度まで登場できるからです。
 
 $1 \leq i \leq n$ について $v \Downarrow p_i \Rightarrow \Theta_D$ が成立するなら、${\bf case}$ $v$ ${\bf of} p_1 \Rightarrow d_1 |\cdots| p_n \Rightarrow d_n$ の形の動的な項は簡約基で、その簡約は $d_i[\Theta_D]$ になります。
