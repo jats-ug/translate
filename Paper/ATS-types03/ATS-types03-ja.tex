@@ -517,60 +517,54 @@ $D :: \emptyset;\emptyset;\emptyset \vdash_S v:s, \varepsilon_1::\emptyset \vdas
 \includegraphics[width=9cm]{img/infig3_lemma4_judgement.png}
 \end{figure}
 
-where cons is assigned the following dc-type,
+\noindent ここで \underline{$cons$} には次のdc型が割り当てられます。
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=10cm]{img/infig3_lemma4_cons_dctype.png}
 \end{figure}
 
-and Σ = (a : type, n : int), P ~ = (n ≥ 0, list[a, n + 1] ≤ tp list[a 0 , n 0 ]) and
-∆ = (x 1 : a, x 2 : list[a, n]).
+\noindent なおかつ $\Sigma = (a:type, n:int)$、 $\vec{P} = (n \geq 0, {\bf list}[a,n+1] \leq_{tp} {\bf list}[a',n'])$、かつ $\Delta = (x_1:a, x_2:{\bf list}[a,n])$ です。
 
-We can readily prove the subject reduction theorem (Theorem 1) for this
-extension: Lemma 4 is needed to handle the case where the reduced index is of
-the following form:
+この拡張においてsubject reduction 定理 (Theorem 1) はすぐに証明できます:
+簡約されたインデックスが次の形になる場合を扱うために、Lemma 4が必要になります:
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=6cm]{img/infig3_lemma4_theorem1.png}
 \end{figure}
 
-Also, we can establish the progress theorem (Theorem 2) for this extension after
-slightly modifying it to include the possibility that a well-type program d may
-be of the following form,
+\noindent また、この拡張においてprogress定理 (Theorem 2) を成立させることができます。
+このとき well-typed なプログラム $d$ が次の形を取る可能性を考慮するために、定理のわずかな修正が必要です。
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=6cm]{img/infig3_lemma4_theorem2.png}
 \end{figure}
 
-where v 0 does not match any p i for 1 ≤ i ≤ n if d is neither a value nor can be
-further reduced.
+\noindent ここで、もし $d$ が値でもなく簡約することもできないなら、$1 \leq i \leq n$ について $v_0$ はどのような $p_i$ にもマッチしません。
 
-Effects Unlike PTS, ATS can be extended in a straightforward manner to
-accommodate effects such as references and exceptions. For instance, to introduce
-references into ATS, we can simply declare a type constructor ref of the sc-sort
-[type] ⇒ type and then the following dynamic functions of the corresponding
-assigned dc-types.
+\noindent {\bf Effects}
+{\it PTS} と異なり、{\it ATS} は参照や例外のような作用をサポートする際も素直な方法で拡張できます。
+例えば、参照を {\it ATS} に導入するために、sc種 $[type] \Rightarrow type$ の型コンストラクタ $ref$ と、次のように対応するdc型が割り当てられた動的な関数を単純に宣言できます。
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=6cm]{img/infig3_effect_dctype.png}
 \end{figure}
 
-The intended meaning of these functions should be obvious. We also need to add
-into Definition 1 the following regularity condition to address the issue of ref
-being an invariant type constructor.
+これらの関数の意図する意味は明らかです。
+また、$ref$ が不変の型コンストラクタになってしまう問題に対処するため、Definition 1に次の規則条件を追加する必要があります。
 
-– Σ; P ~ |= S ref (s) ≤ tp ref (s 0 ) implies Σ; P ~ |= S s ≤ tp s 0 and Σ; P ~ |= S s 0 ≤ tp s.
+\begin{itemize}
+\item $\Sigma; \vec{P} \models_S ref(s) \leq_{tp} ref(s')$ は $\Sigma; \vec{P} \models_S s \leq_{tp} s'$ と $\Sigma; \vec{P} \models_S s' \leq_{tp} s$ を意味します。
+\end{itemize}
 
-It is a standard procedure to assign dynamic semantics to this extension and
-then establish both the subject reduction theorem and the progress theorem.
-Please see [Har94] for some details on such a procedure.
+\noindent この拡張に動的な意味論を割り当てる手法は一般的なもので、subject reduction定理とprogress定理の両方を成立できます。
+この手法の詳細については [Har94] を参照してください。
 
-It is straightforward as well to introduce exceptions into ATS, and we omit
-further details.
+同様に {\it ATS} に例外を導入することも素直な方法で可能です。
+そのため詳細は省略します。
 
 \section{Applied Type Systemの例}
 
