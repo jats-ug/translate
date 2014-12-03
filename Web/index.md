@@ -7,7 +7,7 @@ ATS2に関する一次情報は
 
 ## ATS1 (ATS-)
 
-* [atsdoc](ats-lang.sourceforge.net/htdocs-old/DOCUMENT/atsdocman/atsdocman.html)
+* [atsdoc](http://jats-ug.metasepi.org/doc/ATS1/atsdocman/atsdocman.html)
 
 ## Likai Liu (劉力愷)'s page
 
