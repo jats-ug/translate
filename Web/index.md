@@ -5,14 +5,14 @@ ATS2に関する一次情報は
 [ATS言語の公式マニュアル](../Manual/index.md)
 を参照してください。
 
-## ATS1 (ATS-)
-
-* [atsdoc](http://jats-ug.metasepi.org/doc/ATS1/atsdocman/atsdocman.html)
-
 ## Likai Liu (劉力愷)'s page
 
 * [MLプログラマ向けATS言語ガイド](cs.likai.org/ats/ml-programmers-guide-to-ats.md)
 * [フラットなメモリを操作する](cs.likai.org/ats/manipulating-flat-memory.md)
+
+## ATS1 (ATS/Anairiats)
+
+* [atsdoc](http://jats-ug.metasepi.org/doc/ATS1/atsdocman/atsdocman.html)
 
 ## BLUISH CODER
 
