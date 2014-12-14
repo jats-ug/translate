@@ -4,6 +4,8 @@
 
 元データ: https://github.com/jats-ug/ATS-Postiats/tree/translate_ja/doc/EXAMPLE/EFFECTIVATS
 
+* [Drawing Sierpinski triangles](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/Sierpinski-3angle/main.html)
+* [Implementing a minimal http-server](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/HttpServer/main.html)
 * [Redis を用いたプロセス間通信 (Inter-Process Communication based on Redis)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/IPC-redis/main.html)
 * [キューの償却実装 (An Amortized Implementation of Queues)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/queue-sllist2/main.html)
 * [ファイルコピー (Copying Files)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/file-copying/main.html)
