@@ -1,6 +1,6 @@
 # Effective ATS
 
-元記事: http://www.ats-lang.org/EXAMPLE/EFFECTIVATS/
+元記事: http://ats-lang.sourceforge.net/EXAMPLE/EFFECTIVATS/
 
 元データ: https://github.com/jats-ug/ATS-Postiats/tree/translate_ja/doc/EXAMPLE/EFFECTIVATS
 
