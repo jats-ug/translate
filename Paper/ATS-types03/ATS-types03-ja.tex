@@ -69,7 +69,7 @@ Scheme が導入したようなアプローチ、つまり新しい言語機能�
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=11cm]{img/fig1_rules.png}
+\includegraphics[width=10cm]{img/fig1_rules.png}
 \caption{statics のシグニチャ構築規則と種付け規則}
 \label{fig:fig1_rules}
 \end{figure}
@@ -79,12 +79,12 @@ Scheme が導入したようなアプローチ、つまり新しい言語機能�
 この節では Applied Type System ({\it ATS}) フレームワークの形式化を示します。
 ここでは {\it ATS} で形式化された型システムを表わすのに {\it applied type system} という用語を使います。
 この後の説明では、静的な要素 (statics) と動的な要素 (dynamics) から成る一般的な applied type system として、ATS を定義します。
-直感的に、statics と dynamics はそれぞれ型とプログラムを扱っています。
-単純化のために、statics は簡単な純粋型付き言語であると仮定します。
+直感的には、statics と dynamics はそれぞれ型とプログラムを扱っています。
+単純化のために、statics は純粋な単純型付き言語であると仮定します。
 そしてこの言語の型を {\it 種} ({\it sort}) という名前で呼ぶことにします。
 statics の項を {\it 静的な項} ({\it static term}) と呼びます。
 また dynamics の項を {\it 動的な項} ({\it dynamic term}) と呼びます。
-そして、特別な種 {\it type} の静的な項は dynamics の型として機能します。
+そして、{\it type} という特別な種に属する静的な項を dynamics の型として用います。
 
 
 \subsection{Statics}
@@ -98,22 +98,22 @@ statics の項を {\it 静的な項} ({\it static term}) と呼びます。
 \includegraphics[width=9cm]{img/infig21_formaldesc.png}
 \end{figure}
 
-\noindent 静的な項の変数は $a$ を使って表わし、静的な項の集合を $s$ で表わします。
-静的な定数 {\it sc} を宣言することもできます。
+\noindent 静的な項の変数は $a$ を使って表わし、静的な項を $s$ で表わします。
+予め宣言された静的な定数 {\it sc} も0個以上あるものと仮定します。
 この定数は、静的な定数コンストラクタ {\it scc} もしくは静的な関数定数 {\it scf} のどちらかです。
-sc種 (sc-sorts) を表わすのに [$\sigma_1$, $\ldots$ ,$\sigma_n$] $\Rightarrow$ {\it b} を使い、これは静的な定数に割り当てられます。
-静的な定数 {\it sc} が与えられたとき、もし なんらかの種 $\sigma_1$, $\ldots$ ,$\sigma_n$ について {\it sc} にsc種 [$\sigma_1$, $\ldots$ ,$\sigma_n$] $\Rightarrow$ {\it b} が割り当てられていて、$i = 1, \ldots ,n$ について $s_i$ に種 $\sigma_i$ を割り当てることができるなら、種 {\it b} の項 {\it sc}[$s_1$, $\ldots$ ,$s_n$] を作ることができます。
-誤解を生じない場合は、{\it sc}[] を {\it sc} と書くことができます。
-sc種は (標準の) 種とは見なされないことに注意してください。
+静的な定数の種、sc種 (sc-sorts) を表わすのに [$\sigma_1$, $\ldots$ ,$\sigma_n$] $\Rightarrow$ {\it b} を使います。
+静的な定数 {\it sc} が与えられたとき、なんらかの種 $\sigma_1$, $\ldots$ ,$\sigma_n$ について {\it sc} にsc種 [$\sigma_1$, $\ldots$ ,$\sigma_n$] $\Rightarrow$ {\it b} が割り当てられていて、$i = 1, \ldots ,n$ について $s_i$ に種 $\sigma_i$ を割り当てることができるなら、種 {\it b} の項 {\it sc}[$s_1$, $\ldots$ ,$s_n$] を作ることができます。
+誤解を生じない場合は、{\it sc}[] を {\it sc} と書くこともあります。
+sc種は (普通の) 種とは見なされないことに注意してください。
 
 静的な変数を静的な項に写像するような静的な置換を $\Theta_S$ で表わします。
-また $\Theta_S$ のドメインを {\bf dom}($\Theta_S$) で表わします。
+また $\Theta_S$ の定義域を {\bf dom}($\Theta_S$) で表わします。
 空の写像を表わすのに [] と書きます。
-{\it a} $\notin$ {\bf dom}($\Theta_S$) を仮定したとき、{\it a} から {\it s} へのリンクで $\Theta_S$ を拡張した写像を $\Theta_S$[$a \mapsto s$] と表わします。
-また、$\Theta_S$ を構文 $\bullet$ に適用した結果を表わすのに、$\bullet[\Theta_S]$ と書きます。
+{\it a} $\notin$ {\bf dom}($\Theta_S$) のとき、{\it a} から {\it s} に写すよう $\Theta_S$ を拡張した写像を $\Theta_S$[$a \mapsto s$] と表わします。
+また、$\Theta_S$ をなんらかの構文 $\bullet$ に適用した結果を表わすのに、$\bullet[\Theta_S]$ と書きます。
 構文 $\bullet$ は、静的な項、静的な項の列、この後で定義する動的な可変コンテキスト、のいずれかを表わします。
 
-シグニチャは宣言された静的な定数 $sc$ に割り当てたsc種を表わし、そのシグニチャの形成ルールは図\ref{fig:fig1_rules}で与えられます。
+シグニチャは宣言された静的な定数 $sc$ へのsc種の割り当てを表わし、そのシグニチャの形成ルールは図\ref{fig:fig1_rules}で与えられます。
 初期シグニチャ $S_0$ が次の宣言を含むことを仮定しています。
 
 \begin{figure}[h]
@@ -121,11 +121,11 @@ sc種は (標準の) 種とは見なされないことに注意してくださ�
 \includegraphics[width=9cm]{img/infig21_initialsig.png}
 \end{figure}
 
-\noindent これらは、'':'' の左側は静的な定数で、その右側には一致するsc種が割り当てられています。
+\noindent この表では、'':'' の左側は静的な定数で、その右側には一致するsc種が割り当てられています。
 また、それぞれの種 $\sigma$ について、$S_0$ は2つの静的コンストラクタ $\forall_\sigma$ と $\exists_\sigma$ にsc種 [$\sigma \rightarrow_{tp} type$] $\Rightarrow$ {\it type} を割り当てることを仮定しています。
-静的な定数を表わすのに中置表記を使うこともできます。
-例えば、$\rightarrow_{tp} [s_1,s_2]$ を表わすのに $s_1 \rightarrow_{tp} s_2$ のように、$\leq_{tp} [s_1,s_2]$ を表わすのに $s_1 \leq_{tp} s_2$ のように書けます。
-さらに、$\forall_a [\lambda a : \sigma.s]$ と $\exists_a [\lambda a : \sigma.s]$ をそれぞれ $\forall_a : \sigma.s$ と $\exists_a : \sigma.s$ のように書くこともできます。
+静的な定数を表わすのに中置表記を使うことがあります。
+例えば、$\rightarrow_{tp} [s_1,s_2]$ を表わすのに $s_1 \rightarrow_{tp} s_2$ のように、$\leq_{tp} [s_1,s_2]$ を表わすのに $s_1 \leq_{tp} s_2$ のように書きます。
+さらに、$\forall_a [\lambda a : \sigma.s]$ と $\exists_a [\lambda a : \sigma.s]$ をそれぞれ $\forall_a : \sigma.s$ と $\exists_a : \sigma.s$ のように書きます。
 staticsの分類規則は図\ref{fig:fig1_rules}で与えられますが、大部分は標準的なものです。
 例えば、$\emptyset \vdash_{S_0} \forall_{type} [\lambda a : type.a \rightarrow_{tp} a] : type$ が導けるので、$\forall a : type.a \rightarrow_{tp} a$ は種typeを割り当てることができる静的な項です。
 なんらかの種 $\sigma_1$, $\ldots$ ,$\sigma_n$ についてsc種 [$\sigma_1$, $\ldots$ ,$\sigma_n$] $\Rightarrow$ {\it type} を割り当てられるなら、静的なコンストラクタ$sc$は型コンストラクタです。
@@ -230,7 +230,7 @@ $dc$ が動的なコンストラクタ $dcc$ である場合、なんらかの�
 \noindent このとき、要素の型が $a$ で長さが $n$ のリストを表わす型として {\bf list}$[a,n]$ を使っています。
 
 動的な値を動的な項に写像する動的な置換を $\Theta_D$ で表わします。
-また $\Theta_D$ のドメインを {\bf dom}($\Theta_D$) で表わします。
+また $\Theta_D$ の定義域を {\bf dom}($\Theta_D$) で表わします。
 静的な置換と同じように、動的な置換を形成して適用するような構文を示すことを省きます。
 {\bf dom}($\Theta^1_D$) $\cap$ {\bf dom}($\Theta^2_D$) $= \emptyset$ となるような $\Theta^1_D$ と $\Theta^2_D$ が与えられたとき、$\Theta^1_D$ と $\Theta^2_D$ の和集合を $\Theta^1_D \cup \Theta^2_D$ で表わします。
 
