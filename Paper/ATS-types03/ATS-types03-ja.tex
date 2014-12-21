@@ -111,7 +111,7 @@ sc種は (普通の) 種とは見なされないことに注意してくださ�
 空の写像を表わすのに [] と書きます。
 {\it a} $\notin$ {\bf dom}($\Theta_S$) のとき、{\it a} から {\it s} に写すよう $\Theta_S$ を拡張した写像を $\Theta_S$[$a \mapsto s$] と表わします。
 また、$\Theta_S$ をなんらかの構文 $\bullet$ に適用した結果を表わすのに、$\bullet[\Theta_S]$ と書きます。
-構文 $\bullet$ は、静的な項、静的な項の列、この後で定義する動的な可変コンテキスト、のいずれかを表わします。
+構文 $\bullet$ は、静的な項、静的な項の列、この後で定義する動的な変数コンテキスト、のいずれかを表わします。
 
 シグニチャは宣言された静的な定数 $sc$ へのsc種の割り当てを表わし、そのシグニチャの形成ルールは図\ref{fig:fig1_rules}で与えられます。
 初期シグニチャ $S_0$ が次の宣言を含むことを仮定しています。
@@ -128,18 +128,18 @@ sc種は (普通の) 種とは見なされないことに注意してくださ�
 さらに、$\forall_a [\lambda a : \sigma.s]$ と $\exists_a [\lambda a : \sigma.s]$ をそれぞれ $\forall_a : \sigma.s$ と $\exists_a : \sigma.s$ のように書きます。
 staticsの分類規則は図\ref{fig:fig1_rules}で与えられますが、大部分は標準的なものです。
 例えば、$\emptyset \vdash_{S_0} \forall_{type} [\lambda a : type.a \rightarrow_{tp} a] : type$ が導けるので、$\forall a : type.a \rightarrow_{tp} a$ は種typeを割り当てることができる静的な項です。
-なんらかの種 $\sigma_1$, $\ldots$ ,$\sigma_n$ についてsc種 [$\sigma_1$, $\ldots$ ,$\sigma_n$] $\Rightarrow$ {\it type} を割り当てられるなら、静的なコンストラクタ$sc$は型コンストラクタです。
+静的なコンストラクタ$sc$の内、なんらかの種 $\sigma_1$, $\ldots$ ,$\sigma_n$ についてsc種 [$\sigma_1$, $\ldots$ ,$\sigma_n$] $\Rightarrow$ {\it type} を割り当てられるものは型コンストラクタです。
 例えば {\bf 1}, $\rightarrow_{tp}$, $\supset$, $\wedge$, $\forall_\sigma$, $\exists_\sigma$ は全て型コンストラクタですが、$\leq_{tp}$ は型コンストラクタではありません。
 直感的には、{\bf 1} は通常のユニット型を表わし、$\rightarrow_{tp}$ は関数型を作り、$\leq_{tp}$ は型におけるサブタイピング関係を表わします。
 静的なコンストラクタ $\supset$ と $\wedge$ はそれぞれガード型 (guarded types) とアサート型 (asserting types) を作り、これらは後で解説します。
 
-静的な変数群に種を割り当てるような、静的な可変コンテキストを表わすのに $\Sigma$ を使います;
-{\bf dom}($\Sigma$) は $\Sigma$ で宣言された静的な変数の組です;
+静的な変数に種を割り当てるような、静的な変数コンテキストを表わすのに $\Sigma$ を使います;
+{\bf dom}($\Sigma$) は $\Sigma$ で宣言された静的な変数の集合です;
 もし $a : \sigma$ が $\Sigma$ で宣言されていたら、$\Sigma (a) = \sigma$ です。
 例によって、$\Sigma$ において静的な変数 $a$ は一回しか宣言できません。
 もし $\Sigma \vdash s : bool$ が導けるなら、静的な項 $s$ は $\Sigma$ の下の {\it 命題} ({\it proposition}) と呼ばれます。
-(なんらかの静的な可変コンテキストの下で) 命題を表わすのに $P$ を使います。
-$P \supset s$ という形の型を表わすのに {\it ガード型} ({\it guarded type})、$P \wedge s$ という形の型を表わすのに {\it アサート型} ({\it asserting type}) という名前を使います。
+(なんらかの静的な変数コンテキストの下で) 命題を表わすのに $P$ を使います。
+$P \supset s$ という形の型を表わすのに {\it ガード型} ({\it guarded type})、$P \wedge s$ という形の型を {\it アサート型} ({\it asserting type}) と呼びます。
 これらは両方とも次の例で使います。
 
 \noindent {\it Example 1.}
@@ -167,7 +167,7 @@ Dependent ML [XP99,Xi98] における研究でも既にアサート型があり�
 アサート型の正確な概念はこれまで形式化されたことがありませんでした:
 DMLではこの論文でアサート型と呼んでいるものをシミュレートするのにサブセット種を使わねばなりませんでした。
 
-{\it PTS} でのデザインと同様に、{\it ATS} でのデザインにおいても型の等価性は難解な問題です。
+{\it PTS} でのデザインと同様に、{\it ATS} でのデザインにおいても型の等価性は重要な役割を果たします。
 けれどもさらなる研究によって、{\it ATS} における型の等価性はサブタイピング関係 $\leq_{tp}$ によって定義できることが明らかになりました。
 2つの型 $s_1$ と $s_2$ が与えられたとき、もし命題 $s_1 \leq_{tp} s_2$ と命題 $s_2 \leq_{tp} s_1$ の両方が成立するなら、$s_1$ と $s_2$ は等しいと言えるのです。
 一般に、(ある前提の元に) 与えられた命題が成立するかどうか決定する必要があります。
@@ -181,25 +181,25 @@ DMLではこの論文でアサート型と呼んでいるものをシミュレ�
 \end{figure}
 
 {\bf Definition 1.}
-$S$, $\Sigma$, $\vec{P}$, $P_0$ をそれぞれ 静的なシグニチャ, 静的な可変コンテキスト, $\Sigma$ の下での命題の組, $\Sigma$ の下での1つの命題であるとします。
+$S$, $\Sigma$, $\vec{P}$, $P_0$ をそれぞれ 静的なシグニチャ, 静的な変数コンテキスト, $\Sigma$ の下での命題の組, $\Sigma$ の下での1つの命題であるとします。
 もし次の規則条件が満たされるなら、関係 $\Sigma$; $\vec{P} \models_S P_0$ は正規の制約関係であると言います:
 
 \begin{enumerate}
-  \item 図\ref{fig:fig2_regularity_rules} の規則ルール全てが有効である; すなわちそれぞれの規則ルールについて、もしルールの根拠が成立するならルールの結論が成立し、なおかつ
-  \item $\Sigma; \vec{P} \models_S s_1 \rightarrow_{tp} s_2 \leq_{tp} s'_1 \rightarrow_{tp} s'_2$ は $\Sigma; \vec{P} \models_S s'_1 \leq_{tp} s_1$ と $\Sigma; \vec{P} \models_S s_2 \leq_{tp} s'_2$ を意味し、なおかつ
-  \item $\Sigma; \vec{P} \models_S P \supset s \leq_{tp} P' \supset s'$ は $\Sigma; \vec{P},P' \models_S P$ と $\Sigma; \vec{P},P' \models_S s \leq_{tp} s'$ を意味し、なおかつ
-  \item $\Sigma; \vec{P} \models_S P \wedge s \leq_{tp} P' \wedge s'$ は $\Sigma; \vec{P},P \models_S P'$ と $\Sigma; \vec{P},P \models_S s \leq_{tp} s'$ を意味し、なおかつ
-  \item $\Sigma; \vec{P} \models_S \forall a : \sigma.s \leq_{tp} \forall a : \sigma.s'$ は $\Sigma , a: \sigma; \vec{P} \models_S s \leq_{tp} s'$ を意味し、なおかつ
-  \item $\Sigma; \vec{P} \models_S \exists a : \sigma.s \leq_{tp} \exists a : \sigma.s'$ は $\Sigma , a: \sigma; \vec{P} \models_S s \leq_{tp} s'$ を意味し、なおかつ
-  \item $\emptyset; \emptyset \models_S scc[s_1,\ldots,s_n] \leq_{tp} scc'[s'_1,\ldots,s'_{n'}]$ は $scc = scc'$ を意味します
+  \item 図\ref{fig:fig2_regularity_rules} の規則ルール全てが有効である; すなわちそれぞれの規則ルールについて、もしルールの前提が成立するならルールの結論が成立し、なおかつ
+  \item $\Sigma; \vec{P} \models_S s_1 \rightarrow_{tp} s_2 \leq_{tp} s'_1 \rightarrow_{tp} s'_2$ ならば $\Sigma; \vec{P} \models_S s'_1 \leq_{tp} s_1$ と $\Sigma; \vec{P} \models_S s_2 \leq_{tp} s'_2$ で、なおかつ
+  \item $\Sigma; \vec{P} \models_S P \supset s \leq_{tp} P' \supset s'$ ならば $\Sigma; \vec{P},P' \models_S P$ かつ $\Sigma; \vec{P},P' \models_S s \leq_{tp} s'$ で、なおかつ
+  \item $\Sigma; \vec{P} \models_S P \wedge s \leq_{tp} P' \wedge s'$ ならば $\Sigma; \vec{P},P \models_S P'$ かつ $\Sigma; \vec{P},P \models_S s \leq_{tp} s'$ で、なおかつ
+  \item $\Sigma; \vec{P} \models_S \forall a : \sigma.s \leq_{tp} \forall a : \sigma.s'$ ならば $\Sigma , a: \sigma; \vec{P} \models_S s \leq_{tp} s'$ で、なおかつ
+  \item $\Sigma; \vec{P} \models_S \exists a : \sigma.s \leq_{tp} \exists a : \sigma.s'$ ならば $\Sigma , a: \sigma; \vec{P} \models_S s \leq_{tp} s'$ で、なおかつ
+  \item $\emptyset; \emptyset \models_S scc[s_1,\ldots,s_n] \leq_{tp} scc'[s'_1,\ldots,s'_{n'}]$ は $scc = scc'$ です。
 \end{enumerate}
 
 \noindent $\Sigma; \vec{P} \models_S P_0$ と書くときはいつでも $P \in \vec{P},P_0$ について $\Sigma \vdash_S P : bool$ を導出できることを仮定していることに注意してください。
 
-\noindent ATSのdynamicsを作るとき、制約関係を必要とします。全ての単一の規則条件と同様に、全ての単一の規則ルールはsubject reduction定理(Theorem 1)とprogress定理(Theorem 2)を規定するために後で使うことになります。
-一般に、{\it ATS} フレームワークは制約関係の上にパラメータ化されています。
-この時点では、制約関係の決定可能性を気にする必要はありません。
-それぞれの制約関係 $\models_S$ について、どのような $\Sigma, \vec{P}$ と $P_0$ が与えられても $\Sigma; \vec{P} \models_S P_0$ が満たされるかどうか、決定してくれるオラクルが存在することを単純に仮定することができます。
+\noindent 制約関係は、ATSのdynamicsを定義するときに必要となります。どの正規性規則も、どの正規性条件も、subject reduction定理(Theorem 1)とprogress定理(Theorem 2)を証明するのに後で必要になります。
+一般に、{\it ATS} フレームワークは制約関係がパラメータ化されています。
+この時点では、制約関係の決定可能性は気にしません。
+それぞれの制約関係 $\models_S$ について、どのような $\Sigma, \vec{P}$ と $P_0$ が与えられても $\Sigma; \vec{P} \models_S P_0$ が満たされるかどうか、決定してくれるオラクルが存在することを単純に仮定することにします。
 後で、制約関係を決定する実用的なアルゴリズムを持つapplied type systemの例をいくつか紹介します。
 
 非叙述性 (impredicativity) のために、与えられたシグニチャ $S$ について制約関係 $\models_S$ をいかに厳密に定義できるかは、一般にかなり難しい問題です。
@@ -209,7 +209,7 @@ $S$, $\Sigma$, $\vec{P}$, $P_0$ をそれぞれ 静的なシグニチャ, 静的
 \subsection{Dynamics}
 
 ATS の dynamics は型付き言語で、種 {\it type} の静的な項は dynamics における型です。
-動的な定数をいくつか宣言することができ、引数 $n$ の動的な定数 $dc$ それぞれに次の形の dc 型を割り当てることができます。
+動的な定数がいくつか宣言されているものとし、引数 $n$ の動的な定数 $dc$ それぞれに次の形の dc 型が割り当てられているものとします。
 
 \begin{figure}[h]
 \centering
@@ -218,7 +218,7 @@ ATS の dynamics は型付き言語で、種 {\it type} の静的な項は dynam
 
 \noindent このとき $s_1,\ldots,s_n,s$ は型であると仮定しています。
 $dc$ が動的なコンストラクタ $dcc$ である場合、なんらかの型コンストラクタ $scc$ について 型 $s$ は $scc[\vec{s}]$ の形を取れなければなりません。
-すると $dcc$ は $scc$ と関連があると言えるのです。
+この時、$dcc$ は $scc$ に関連付けられている、と言います。
 静的な項の (空である可能性のある) 列を表わすのに $\vec{s}$ を使っていることに注意してください。
 例えば、次のようにdc型を割り当てることで、2つの動的なコンストラクタ {\it \underline{nil}} と {\it \underline{cons}} を型コンストラクタ {\bf list} と関連付けることができます。
 
@@ -231,10 +231,10 @@ $dc$ が動的なコンストラクタ $dcc$ である場合、なんらかの�
 
 動的な値を動的な項に写像する動的な置換を $\Theta_D$ で表わします。
 また $\Theta_D$ の定義域を {\bf dom}($\Theta_D$) で表わします。
-静的な置換と同じように、動的な置換を形成して適用するような構文を示すことを省きます。
+動的な置換の形成、適用を行う構文は静的な置換のそれと同じなので省きます。
 {\bf dom}($\Theta^1_D$) $\cap$ {\bf dom}($\Theta^2_D$) $= \emptyset$ となるような $\Theta^1_D$ と $\Theta^2_D$ が与えられたとき、$\Theta^1_D$ と $\Theta^2_D$ の和集合を $\Theta^1_D \cup \Theta^2_D$ で表わします。
 
-任意の構文を $\bullet$ で表わすと、$\Sigma = a_1 : \sigma_1,\ldots,a_k : \sigma_k$ において、$\forall a_1:\sigma_1 \ldots \forall a_k:\sigma_k .\bullet$ を $\forall\Sigma.\bullet$ と書くことができます。
+任意の構文を $\bullet$ で表わすと、$\Sigma = a_1 : \sigma_1,\ldots,a_k : \sigma_k$ において、$\forall a_1:\sigma_1 \ldots \forall a_k:\sigma_k .\bullet$ を $\forall\Sigma.\bullet$ と書くことにします。
 同様に、$\vec{P} = P_1,\ldots,P_m$ において $P_1 \supset (\ldots(P_m \supset \bullet)\ldots)$ を $\vec{P} \supset \bullet$ と書くことができます。
 例えば、dc型は常に $\forall \Sigma.\vec{P} \supset ([s_1,\ldots,s_n] \Rightarrow_{tp} s)$ の形になります。
 動的な定数の宣言を許可するために、シグニチャの定義を次のように拡張する必要があります。
@@ -253,9 +253,9 @@ $dc$ が動的なコンストラクタ $dcc$ である場合、なんらかの�
 \includegraphics[width=9cm]{img/infig22_addtional_rule.png}
 \end{figure}
 
-\noindent 動的な項の変数として $x$ を、動的な項として $d$ を用いるとき、dynamicsの構文を図\ref{fig:fig3_syntax_dynamics} に示します。
+\noindent dynamicsの構文を図\ref{fig:fig3_syntax_dynamics} に示します。図の中で、$x$ は動的な変数を、$d$ は動的な項を表します。
 引数の個数が $n$ の動的な定数 $dc$ が与えられたとき、引数 $d_1,\ldots,d_n$ への $dc$ の適用を $dc[d_1,\ldots,d_n]$ と書きます。
-$n = 0$ の場合には $dc[]$ の代わりに $dc$ と書くこともできます。
+$n = 0$ の場合には $dc[]$ の代わりに $dc$ と書きます。
 
 \begin{figure}[h]
 \centering
@@ -267,18 +267,18 @@ $n = 0$ の場合には $dc[]$ の代わりに $dc$ と書くこともできま�
 \begin{figure}[h]
 \centering
 \includegraphics[width=8cm]{img/fig4_rules_dynamics.png}
-\caption{動的な可変コンテキストを表わす形成ルール}
+\caption{動的な変数コンテキストを表わす形成ルール}
 \label{fig:fig4_rules_dynamics}
 \end{figure}
 
-型の導出において帰納的な意味付けに必要なLemma 3を証明するために、標識 $\supset^+(\cdot)$, $\supset^-(\cdot)$, $\wedge(\cdot)$, $\forall^+(\cdot)$, $\forall^-(\cdot)$, $\exists(\cdot)$ を導入します。
+型付けの導出において帰納的な意味付けに必要なLemma 3を証明するために、標識 $\supset^+(\cdot)$, $\supset^-(\cdot)$, $\wedge(\cdot)$, $\forall^+(\cdot)$, $\forall^-(\cdot)$, $\exists(\cdot)$ を導入します。
 これらの標識がないと、型の導出において帰納的証明を行なうことが、著しく困難になります。
 Lemma 3を証明することも困難になってしまうでしょう。
 
-$\Sigma \vdash_S \Delta [dctx]$ の形の判定は、$\Sigma$ と $S$ の下で $\Delta$ が well-formed な動的な可変コンテキストであることを示しています。
-このような判定を導出するルールを図\ref{fig:fig4_rules_dynamics}に示します。
-型付けされたコンテキトを $\Sigma; \vec{P}; \Delta$ で表わします。
-次のルールは $\vdash_S \Sigma; \vec{P}; \Delta$ の形の判定を導出しています。
+$\Sigma \vdash_S \Delta [dctx]$ の形の判断は、$\Sigma$ と $S$ の下で $\Delta$ が well-formed な動的な変数コンテキストであることを示しています。
+このような判断を導出するルールを図\ref{fig:fig4_rules_dynamics}に示します。
+型付けの文脈には、$\Sigma; \vec{P}; \Delta$ の組を用います。
+次のルールは $\vdash_S \Sigma; \vec{P}; \Delta$ の形の判断を導出しています。
 
 \begin{figure}[h]
 \centering
@@ -287,15 +287,14 @@ $\Sigma \vdash_S \Delta [dctx]$ の形の判定は、$\Sigma$ と $S$ の下で 
 
 \noindent これは $\Sigma; \vec{P}; \Delta$ が well-formed であることを示しています。
 
-$\Sigma; \vec{P}; \Delta$ が well-formed な型付けされたコンテキストで、かつ $\Sigma \vdash_S s:type$ 導出できると仮定したとき、型付け判定は $\Sigma; \vec{P}; \Delta \vdash_S d:s$ の形を取ります。
-制約関係 $\models_S$ が正則であると仮定したとき、このような判定を導くための型付けルールを図\ref{fig:fig5_typingrules_dynamics}に示します。
+$\Sigma; \vec{P}; \Delta$ が well-formed な型付け文脈で、かつ $\Sigma \vdash_S s:type$ が導出できるとき、型付け判断は $\Sigma; \vec{P}; \Delta \vdash_S d:s$ の形を取ります。
+制約関係 $\models_S$ が正則であると仮定したとき、このような判断を導くための型付けルールを図\ref{fig:fig5_typingrules_dynamics}に示します。
 $\Sigma \vdash_S \Theta_S : \Sigma_0$ と書くとき、それぞれの $a \in {\bf dom}(\Theta_S) = {\bf dom}(\Sigma)$ について $\Sigma \vdash_S \Theta_S(a) : \Sigma(a)$ が導出できることを意味します。
-型付けルールに関連する明らかな条件のいくつかを省略していることに注意してください。
-例えば、ルール {\bf(ty-$\forall$-intro)} を適用するとき、$\vec{P}$, $\Delta$ もしくは $s$ において値 $a$ は自由に出現 (free occurrences) できません。
-また値の形に、型付けルール {\bf (ty-gua-intro)} と {\bf (ty-$\forall$-intro)} の制約を付けています。
-これは後でATSに作用を導入するための準備です。
+型付けルールにおいては明らかな条件のいくつかを省略していることに注意してください。
+例えば、ルール {\bf(ty-$\forall$-intro)} を適用するとき、$\vec{P}$, $\Delta$ もしくは $s$ において値 $a$ は自由変数として出現 (free occurrences) できません。
+{\bf (ty-gua-intro)} と {\bf (ty-$\forall$-intro)} には一種の値制限 (value restriction) を適用しています。
 \footnote{実際にはTheorem 2を成立させるために、型付けルール {\bf (ty-gua-intro)} の値に対する制約は、この時点でも必要です。}
-技術的な理由で、ルール {\bf (ty-var)} を次のようなルールで置き換えます。
+技術的な理由で、ルール {\bf (ty-var)} を次のようなルールで置き換えます。\footnote{訳注: 実際には既に置き換え済みのものが図\ref{fig:fig5_typingrules_dynamics}に書かれています。単純ミスと思われます}
 
 \clearpage
 
@@ -314,7 +313,7 @@ $\Sigma \vdash_S \Theta_S : \Sigma_0$ と書くとき、それぞれの $a \in {
 \label{fig:fig5_typingrules_dynamics}
 \end{figure}
 
-ここで、動的な項を評価するルールの表現に進む前に、ガード型とアサート型がセキュリティを強制する役割を演じるような、興味深いシナリオをスケッチしてみましょう。
+ここで、動的な項を評価するルールの表現に進む前に、ガード型とアサート型がセキュリティを強制する役割を演じるような、シナリオをスケッチしてみましょう。
 これらの型を理解をさらに容易にしてくれるはずです。
 
 \noindent {\it Example 2.}
@@ -325,11 +324,11 @@ $\Sigma \vdash_S \Theta_S : \Sigma_0$ と書くとき、それぞれの $a \in {
 \includegraphics[width=10cm]{img/infig22_example2.png}
 \end{figure}
 
-\noindent \underline{$password$} を呼び出しが返る前になんらかのsecret情報を検証しなければならない、というような方法で関数 \underline{$password$} を実装することができます。
+\noindent \underline{$password$} は呼び出しが返る前になんらかのsecret情報を検証しなければならない、というような方法で実装することができます。
 一方では、関数呼び出し \underline{$action$}$[\langle\rangle]$ をする前に、命題 \underline{$Secret$} を成立させなければなりません。
 このとき、$\langle\rangle$ はユニット型 {\bf 1} の値を意味します。
 もう一方、関数呼び出し \underline{$password$}$[\langle\rangle]$ が返った後では、命題 \underline{$Secret$} は成立しています。
-従って、\underline{$action$} 呼び出しは次のプログラムパターンを意味していることになります:
+従って、\underline{$action$} 呼び出しは次のプログラムパターンでないとできないということを意味していることになります:
 
 \begin{figure}[h]
 \centering
@@ -339,7 +338,7 @@ $\Sigma \vdash_S \Theta_S : \Sigma_0$ と書くとき、それぞれの $a \in {
 \noindent 特に $x$ のスコープ外における \underline{$action$} 呼び出しは ill-typed です。
 なぜなら命題 \underline{$Secret$} を成立させることができないからです。
 
-値渡し (call-by-value) の動的な構文を動的な項に割り当てるために、次に定義する評価コンテキストを利用します:
+値渡し (call-by-value) の意味論を動的な項に規定するにあたっては、次に定義する評価コンテキストを利用します:
 
 \begin{figure}[h]
 \centering
@@ -355,16 +354,16 @@ $\Sigma \vdash_S \Theta_S : \Sigma_0$ と書くとき、それぞれの $a \in {
   \item ${\bf let} \wedge (x) = \wedge (v) {\bf in} d$ は簡約基で、その簡約は $d[x \mapsto v]$ です。
   \item $\forall^- (\forall^+ (v))$ は簡約基で、その簡約は $v$ です。
   \item ${\bf let} \exists (x) = \exists (v) {\bf in} d$ は簡約基で、その簡約は $d[x \mapsto v]$ です。
-  \item なんらかの値 $v$ に等しく定義された $dcf[v_1,\ldots,v_n]$ は簡約基で、その簡約は $v$ です。
+  \item なんらかの値 $v$ に等しいと定義された $dcf[v_1,\ldots,v_n]$ は簡約基で、その簡約は $v$ です。
 \end{itemize}
 
 \noindent なんらかの簡約基 $d$ とその簡約 $d'$ について $d_1 = E[d]$ かつ $d_2 = E[d']$ のような2つの動的な項 $d_1$ と $d_2$ が与えられたとき、$d_1 \hookrightarrow d_2$ は1ステップで $d_1$ を $d_2$ に簡約することを意味します。
-$\hookrightarrow$ の再帰的で推移的なクロージャを $\hookrightarrow^*$ で表わします。
+$\hookrightarrow$ の反射推移閉包クロージャを $\hookrightarrow^*$ で表わします。
 
-\noindent それぞれの動的な関数定数 $dcf$ に割り当てられた型が妥当であると仮定します。
+\noindent それぞれの動的な関数定数 $dcf$ に割り当てられた型は妥当であると仮定します。
 すなわち、もし $\emptyset;\emptyset;\emptyset \vdash_S dcf[v_1,\ldots,v_n]:s$ が導出でき、かつ $dcf[v_1,\ldots,v_n] \hookrightarrow v$ が成立するなら、$\emptyset;\emptyset;\emptyset \vdash_S v:s$ が導出できるとします。
 
-判定 $J$ が与えられたとき、$D$ が $J$ の導出であることを示すために $D :: J$ と書きます。
+判断 $J$ が与えられたとき、$D$ が $J$ の導出であることを示すために $D :: J$ と書きます。
 つまり $D$ が $J$ を結論とする導出であることを意味しています。
 
 \noindent {\bf Lemma 1 (Substitution).} 次が成立します。
@@ -376,8 +375,8 @@ $\hookrightarrow$ の再帰的で推移的なクロージャを $\hookrightarrow
 \end{enumerate}
 
 \noindent {\it Proof.}
-$D$ に関する構造帰納法を使って (1),(2),(3) を簡単に証明できます。
-(1)と(2)を証明する際、規則ルール {\bf (reg-subst)} と {\bf (reg-cut)} をそれぞれ利用する必要があります。
+(1),(2),(3) は $D$ に関する構造的帰納法を使って簡単に証明できます。
+(1)と(2)を証明する際、正規性ルール {\bf (reg-subst)} と {\bf (reg-cut)} をそれぞれ利用する必要があります。
 
 \noindent 導出 $D$ が与えられたとき、$D$ の高さを ${\bf h}(D)$ で表わします。
 これは一般的な方法で定義できます。
@@ -485,8 +484,8 @@ $D :: \emptyset; \emptyset; \emptyset \vdash_S d : s$ を仮定したとき
 \end{figure}
 
 \noindent いつものように、どのような変数 $x$ もパターン中に一度だけ登場できます。
-値 $v$ とパターン $p$ が与えられたとき、$v = p[\Theta_D]$ を示すのに $v \Downarrow p \Rightarrow \Theta_D$ の形の判定を使います。
-そのような判定を導出するためのルールは次のように与えられます。
+値 $v$ とパターン $p$ が与えられたとき、$v = p[\Theta_D]$ を示すのに $v \Downarrow p \Rightarrow \Theta_D$ の形の判断を使います。
+そのような判断を導出するためのルールは次のように与えられます。
 
 \begin{figure}[h]
 \centering
@@ -508,7 +507,7 @@ $1 \leq i \leq n$ について $v \Downarrow p_i \Rightarrow \Theta_D$ が成立
 \end{figure}
 
 パターンマッチの型付けルールを図\ref{fig:fig6_rules_pattern_match} に示します。
-$\Sigma \vdash p \Downarrow s \Rightarrow \Sigma'; P'; \Delta'$ の判定の意味は、次の補題で形式的に捕捉されます。
+$\Sigma \vdash p \Downarrow s \Rightarrow \Sigma'; P'; \Delta'$ の判断の意味は、次の補題で形式的に捕捉されます。
 
 \noindent {\bf Lemma 4.}
 $D :: \emptyset;\emptyset;\emptyset \vdash_S v:s, \varepsilon_1::\emptyset \vdash p \Downarrow s \vdash \Sigma; \vec{P}; \Delta$ と $\varepsilon_2 :: v \Downarrow p \Rightarrow \Theta_D$ を仮定します。
@@ -517,7 +516,7 @@ $D :: \emptyset;\emptyset;\emptyset \vdash_S v:s, \varepsilon_1::\emptyset \vdas
 \noindent {\it Proof.}
 この補題は $\varepsilon_1$ における構造帰納法から得られます。
 
-\noindent 例として、次の判定は導出可能です。
+\noindent 例として、次の判断は導出可能です。
 
 \begin{figure}[h]
 \centering
