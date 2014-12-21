@@ -422,7 +422,7 @@ $D :: \emptyset;\emptyset;\emptyset \vdash_S d:s$ を仮定します。
 \subsection{型消去済の動的な項}
 
 動的な項から、意味論を維持した型無しのラムダ式に変換する関数を示します。
-次のように形式的に定義された型消去済の動的な項を $e$ で表わします:
+次のように形式的に定義された、型消去済の動的な項 (erasure) を $e$ で表わします:
 
 \begin{figure}[h]
 \centering
@@ -447,7 +447,7 @@ $D :: \emptyset; \emptyset; \emptyset \vdash_S d : s$ を仮定したとき
 \noindent {\it Proof.}
 (1) は自明です。(2) は $D$ に対する構造帰納法から得られます。
 
-\noindent Theorem 3 を用いると、型消去済の動的な項 $d$ を単純に評価することで、動的な項 $d$ を評価することができます。
+\noindent Theorem 3 を用いると、動的な項 $d$ を評価するには、$d$ の型消去 $|d|$ を評価すれば良いことになります。
 
 \section{拡張}
 
@@ -470,7 +470,7 @@ $D :: \emptyset; \emptyset; \emptyset \vdash_S d : s$ を仮定したとき
 \includegraphics[width=11cm]{img/infig3_fixed-point_op.png}
 \end{figure}
 
-\noindent {\bf fix} $f.d$ の動的な項は簡約基で、その簡約は $d[f \mapsto {\bf fix} f.d]$ になります。
+\noindent {\bf fix} $f.d$ の形の動的な項は簡約基で、その簡約は $d[f \mapsto {\bf fix} f.d]$ になります。
 この拡張について、subject reduction定理 (Theorem 1) とprogress定理 (Theorem 2) の両方が素直に成立します。
 
 \noindent {\bf Datatypes and Pattern Matching}
@@ -492,12 +492,12 @@ $D :: \emptyset; \emptyset; \emptyset \vdash_S d : s$ を仮定したとき
 \includegraphics[width=14cm]{img/infig3_vp-doc.png}
 \end{figure}
 
-\noindent もし、なんらかの動的な置換 $\Theta_D$ について $v \Downarrow p \Rightarrow \Theta_D$ が導出できるなら、$v$ は $p$ にマッチすると言えます。
+\noindent なんらかの動的な置換 $\Theta_D$ について $v \Downarrow p \Rightarrow \Theta_D$ が導出できるとき、$v$ は $p$ にマッチすると言います。
 ルール {\bf (vp-dcc)} において、$n = 0$ のとき空の動的な置換 $[]$ になるようなユニオン $\Theta^1_D \cup \ldots \cup \Theta^n_D$ は well-defined であることに注意してください。
 なぜなら、1つのパターン中にどのような変数も最大一度まで登場できるからです。
 
 $1 \leq i \leq n$ について $v \Downarrow p_i \Rightarrow \Theta_D$ が成立するなら、${\bf case}$ $v$ ${\bf of} p_1 \Rightarrow d_1 |\cdots| p_n \Rightarrow d_n$ の形の動的な項は簡約基で、その簡約は $d_i[\Theta_D]$ になります。
-もし $v$ が複数のパターン $p_i$ にマッチするなら、このような簡約基の簡約は非決定論を引き起こすかもしれないことに注意してください。
+もし $v$ が複数のパターン $p_i$ にマッチするなら、このような簡約基の簡約は非決定性を引き起こすかもしれないことに注意してください。
 
 \begin{figure}[h]
 \centering
@@ -523,7 +523,7 @@ $D :: \emptyset;\emptyset;\emptyset \vdash_S v:s, \varepsilon_1::\emptyset \vdas
 \includegraphics[width=9cm]{img/infig3_lemma4_judgement.png}
 \end{figure}
 
-\noindent ここで \underline{$cons$} には次のdc型が割り当てられます。
+\noindent ここで \underline{$cons$} には次のdc型が割り当てられているものとします。
 
 \begin{figure}[h]
 \centering
@@ -533,7 +533,7 @@ $D :: \emptyset;\emptyset;\emptyset \vdash_S v:s, \varepsilon_1::\emptyset \vdas
 \noindent なおかつ $\Sigma = (a:type, n:int)$、 $\vec{P} = (n \geq 0, {\bf list}[a,n+1] \leq_{tp} {\bf list}[a',n'])$、かつ $\Delta = (x_1:a, x_2:{\bf list}[a,n])$ です。
 
 この拡張においてsubject reduction 定理 (Theorem 1) はすぐに証明できます:
-簡約されたインデックスが次の形になる場合を扱うために、Lemma 4が必要になります:
+今しがた簡約された簡約基が次の形になる場合を扱うために、Lemma 4が必要になります:
 
 \begin{figure}[h]
 \centering
@@ -541,7 +541,7 @@ $D :: \emptyset;\emptyset;\emptyset \vdash_S v:s, \varepsilon_1::\emptyset \vdas
 \end{figure}
 
 \noindent また、この拡張においてprogress定理 (Theorem 2) を成立させることができます。
-このとき well-typed なプログラム $d$ が次の形を取る可能性を考慮するために、定理のわずかな修正が必要です。
+このとき well-typed なプログラム $d$ が次の形を取る可能性を考慮するために、定理のわずかな修正が必要です。即ち、well-typed なプログラム $d$ が次の形を取ることを許容します。
 
 \begin{figure}[h]
 \centering
@@ -552,7 +552,7 @@ $D :: \emptyset;\emptyset;\emptyset \vdash_S v:s, \varepsilon_1::\emptyset \vdas
 
 \noindent {\bf Effects}
 {\it PTS} と異なり、{\it ATS} は参照や例外のような作用をサポートする際も素直な方法で拡張できます。
-例えば、参照を {\it ATS} に導入するために、sc種 $[type] \Rightarrow type$ の型コンストラクタ $ref$ と、次のように対応するdc型が割り当てられた動的な関数を単純に宣言できます。
+例えば、参照を {\it ATS} に導入するためには、単にsc種 $[type] \Rightarrow type$ の型コンストラクタ $ref$ と、次のように対応するdc型が割り当てられた動的な関数を宣言すれば事足ります。
 
 \begin{figure}[h]
 \centering
@@ -560,7 +560,7 @@ $D :: \emptyset;\emptyset;\emptyset \vdash_S v:s, \varepsilon_1::\emptyset \vdas
 \end{figure}
 
 これらの関数の意図する意味は明らかです。
-また、$ref$ が不変の型コンストラクタになってしまう問題に対処するため、Definition 1に次の規則条件を追加する必要があります。
+また、$ref$ が $\leq_{tp}$ について共変でも反変でもない型コンストラクタになってしまう問題に対処するため、Definition 1に次の規則条件を追加する必要があります。
 
 \begin{itemize}
 \item $\Sigma; \vec{P} \models_S ref(s) \leq_{tp} ref(s')$ は $\Sigma; \vec{P} \models_S s \leq_{tp} s'$ と $\Sigma; \vec{P} \models_S s' \leq_{tp} s$ を意味します。
@@ -588,22 +588,22 @@ $D :: \emptyset;\emptyset;\emptyset \vdash_S v:s, \varepsilon_1::\emptyset \vdas
 Haskellの型クラスの根底にある qualified types [Jon94] に精通した人に対して、qualified type はガード型と見なせないことを指摘しておきます。
 その単純な理由は、applied type system におけるガードの証明が計算上の意味を持っていないことです。
 つまり、プログラムの実行時の挙動に影響を及ぼすことができないのです。
-しかし、qualified types の環境における型の述語の証明である dictionary はプログラムの実行時の挙動に影響を与えることができ、また好んで使われます。
+しかし、qualified types の環境における型の述語の証明である dictionary はプログラムの実行時の挙動に影響を与えることができ、また多くの場合実際に影響を与えます。
 
-別方向の関連研究として certified binaries [SSTP02] を用いた型システムの形式化があります。
+別方向の関連研究として certified binaries のための型システム [SSTP02] があります。
 これもまた型とプログラムを完全に分離するアイデアです。
-帰納的な定義 (CiC) [PPM89,PM93] を拡張した calculus of constructions にこの型言語は基づいているとはいえ、基本的にこの型システムにおける型言語と計算言語の概念は、それぞれATSのstaticsとdynamicsの概念に相当します。
-けれども、ATS における制約関係の概念は [SSTP02] のものに相当するわけではありません。
+帰納的な定義で拡張した calculus of constructions (CiC) [PPM89,PM93] にこの型言語は基づいているとはいえ、基本的にこの型システムにおける型言語と計算言語の概念は、それぞれATSのstaticsとdynamicsの概念に相当します。
+けれども、ATS における制約関係の概念は [SSTP02] の体系には相当するものがありません。
 その代わりに、型の正規形を比較することで、2つの型の等価性を決定できます。
-私達が applied type system と関連した制約関係の証明を効果的に表現/検証するアプローチ持っている以上、[SSTP02] の意味での certify binaries に対して applied type system を構築することも困難ではありません。
+私達が applied type system と関連した制約関係の証明を効果的に表現/検証する手段さえあれば、[SSTP02] の意味での binary を保証する applied type system を構築することも困難ではありません。
 
-要約すると、実用的なプログラミングをサポートするための型システムのデザインと形式化を促進するために、{\it ATS} フレームワークを示しました。
+要約すると、実用的なプログラミングをサポートするための型システムのデザインと形式化を促進する、{\it ATS} フレームワークを示しました。
 statics と dynamics を完全に分離することで、{\it ATS} は作用の存在下における依存型のサポートに特に威力を発揮します。
 また、{\it ATS} のガード型とアサート型を使うことで、より柔軟により効果的にプログラムの不変条件を捕捉できます。
 これまで研究されてきた依存型 [XP99,Xi98] と guarded recursive datatypes [XCC03] の統一化と一般化であると、 {\it ATS} をとらえることもできます。
 
-現時点では {\it ATS} の静的な要素は単純なラムダ計算に基づいています。
-従って、静的な要素が多相性と依存型をサポートする型付きラムダ計算の上に構築できるか研究することができるでしょう。
+現時点では {\it ATS} の静的な部分は単純型付きラムダ計算に基づいています。
+従って、静的な部分を多相性と依存型をサポートする型付きラムダ計算の上に構築する研究に自然と繋がります。
 また、{\it ATS} に基づく型システムを使って関数型プログラミング言語をデザイン/実装することに、私達は特に興味を持っています。
 それは既存の言語において新しい言語構造を実装するような方法で、言語拡張を行なう手段を提供できるでしょう。
 
