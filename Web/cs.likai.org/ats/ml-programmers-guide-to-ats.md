@@ -123,7 +123,7 @@ datatype 'a option =
 一方ATSでは、データ型のコンストラクタに型変数を明示的に適用してやる必要があることに注意してください。
 データ型に関する詳細な情報は
 [Datatypes in the ATS tutorial](http://www.ats-lang.org/htdocs-old/TUTORIAL/contents/datatypes.html)
-を参照してくだっさい。
+を参照してください。
 しかし、まずはこの章の残りを読んでからでも良いでしょう。
 
 型宣言は静的な識別子を"type"という種の静的な式に割り付けます。
