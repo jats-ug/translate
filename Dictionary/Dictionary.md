@@ -115,6 +115,10 @@ C言語の関数のようなクロージャではない関数では、関数に�
 
 ## P
 
+### Parametric Polymorphism
+
+"パラメータ多相"
+
 ### Postfix
 
 "後置"
