@@ -41,3 +41,7 @@ ATS2に関する一次情報は
 * [ATSによる安全なC言語の使い方](bluishcoder.co.nz/2010/06/02/safer-c-code-using-ats.md)
 * ATS Preforking Echo Server
 * ATS - Applied Type System Programming Language
+
+## ill typed
+
+* patsolve
