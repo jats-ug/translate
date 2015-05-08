@@ -45,3 +45,5 @@ ATS2に関する一次情報は
 ## ill typed
 
 * patsolve
+* Scripting Patsolve
+* Verified Efficient Programs in ATS: qsort
