@@ -150,11 +150,21 @@ in
 end
 ```
 
-The first thing you may note is we use sif instead of if. The former is for the static type system which is what the variables m and n belong to. In the case of 0 (multiplying a beautiful number by zero) we return the B_0 rule and the base case for the MUL prop.
+最初に注目できることは `if` の代わりに `sif` を使っていることです。
+後者は値 `m` と `n` が属する静的な型システムのためのものです。
+`0` の場合 (素晴しい数をゼロ倍する場合)、ルール `B_0` と `MUL` 命題の基底ケースを返します。
 
-In the case of non-zero multiplication we recursively call b_timesm, reducing m on each call. As m and n are universal variables in the static type system they are passed using the {...} syntax. The result of this is summed. We are implementing multiplication via recursive addition basically. More on the use of MUL can be read in the encoding relations as dataprops section of the ATS documentation.
+非ゼロで乗じた場合、再帰的に `b_timesm` を呼び出して `m` を減少させます。
+`m` と `n` は静的な型システムにおける普遍的な値として、`{...}` 構文を使って渡されています。
+その結果は和を取ります。
+基本的には再帰的な加算を使って乗算を実装しているのです。
+より多くの `MUL` の使用例はATS ドキュメントの章
+[データ命題として関係をエンコードする](http://jats-ug.metasepi.org/doc/ATS2/INT2PROGINATS/c2842.html#encoding_relations_as_dataprops)
+に見つかります。
 
-Once we’ve proven what we want to prove with regards to beautiful numbers, how are they used in actual programs? Imagine a program that needs to add beautiful numbers and display the result. Without any checking it could look like:
+素晴しい数に関する証明をしたとして、どうやってそれらを実際のプログラムで使うのでしょうか？
+素晴しい数の和を取って、その結果を表示するプログラムを想定してみましょう。
+型検査を除くとそれは次のようになるでしょう:
 
 ```ats
 fun add_beautiful (n1: int, n2: int): int =
@@ -169,7 +179,9 @@ in
 end
 ```
 
-This relies on inspection to ensure that numbers are in fact beautiful numbers. Or it could use runtime asserts to that effect. The same program using the proofs we’ve defined would be:
+これは数が実際に素晴しい数であると保証する検査を信頼しています。
+また、その作用のために実行時のアサートを使うかもしれません。
+同じプログラムを証明を使うと次のように定義できます:
 
 ```ats
 fun add_beautiful {n1,n2:nat}
@@ -188,9 +200,12 @@ in
 end
 ```
 
-This program will not compile if non-beautiful numbers are passed to add_beautiful. We’ve constructed proofs that the two numbers we are using are beautiful and pass those proofs to the add_beautiful function. It returns the sum of the two numbers and a proof that the resulting number is also a beautiful number.
+このプログラムは `add_beautiful` に素晴しい数でない数を渡すとコンパイルできません。
+ここで構築した証明では、使用している2つの数は素晴しく、それらの証明を `add_beautiful` に渡していました。
+この関数は、その2つの和と返される値もまた素晴しい数であるとの証明を返します。
 
-An exercise for the reader might be to implement an ‘assert_beautiful’ function that checks if a given integer is a beautiful number using proofs to verify the implementation is correct. The function to implement would allow:
+実装が正しいことを立証するために証明を使って与えられた整数が素晴しい数であるかどうか検査する `assert_beautiful` 関数を実装は読者への練習問題とします。
+実装された関数を使って次のようなコードを書けます:
 
 ```ats
 extern fun assert_beautiful (n: int): [n:nat] (BEAUTIFUL n | int n)
@@ -204,7 +219,10 @@ in
 end
 ```
 
-As noted in Software Foundations, besides constructing evidence that numbers are beautiful, we can also reason about them using the proof system. The only way to build evidence that numbers are beautiful are via the constructors in the dataprop. In the following example we create a new property of numbers, gorgeous numbers, and prove some relationships with beautiful numbers.
+[Software Foundations](http://www.cis.upenn.edu/~bcpierce/sf/current/index.html)
+に書かれている通り、数が素晴しいという根拠を構築することで、証明システムを使ってそれらを立証することもできます。
+数が素晴しいという根拠を構築する唯一の方法は、データ命題のコンスラクタを使うことです。
+次の例では、華麗な数という数の新しい性質を作り、素晴しい数との関係を証明します。
 
 ```ats
 dataprop GORGEOUS (n:int) =
@@ -213,15 +231,18 @@ dataprop GORGEOUS (n:int) =
 | {n:nat} G_plus5 (5+n) of GORGEOUS (n)
 ```
 
-I’ll leave as a reader exercise to write some proofs about gorgeous numbers in a similar way we did with beautiful numbers. Try proving that the sum of two gorgeous numbers results in a gorgeous number.
+素晴しい数に対して行なったのと同じ方法で、華麗な数に対する証明を読者に練習問題として残します。
+2つの華麗な数の和が華麗な数になることを証明してください。
 
-One proof I’ll demonstrate here is proving that all gorgeous numbers are also beautiful numbers. Looking at the definition gives an intuitive idea that this is the case. A proof function to prove it looks like:
+ここで立証したい証明は、全ての華麗な数はまた素晴しい数であるというものです。
+この場合における直感的なアイデアを与える定義を見てみましょう。
+それを証明する証明関数は次のようになります:
 
 ```ats
 prfun gorgeous__beautiful {n:nat} (g: GORGEOUS n): BEAUTIFUL n
 ```
 
-The implementation uses case+ to dispatch on the possible constructors of GORGEOUS and produce BEAUTIFUL equivalents:
+この実装では、`GORGEOUS` のコンストラクタをディスパッチして相当する `BEAUTIFUL` を生成するのに `case+` を使っています:
 
 ```ats
 prfun gorgeous__beautiful {n:nat} .<n>. (g: GORGEOUS n): BEAUTIFUL n = 
@@ -231,4 +252,5 @@ prfun gorgeous__beautiful {n:nat} .<n>. (g: GORGEOUS n): BEAUTIFUL n =
   | G_plus5 g => B_SUM (B_5, gorgeous__beautiful (g))
 ```
 
-This will fail to type check if gorgeous numbers are not also beautiful numbers. It does pass typechecking so we know that this is the case.
+もし華麗な数が素晴しい数でないのであれば、このコードは型検査に失敗するはずです。
+これは型検査を通るので、この場合成立することがわかります。
