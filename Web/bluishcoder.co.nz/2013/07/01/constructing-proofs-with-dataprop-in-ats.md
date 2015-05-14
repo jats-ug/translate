@@ -72,55 +72,73 @@ The file [proof.dats] is successfully typechecked!
 
 証明関数を宣言してそれらを実装しないことができます。
 これは "その証明は自明だ" とコンパイラに言っていることになります。
-It can be used in cases where proofs are time consuming to implement but nevertheless obvious.
-In this case, three_is_beautiful is obvious from the rules so we could just declare it without an implementation:
+証明の実装に時間がかかるわりに明らかであるような場合に、この方法が使えます。
+この場合、`three_is_beautiful` はルールから明らかなので、その実装を除いて宣言することもできます:
 
 ```ats
 praxi three_is_beautiful ():<> BEAUTIFUL 3
 ```
 
-Note here I use praxi instead of prfun. The former is often used for fundamental axioms that don’t need to be proved. They are not expected to be implemented. Although the ATS compiler doesn’t currently warn if a prfun is unimplemented it may do in the future so it’s good practice to use praxi for proofs that aren’t intended to be implemented.
+`prfun` の代わりに `praxi` を使ったことに注意してください。
+後者は証明する必要のない基本的な公理を表わすのにしばしば使われます。
+それらは実装されることを期待されていません。
+現在の ATS コンパイラは `prfun` が未実装でも警告を出しませんが、将来は警告が出るかもしれません。
+実装を意図しない証明を表わすのに `praxi` を使うのは良い習慣でしょう。
 
-The next step up would be to prove some aspect using B_SUM. Let’s prove that eight is a beautiful number:
+次のステップとして、`B_SUM` を使っていくつか証明をしてみます。
+8 が素晴しい数であることを証明してみましょう:
 
 ```ats
 prfn eight_is_beautiful ():<> BEAUTIFUL 8 = B_SUM (B_3, B_5)
 ```
 
-The implementation for this constructs a B_SUM of two other BEAUTIFUL rules, B_3 and B_5. Typechecking this confirms that this is enough to prove the rule.
+この証明の実装は、他の `BEAUTIFUL` ルール `B_3` と `B_5` を使って `B_SUM` を構築しています。
+これを型検査するとこのコードがルールを証明するのに十分であることを確認できます。
 
-Proof functions can be used to prove (or disprove) claims. For example, someone claims that adding three to any beautiful number will produce a beautiful number. Expressed as a proof function:
+証明関数は主張を証明 (もしくは反証) するために使うことができます。
+例えば、どのような素晴しい数に 3 を足すと素晴しい数になると主張するとします。
+これは次のような証明関数で表わせます:
 
 ```ats
 prfn b_plus3 {n:nat} (b: BEAUTIFUL n):<> BEAUTIFUL (3+n)
 ```
 
-The implementation is trivial and successful typechecking by the ATS compiler proves that any beautiful number, with three added, does indeed produce a new beautiful number:
+実装は自明で、ATS コンパイラの型検査に成功し、どのような素晴しい数に 3 を加えると新しい素晴しい数を作ることを証明しています。
 
 ```ats
 prfn b_plus3 {n:nat} (b: BEAUTIFUL n):<> BEAUTIFUL (3+n) =
   B_SUM (B_3, b)
 ```
 
-Another claim to prove is that any beautiful number multiplied by two produces a beautiful number. The claim, implemented as a proof is:
+別の主張は、どのような素晴しい数も2倍すると素晴しい数になるというものです。
+この主張は証明として次のように実装できます:
 
 ```ats
 prfn b_times2 {n:nat} (b: BEAUTIFUL n):<> BEAUTIFUL (2*n) =
   B_SUM (b, b)
 ```
 
-A more complicated proof is that any beautiful number multiplied by any natural number is a beautiful number:
+より複雑な証明としては、どのような素晴しい数もなんらかの自然数倍すれば素晴しい数になる、というのがあります:
 
 ```ats
 prfun b_timesm {m,n:nat} .<m>. (b: BEAUTIFUL n):<>
        [p:nat] (MUL (m,n,p), BEAUTIFUL p) =
 ```
 
-This is the first proof function we’ve looked at that needs recursion. Recursive proof functions must show they can terminate. This is done by adding a termination clause (the bit between .< and >.). The termination clause must contain a static type variable that is used in each recursive call and can be proven to decrement on each call. In this case it is m.
+これは、再帰が必要な最初の証明です。
+再帰証明関数はそれらが終了することを示さなければなりません。
+これは (`.<` と `.>` で囲まれた) [停止節](http://jats-ug.metasepi.org/doc/ATS2/INT2PROGINATS/x2478.html) を追加することで指定します。
+停止節は静的な型の値を含まなければなりません。
+この値はそれぞれの再帰呼び出しで減少していることを証明するために使われます。
+この場合それは `m` です。
 
-The return result of this proof function includes an existential variable, p and returns a tuple of a MUL proof object and the beautiful number. MUL is part of the ATS prelude. It encodes the relation that for any numbers m and n the number p is m*n. The p here is also included as the type index of the beautiful number returned. The proof then reads as “For all m which are natural numbers, and for all n which are beautiful numbers, there exists a beautiful number p that is m*n”.
+この証明関数が返す結果は存在量化の値である `p` を含み、`MUL` と素晴しい数のタプルを返します。
+`MUL` は ATS prelude の一部です。
+これはどのような数 `m` と `n` についても数 `p` は `m*n` であるという関係をエンコードしています。
+ここでの `p` はまた返される素晴しい数の型インデックスとしても含まれます。
+この証明は "全ての自然数 `m` と全ての素晴しい数 `n` について、`m*n` となるような素晴しい数 `p` が存在します" のように読めます。
 
-The implementation of this proof looks like:
+この証明の実装は次のようになります:
 
 ```ats
 sif m == 0 then
