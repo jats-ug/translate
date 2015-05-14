@@ -17,7 +17,7 @@ ATS2に関する一次情報は
 ## BLUISH CODER
 
 * [安全なプログラミング言語を使って heartbleed を防ぐには](bluishcoder.co.nz/2014/04/11/preventing-heartbleed-bugs-with-safe-languages.md)
-* Constructing Proofs with dataprop in ATS
+* [ATS でデータ命題を使って証明を構築する](bluishcoder.co.nz/2013/07/01/constructing-proofs-with-dataprop-in-ats.md)
 * Ranged integer types and bounds checking
 * An Introduction to using pointers in ATS
 * Implementing a stack with proofs in ATS

@@ -1,4 +1,4 @@
-# BLUISH CODER: Constructing Proofs with dataprop in ATS
+# BLUISH CODER: ATS でデータ命題を使って証明を構築する
 
 (元記事は http://bluishcoder.co.nz//2013/07/01/constructing-proofs-with-dataprop-in-ats.html です。)
 
