@@ -1,16 +1,26 @@
 # patsolve
 
-The patsolve constraint solver is the product of an effort to put constraint solving outside of the ATS compiler so that we can leverage off the shelf reasoning tools. By doing so, we hope to make constraint solving more reliable and more productive. Using actively developed tools like SMT solvers gives us more confidence in a constraint solvers' answers, and their wide decision power allows us to automate the verification of more properties in ATS programs. In its current implementation, patsolve uses the Z3 SMT solver in order to prove the validity of constraints generated from ATS programs.
+(元記事は http://www.illtyped.com/projects/patsolve/ です)
+
+The patsolve constraint solver is the product of an effort to put constraint solving outside of the ATS compiler so that we can leverage off the shelf reasoning tools.
+By doing so, we hope to make constraint solving more reliable and more productive.
+Using actively developed tools like SMT solvers gives us more confidence in a constraint solvers' answers,
+and their wide decision power allows us to automate the verification of more properties in ATS programs.
+In its current implementation, patsolve uses the Z3 SMT solver in order to prove the validity of constraints generated from ATS programs.
 
 For details on how to use patsolve, please follow the installation instructions below and check out the examples given in the case studies.
 
 ## Advantages
 
-If you haven't worked with an SMT solver before, you can still effectively use patsolve as a drop in replacement for the built-in constraint solver. Some reasons why you would want to do this include:
+If you haven't worked with an SMT solver before, you can still effectively use patsolve as a drop in replacement for the built-in constraint solver.
+Some reasons why you would want to do this include:
 
 ### Stability
 
-The internal ATS2 constraint solver uses Fourier-Motzkin Elimination to solve constraints. While this works well, the code is all custom made and difficult to modify. In contrast, SMT solvers are actively developed tools that are rigorously tested for correct implementation. Trusting an SMT solver means we do not need to worry about implementing and, more importantly, debugging our own decision procedures.
+The internal ATS2 constraint solver uses Fourier-Motzkin Elimination to solve constraints.
+While this works well, the code is all custom made and difficult to modify.
+In contrast, SMT solvers are actively developed tools that are rigorously tested for correct implementation.
+Trusting an SMT solver means we do not need to worry about implementing and, more importantly, debugging our own decision procedures.
 
 ### Decision Power
 
