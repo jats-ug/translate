@@ -2,15 +2,32 @@
 
 (元記事は http://www.illtyped.com/projects/patsolve/qsort.html です)
 
-## Description
+## 説明
 
-This tutorial gives an overview of a new constraint solver we built for ATS using the Z3 SMT solver. We'll discuss how the statics work in ATS, how we can extend them with new sorts and predicates, and how to give predicate's meaning to the constraint solver. Finally, we'll show how we can use this technique to verify the functional correctness of programs that we either could not verify before, or would take significant manual effort. At the same time, we stress that the goal of this work is not to remove manual theorem proving when writing ATS code.
+このチュートリアルは、ATS のために Z3 SMT ソルバを使って私達が設計した、新しい制約ソルバの外観です。
+We'll discuss how the statics work in ATS, how we can extend them with new sorts and predicates, and how to give predicate's meaning to the constraint solver.
+Finally, we'll show how we can use this technique to verify the functional correctness of programs that we either could not verify before, or would take significant manual effort.
+At the same time, we stress that the goal of this work is not to remove manual theorem proving when writing ATS code.
 
-Instead, we advocate a combination of automated and manual theorem proving. Our rationale for this approach revolves around a desire to maintain the usefulness of type error messages to the user. Indeed, if you discharge too much of a program's proof to automation, the tool may fail, but it may not be entirely clear why it fails. When proving manually, error messages point out the exact location where your proof fails, and the reason can be given explicitely. At the same time, manual proofs take time and can be quite tedious. In this tutorial, we will explore how we can use both approaches effectively together. In particular, we'll pay attention to low-level programs involving pointer arithmetic and linear resources. We will use automated proving to reason about functional correctness, that our program does what we intend it to do, and manual proving to verify memory safety.
+Instead, we advocate a combination of automated and manual theorem proving.
+Our rationale for this approach revolves around a desire to maintain the usefulness of type error messages to the user.
+Indeed, if you discharge too much of a program's proof to automation, the tool may fail, but it may not be entirely clear why it fails.
+When proving manually, error messages point out the exact location where your proof fails, and the reason can be given explicitely.
+At the same time, manual proofs take time and can be quite tedious.
+In this tutorial, we will explore how we can use both approaches effectively together.
+In particular, we'll pay attention to low-level programs involving pointer arithmetic and linear resources.
+We will use automated proving to reason about functional correctness, that our program does what we intend it to do, and manual proving to verify memory safety.
 
-The constraint solver developed in this work was made to work outside ATS. Typically, the typechecker solvers constraints internally, but in the interest of enabling more powerful verification, the ATS2 compiler gives an option to export constraints in the familiar JSON format. A constraint solver is simply a tool that can parse this information, and try to find any contradiction between the program and its formal specification. Finding counter examples to logical assertions is a basic task for an SMT solver, so naturally one as powerful as Z3 can fit this role. Z3 also comprehends theories that were previously outside the reach of our static language such as extensional arrays, real numbers, and fix width bit vectors, all of which are common domains in software development.
+The constraint solver developed in this work was made to work outside ATS.
+Typically, the typechecker solvers constraints internally, but in the interest of enabling more powerful verification, the ATS2 compiler gives an option to export constraints in the familiar JSON format.
+A constraint solver is simply a tool that can parse this information, and try to find any contradiction between the program and its formal specification.
+Finding counter examples to logical assertions is a basic task for an SMT solver, so naturally one as powerful as Z3 can fit this role.
+Z3 also comprehends theories that were previously outside the reach of our static language such as extensional arrays, real numbers, and fix width bit vectors, all of which are common domains in software development.
 
-This is all very nice at a high level, but how exactly does a constraint solver built with Z3 work, and how can we effectively utilize its broad decision power? This tutorial aims to answer these questions with illustrative examples that show static reasoning in ATS verifying program invariants. We'll start with a discussion of ATS without any static types applied dynamic values, and gradually refine the types of our programs into a more formal specification. As we go along we'll argue that the correctness guarantees of our programs will become stronger as a result.
+This is all very nice at a high level, but how exactly does a constraint solver built with Z3 work, and how can we effectively utilize its broad decision power?
+This tutorial aims to answer these questions with illustrative examples that show static reasoning in ATS verifying program invariants.
+We'll start with a discussion of ATS without any static types applied dynamic values, and gradually refine the types of our programs into a more formal specification.
+As we go along we'll argue that the correctness guarantees of our programs will become stronger as a result.
 
 ## Goal
 
