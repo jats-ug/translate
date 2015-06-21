@@ -72,11 +72,16 @@ ATS2 コンパイラは制約を抽出し、それらを patsolve に送りま�
 これは `x` の値が `静的な` ビットベクトル `x` の値に制限されていることを意味しています。
 この関数の返り値に与えられた型は、その値が静的な関数 `power_of_2(x)` に等しくなるようなシングルトン型です。
 
-## Interpreted Functions
+## 解釈された関数
 
-Sometimes the functions we want in a domain cannot easily be expressed by using just a macro. Instead, we would like to provide an interpretation for a function to the SMT solver. This requires adding assertions to the internal SMT solver that patsolve uses. Since we embed python into our constraint solver, we provide a module called patsolve to python scripts so that users can add assertions with the familiar Z3 library.
+時には、必要な関数をマクロだけでは簡単に表現できないことがあります。
+その代わりに、SMT ソルバへの関数を表わす解釈 (interpretation) を提供します。
+これは patsolve が使う内部の SMT ソルバに主張を追加することを要求します。
+私達の制約ソルバには python を組み込んでいるので、ユーザがなじみのある Z3 ライブラリを用いて主張を追加できるように、patsolve から呼び出されるモジュールを python スクリプトに提供します。
 
-Suppose we want to use a new static type in the ATS statics that represents an infinite stream of identifiers, which we call stamps. We could call this new sort stampseq with the following.
+識別子の無限ストリームを表現する ATS の静的な型を使いたいとしましょう。
+これはスタンプと呼ばれます。
+この新しい種 `stampseq` を次のように呼び出せます。
 
 ```ats
 sortdef stamp = int
@@ -84,7 +89,8 @@ sortdef stamp = int
 datasort stampseq = (* abstract *)
 ```
 
-We will need some way to construct static sequences. Suppose we want the following operators.
+静的なシーケンスをコンストラクトするために、なんらかの方法が必要です。
+次の演算子が欲しいとしましょう。
 
 ```ats
 stacst stampseq_nil : () -> stampseq                 // empty sequence
@@ -94,7 +100,11 @@ stacst stampseq_head : stampseq -> stamp             // get first stamp
 stacst stampseq_tail : stampseq -> stampseq          // skip first stamp
 ```
 
-Using these constructors, we are free to index ATS types with stampseq, but the constraints generated with these functions will always be invalid for anything but the simplest expression. The reason is because we have not given the SMT solver any interpretation of these functions. To do this, we could add some assertions about their behavior to the constraint solver using the following python code. Suppose we represent a stamp sequence as an array of integers mapping to integers in the underlying SMT solver.
+これらのコンストラクタを使って、`stampseq` を用いた ATS の型を自由にインデックスできます。
+しかし、これらの関数で生成された制約は、単純な式を除いて常に無効です。
+その理由は、私達は SMT ソルバにこれらの関数のどのような解釈も与えなかったからです。
+これを行なうには、次の python コードを使って、それらの挙動についていくつか主張を制約ソルバに追加します。
+内在する SMT ソルバにおける整数に写像した整数の配列として、スタンプシーケンスを表現したいとします。
 
 ```python
 import patsolve
