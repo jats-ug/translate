@@ -2,28 +2,40 @@
 
 (元記事は http://www.illtyped.com/projects/patsolve/scripting.html です)
 
-Given the breadth of SMT solvers' decision power, we naturally want to give the programmer direct access to the underlying solver in order to control its settings, assertion environment, or automatically produce SMT formulas that would be cumbersome to do just in the ATS statics.
+SMT ソルバの判定力の広さを知って、
+私達は、設定や主張の環境をコントロールするため、もしくは ATS の静的な部分に適用するための扱いにくい SMT の公式を自動生成ために、基盤であるソルバにプログラマに直接アクセスさせたいと考えました。
 
-We embedded a python interpreter into patsolve so that users can interact with the SMT solver directly. This allows users to provide interpretations of static functions or define their own macros like define-fun provides in SMT-LIB2. The purpose of defining macros would be to expand ATS static functions into SMT formulas that represent applying functions to their arguments.These extensions can be written in a stand alone python file and then given to patsolve during constraint solving.
+ユーザが SMT ソルバを直接扱えるように、私達は patsolve に python インタープリタを組み込みました。
+これによってユーザは静的な関数を解釈し、SMT-LIB2 での `define-fun` のよう独自のマクロを定義できます。
+マクロを定義するのは、ATS の静的な関数をそれらの引数に関数を適用する表現を持つ SMT 公式に拡張するためです。
+これらの拡張は python ファイルで記述することができ、さらに制約解決において patsolve に渡されます。
 
-## Macros
+## マクロ
 
-As an example, let's say we want to write a function that determines whether a 32 bit unsigned integer is a power of two. Using bitwise arithmetic, we can determine this fairly easily, but we want to verify that the computation does, in fact, determine if a number is a power of two for all possible inputs. Let's say we have an unsigned integer type indexed by a static bitvector of length 32.
+例として、32 ビットの符号無し整数が 2 の累乗であるかどうか判定する関数を書くことを考えてみましょう。
+ビット演算を使うことで、これを簡単に判定することができます。
+しかし、私達はその計算が実際全ての入力に対して数が 2 の累乗かどうか判定できるかどうか立証したいのです。
+長さ 32 の静的なビットベクトルでインデックスされた符号無し整数型を考えてみましょう。
 
 ```ats
 abst@ype uint (b:bv32) = uint
 ```
 
-Any unsigned integer of this type is restricted to hold the value of b, a bit vector in the ATS statics. Now, we need a predicate to determine if a bitvector is a power of two.
+この型の符号無し整数は、ATS の静的なビットベクトル `b` の値を保持するよう制限されています。
+ここで、ビットベクトルが 2 の累乗かどうか判定する述語が必要になります。
 
 ```ats
 stacst power_of_two_bv32: (bv32) -> bool
 stadef power_of_two = power_of_two_bv32 // overloading
 ```
 
-By default, patsolve will turn this function into an uninterpreted function in the SMT solver. Using the scripting capability in patsolve, we can turn power_of_two into a macro that is true iff the static bit vector given to it is a power of two. In the Z3py library, an expression that captures this meaning is build by the following python function. Note, there is no need to import Z3py into the code, patsolve will do that automatically.
+デフォルトでは、patsolve はこの関数を SMT ソルバで解釈されない関数に変換します。
+patsolve でのスクリプトを使うと、`power_of_two` を、与えられた静的なビットベクトルが 2 の累乗であるときに真になるマクロに変換できます。
+Z3py ライブラリでは、この意味を捕捉する式は、次のような python 関数で構築されます。
+コードに Z3py をインポートする必要がないことに注意してください。
+patsolve が自動的に挿入します。
 
-```ats
+```python
 def power_of_two_bv32 (b):
   """
   A 32 bitvector x is a power of two.
@@ -31,9 +43,11 @@ def power_of_two_bv32 (b):
   return reduce(Or, (x == (1 << i) for i in range(32)))
 ```
 
-When we pass a python file that defines this function to patsolve, it will replace the static function call with the expression returned by the python function. This is useful because it allows us to extend constraint solver's capabilities by simply writing some python code.
+この関数を定義した python ファイルを patsolve に渡すと、静的な関数呼び出しをその python 関数が返す式で置き換えます。
+いくらかの python コードを書くだけで制約ソルバを拡張可能になるという点で、これは有用です。
 
-We can put these pieces together into the following function that determines whether an unsigned int is a power of two. Our constraint solver checks that the result we return is in fact equal to the straightforward definition we gave in the python file.
+これらの要素をまとめて、符号無し整数が 2 の累乗であることを判定する次の関数を作ることができます。
+制約ソルバは、私達が返した結果が python ファイルで与えられた素直な定義と実際に等しいことを検査します。
 
 ```ats
 fun
@@ -46,13 +60,17 @@ power_of_two {x:bv32} (
     ((x land (x - 1u)) = 0u)
 ```
 
-To check this, you would do the following.
+この検査は次のように実行できます。
 
 ```
 patsopt --constraint-export -tc -d power.dats | patsolve -s power.py
 ```
 
-The ATS2 compiler will extract the constraints and send them to patsolve. In this small function, the constraint is that the boolean value is equal to the boolean value of the static function call power_of_2 (x). Note, the dynamic type uint(x) that isgiven to the parameter x is a singleton type. This means the value of x is restricted to the value of the static bit vector x. The type we give to this function's return value is a singleton type as well whose value must is equal to the static function power_of_2(x).
+ATS2 コンパイラは制約を抽出し、それらを patsolve に送ります。
+この小さな関数でその制約は、その真偽値が静的な関数呼び出し `power_of_2 (x)` の真偽値と等しいことです。
+パラメータ `x` に与えられた `動的な` 型 `uint(x)` がシングルトン型であることに注意してください。
+これは `x` の値が `静的な` ビットベクトル `x` の値に制限されていることを意味しています。
+この関数の返り値に与えられた型は、その値が静的な関数 `power_of_2(x)` に等しくなるようなシングルトン型です。
 
 ## Interpreted Functions
 
