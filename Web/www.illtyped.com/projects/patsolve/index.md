@@ -2,88 +2,107 @@
 
 (元記事は http://www.illtyped.com/projects/patsolve/ です)
 
-The patsolve constraint solver is the product of an effort to put constraint solving outside of the ATS compiler so that we can leverage off the shelf reasoning tools.
-By doing so, we hope to make constraint solving more reliable and more productive.
-Using actively developed tools like SMT solvers gives us more confidence in a constraint solvers' answers,
-and their wide decision power allows us to automate the verification of more properties in ATS programs.
-In its current implementation, patsolve uses the Z3 SMT solver in order to prove the validity of constraints generated from ATS programs.
+patsolve 制約ソルバは、推論器にレバレッジをかけるために、ATS コンパイラの外で制約解決を行なおうとした努力の成果です。
+これによって、制約解決がより信頼でき、より生産的になることを期待できます。
+SMT ソルバのようなさかんに開発されているツールを使うことで、制約ソルバの答をより信頼することができます。
+さらにそれらの広範囲にわたる判定力は、ATS プログラムにおけるより多くの特性の検証の自動化を可能にします。
+現在の実装では patsolve は、ATS プログラムから生成された制約の正当性を検査するために、Z3 SMT ソルバを使っています。
 
-For details on how to use patsolve, please follow the installation instructions below and check out the examples given in the case studies.
+patsolve の詳細の使い方については、次のインストール手順とケーススタディでの例を参照してください。
 
-## Advantages
+## 利点
 
-If you haven't worked with an SMT solver before, you can still effectively use patsolve as a drop in replacement for the built-in constraint solver.
-Some reasons why you would want to do this include:
+もし SMT ソルバの使用経験がないとしても、ビルトインの制約ソルバを置き換えとして patsolve を効果的に使えます。
+この置き換えを行なう理由は以下のようなものです:
 
-### Stability
+### 安定性
 
-The internal ATS2 constraint solver uses Fourier-Motzkin Elimination to solve constraints.
-While this works well, the code is all custom made and difficult to modify.
-In contrast, SMT solvers are actively developed tools that are rigorously tested for correct implementation.
-Trusting an SMT solver means we do not need to worry about implementing and, more importantly, debugging our own decision procedures.
+ATS2 内部の制約ソルバは、Fourier-Motzkin 消去法を制約解決に使います。
+これは上手く動作しますが、そのコードは特別製で修正することが困難でした。
+対照的に、SMT ソルバはさかんに開発されているツールで、実装の正しさを綿密にテストされています。
+SMT ソルバへの信頼は、その実装や、もっと重要なことには判定手順をデバッグすることを心配する必要がありません。
 
-### Decision Power
+### 判定力
 
-Even if you opt to not use more advanced domains such as bitvectors or arrays in the statics, SMT solvers can sometimes lighten the amount of work you must put in to prove invariants. This is an anecdotal claim. Nonetheless, SMT solvers' continual improvement directly empower the ATS statics.
+静的なビットベクトルや配列のようなより進んだ領域での使用でない場合でさえ、SMT ソルバは時に不変条件の検査のためにしなければならない作業を軽減してくれます。
+これは事例にもとづいた主張です。
+にもかかわらず、SMT ソルバの絶え間ない改良は ATS の静的な部分に力を与えるでしょう。
 
-## Installation
+## インストール手順
 
-If you'd like to run this work locally, install the latest version of ATS and the related contrib package. You will need to install the following other dependencies:
+このソルバを手元で動作させるには、最新の ATS と関連した contrib パッケージをインストールしてください。
+次の依存したプログラムをインストールする必要があります:
 
 * [Z3](http://z3.codeplex.com/) (4.3.2)
-* python 2.7.x (my apologies, python 3 is not supported by Z3py)
+* python 2.7.x (申し分けないのですが, python 3 は Z3py をサポートしていません)
 
-Next, go to the following folder in the contrib packages.
+次に、contrib パッケージの次のフォルダに移動します。
 
 ```
 projects/MEDIUM/ATS-extsolve
 ```
 
-and run
+そしてビルドします。
 
 ```
 make
 ```
 
-As long as you set up the PATSHOME environment variable, the patsolve binary will be placed in your path. If not, you will need to issue the following command (possibly as root dependong on where ATS is installed) in order to install patsolve.
+PATSHOME 環境変数を設定しているのであれば、patsolve バイナリがパスに配置されるでしょう。
+もし設定していない場合、patsolve を (ATS がインストールされたルートディレクトリに) インストールするために次のコマンドを実行する必要があります。
 
 ```
 cp patsolve $PATSHOME/bin/
 ```
 
-Now, you should be all set to type check the examples. We provide a python scripting interface that lets you interact with Z3 directly. This allows you to provide interpretations to functions and define SMT macros using python. Using this tool, you will need to pass the python script as a command line argument.
+これで、例を型検査するセットアップは終わりです。
+Z3 に直接さわるために、私達は python スクリプトインターフェイスを用意しています。
+これによって関数を解釈し、python を使って SMT マクロを定義できます。
+このツールを使うことで、コマンドライン引数に python スクリプトを渡すことができます。
 
-The following command shows how to do this with the quicksort example we present in a case study.
+次のコマンドは、ケーススタディで紹介するクイックソートの例を示しています。
 
 ```
 cd $PATSHOME/contrib/libats-/wdblair/prelude/
 patsopt --constraint-export -tc -d TEST/quicksort.dats | patsolve -s SMT/stampseq.py
 ```
 
-If all goes well, you will see a message saying the file has typechecked. If you want to see an SMT-LIB 2 trace of constraint solving, add a -v switch to patsolve and you will see the entire transcript between the constraint solver and Z3 in something resembling SMT-LIB 2.
+うまく行けば、ファイルが型検査されたことを示すメッセージが見えるでしょう。
+制約解決の SMT-LIB 2 トレースが見たい場合、`-v` スイッチを patsolve に追加します。
+制約ソルバと Z3 の間における SMT-LIB 2 似た全ての記録が見れるはずです。
 
-## Usage
+## 使い方
 
-In order to use patsolve as a replacement for the built-in constraint solver, you would normally typecheck a program by doing the following.
+ビルトインの制約ソルバの置き換えとして patsolve を使うためには、次のようにプログラムを型検査します。
 
+```
 patsopt --constraint-export -tc -d foo.dats | patsolve
+```
 
-Once all the unsolved constraints have been found, you can produce C code by calling patsopt again, but skipping constraint solving.
+未解決の制約がなくなったら、patsopt を再度呼び出すことで、制約解決をスキップして C コードを生成できます。
 
+```
 patsopt --constraint-ignore -d foo.dats
+```
 
-## Case Studies and Tutorials
+## ケーススタディとチュートリアル
 
 ### [Scripting patsolve](http://www.illtyped.com/projects/patsolve/scripting.html)
 
-A short tutorial that goes over how to extend the functionality of patsolve using the Z3Py library.
+Z3Py ライブラリを使った patsolve の機能の拡張方法を紹介した短かいチュートリアルです。
 
 ### [Verified Efficient Programs in ATS: qsort](http://www.illtyped.com/projects/patsolve/qsort.html)
 
-A method of implementing the qsort function from the C standard library using pointer arithmetic while also verifying its memory safety and functional correctness.
+ポインタ演算を使った標準 C ライブラリ上の qsort 関数の実装方法です。
+この実装はメモリの安全性と関数の正確さをも検査しています。
 
-## Future Work
+## 今後
 
-There is no special reason why Z3 must be the underlying SMT solver for patsolve. Given that we use it essentially as an automated theorem prover, we would like to explore using interactive theorem provers like Coq or Isabelle for constraint solving. We imagine that these provers would be useful for complicated domains that SMT solvers are not well suited for, such as proving properties of recursive datastructures. One can imagine a constraint solver consisting of layers to handle constraints of varying difficulty. At the top layer we could have Z3 which can prove the constraints we currently find in ATS programs. At the next layer a system like Coq could be used to prove constraints involving induction where datatypes such as lists or trees are involved.
+Z3 が patsolve の基盤となる SMT ソルバでなければならない特別な理由はありません。
+本質的に自動的な定理証明としてソルバを使うのであれば、Coq や Isabelle のような対話的な定理証明器を使って制約解決をしたくなります。
+私達は、帰納的なデータ構造の性質の証明のように、SMT ソルバが相応わしくない複雑な領域において、これらの証明器は有用であると想像しています。
+様々な困難さの制約を扱う、複数のレイヤから成る制約ソルバを想像できるかもしれません。
+最上位のレイヤでは、今日の ATS プログラムに見られる制約を証明できるような Z3 を持っています。
+その次のレイヤでは、Coq のようなシステムが、リストや木のようなデータ型のような帰納法を必要とする制約を証明するために使われるかもしれません。
 
-In the meantime, we would like to add support for using CVC4, and possibly replacing the python interface with a generic file based interface instead.
+その一方で、CVC4 の使用をサポートし、python インターフェイイスを一般的なファイルベースのインターフェイスに置き換えたいと考えています。
