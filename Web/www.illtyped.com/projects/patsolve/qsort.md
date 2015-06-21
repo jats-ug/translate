@@ -33,7 +33,7 @@ As we go along we'll argue that the correctness guarantees of our programs will 
 
 The end goal of this tutorial is to show how we can use the constraint solver we built on top of Z3 to construct an efficient and verified ATS program corresponding exactly to this version of quicksort, given in C.
 
-```ats
+```c
 void swap (int *a, int *b) {
   int tmp = *a; *a = *b; *b = tmp;
 }
