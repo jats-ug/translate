@@ -140,8 +140,15 @@ s.add (
 )
 ```
 
-## Alternative Ideas
+## 代替のアイデア
 
-The idea of exposing just a python interface doesn't entirely sit well with me. I like the Z3Py library because the Z3 authors obviously spent a lot of time trying to make it very easy to use. At the same time, it takes a lot of work to interact directly with the library through the Python interpreter in the constraint solver.
+単なる python インターフェイスとして見せるアイデアは私にとって完全に納得できるものではありません。
+Z3 の作者が長い時間をかけて簡単に使えるようにしているので、私は Z3Py ライブラリを好んでいます。
+同時に、制約ソルバにおける Python インタプリタを通した直接的な作用にも、大きな労力が費やされています。
 
-What if someone does not want to use Z3? Do they need python bindings for their own SMT solver? Instead, why can't I provide an interface for a user to specify programs (or equivalently scripts) that receive arguments as strings on the commandline and then produce SMT-LIB2 code that represents evaluating the given macro? Alternatively, there could be programs that generate interpretations for individual functions. This may seem odd, but it seems like a nice way to appeal to any SMT solver, and give the user the most flexibility for extending the constraint solver in the way he or she feels fit.
+誰かが Z3 を使いたくないとしたらどうでしょう？
+彼等独自の SMT ソルバに対する python バインディングが必要になるでしょうか？
+代わりに、なぜコマンドラインに文字列として引数を取り、与えられたマクロの評価を表現する SMT-LIB2 コードを生成するプログラムを指定するインターフェイスを提供できないのでしょうか？
+代替として、個々の関数に対する解釈を生成するプログラムがあるかもしれません。
+これは奇妙に思えるかもしれませんが、あらゆる SMT ソルバをサポートする良い方法に思えます。
+ユーザに合った方法で制約ソルバを拡張するための柔軟性を彼等に提供できるのです。
