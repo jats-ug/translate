@@ -2,14 +2,16 @@
 
 (元記事は http://www.illtyped.com/projects/patsolve/qsort.html です)
 
+By Will Blair
+
 ## 説明
 
 このチュートリアルは、ATS のために Z3 SMT ソルバを使って私達が設計した、新しい制約ソルバの外観です。
-We'll discuss how the statics work in ATS, how we can extend them with new sorts and predicates, and how to give predicate's meaning to the constraint solver.
-Finally, we'll show how we can use this technique to verify the functional correctness of programs that we either could not verify before, or would take significant manual effort.
-At the same time, we stress that the goal of this work is not to remove manual theorem proving when writing ATS code.
+静的な部分が ATS においてどのように動作するのか、新しい種と述語を用いてそれらをどうやって拡張できるか、そして述語の意味を制約ソルバに与えられるか、を議論します。
+最後に、以前は証明できなかった、もしくは大幅は手動の努力が必要だったプログラムの関数的な正確さを証明するために、この手法をどのように使えるのか示します。
+同時に、この成果のゴールはATS コードを書く際の手動の定理証明を取り除くことではないことを強調しておきます。
 
-Instead, we advocate a combination of automated and manual theorem proving.
+代わりに、私達は自動と手動の定理証明の組み合わせを支持しています。
 Our rationale for this approach revolves around a desire to maintain the usefulness of type error messages to the user.
 Indeed, if you discharge too much of a program's proof to automation, the tool may fail, but it may not be entirely clear why it fails.
 When proving manually, error messages point out the exact location where your proof fails, and the reason can be given explicitely.
@@ -68,11 +70,19 @@ void quicksort (int *ar, int n) {
 }
 ```
 
-We didn't develop this code in C. In fact, we used our constraint solver to construct and simultaneously verify an implementation of quicksort in ATS, and then wrote its C counter part after we had proven its correctness. Writing the above in C is completely redundant, as ATS programs are compiled to C and run directly. We did this to demonstrate our philosophy behind software verification. We are interested in verifying programs in a programmer centric way, where the programmer interacts with a verifier during a program's construction. In doing so, he can catch logical errors in his reasoning early, before any code is ever compiled. The rest of this tutorial will describe how the constraint solver helps faciliate this style of programming, and how we can use it to construct and verify several example programs.
+We didn't develop this code in C.
+In fact, we used our constraint solver to construct and simultaneously verify an implementation of quicksort in ATS, and then wrote its C counter part after we had proven its correctness.
+Writing the above in C is completely redundant, as ATS programs are compiled to C and run directly.
+We did this to demonstrate our philosophy behind software verification.
+We are interested in verifying programs in a programmer centric way, where the programmer interacts with a verifier during a program's construction.
+In doing so, he can catch logical errors in his reasoning early, before any code is ever compiled.
+The rest of this tutorial will describe how the constraint solver helps faciliate this style of programming, and how we can use it to construct and verify several example programs.
 
 ## Basic ATS
 
-With this in mind, let's talk about ATS without its more advanced features. In this way, it will appear more like your standard functional programming language, such as ML. Suppose we have a simple datatype representing a linked list of some generic type T.
+With this in mind, let's talk about ATS without its more advanced features.
+In this way, it will appear more like your standard functional programming language, such as ML.
+Suppose we have a simple datatype representing a linked list of some generic type T.
 
 ```ats
 abstype T
