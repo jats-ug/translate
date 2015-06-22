@@ -212,23 +212,28 @@ end
 
 ## ストリームとしての Z3 配列
 
-In the last example, we used Z3's understanding of integers to automatically check whether invariants involving indexes and lengths of lists were enforced in our code.
-Using its knowledge of arrays, we can take this a step further to statically guarantee more properties.
-Let us use this to refine our type of list to be indexed by a "static" stream understood by Z3.
-Suppose we have the following static sort in ATS.
+前の例では、インデックスとリストの長さを含む不変条件が私達のコードで強制されているかどうか自動的に検査するために、整数に対する Z3 の解釈を使いました。
+配列の知見を使うことで、より多くの性質を静的に保証できるようになります。
+リストの型が Z3 で解釈される "静的な" ストリームでインデックスされるように、これを使ってみましょう。
+ATS で次のような静的な種 (sort) があるとします。
 
 ```ats
 datasort stampseq = (* abstract *)
 ```
 
-We say this sort is "abstract" because the ATS type system has no knowledge about it. Instead, we parse constraints in our solver and give all constants of sort "stampseq" an (Array Int Int) sort in Z3. This allows us to model an infinite stream of stamps as an unbounded array in Z3. Let us define a couple common constructors on sequences and their interpretations in SMT-Lib2.
+ATS の型システムはその認識がないので、この種は "抽象的" であると言っています。
+代わりに、私達のソルバで強制を構文解析して、種 `stampseq` の全ての定数に Z3 の `(Array Int Int)` 種を与えます。
+これで Z3 の境界のない配列としてスタンプの無限ストリームをモデルできます。
+シーケンスにおける2つの一般的なコンストラクタと SMT-Lib2 でのそれらの解釈を定義してみましょう。
 
 ```ats
 stacst stampseq_nil  : () -> stampseq
 stacst stampseq_cons : (stamp, stampseq) -> stampseq
 ```
 
-From Z3's perspective, these are just uninterpreted functions. We can give them meaning by putting the following assertions in an SMT-Lib 2 file which our constraint solver parses and passes to a Z3 context.
+Z3 の観点からは、解釈されない関数があるだけです。
+SMT-Lib2 ファイルで次の主張をすることで、それらに意味を与えることができます。
+このファイルは制約ソルバによって構文解析され、Z3 のコンテキストに渡されます。
 
 ```
 (declare-const undef Int)
@@ -246,7 +251,7 @@ From Z3's perspective, these are just uninterpreted functions. We can give them 
   (=> (> i 0) (= (select (stampseq_cons x A) i) (select A (- i 1))))))
 ```
 
-With these tools in place, let's add an index to our definition of list and T that represents the contents of the list as a static stream of stamps.
+リストの定義と `T` にインデックスを追加して、スタンプの静的なストリームとしてリストの中身を表わしましょう。
 
 ```ats
 abstype T(x:stamp)
@@ -257,7 +262,9 @@ datatype list (stmsq, int) =
        list_cons (cons(x, xs), n+1) of (T(x), list(n))
 ```
 
-With this definition, we can capture precisely the behavior of list_nth. That is, it returns the ith element in the list. Here, we use the static "select" function in the Array theory to represent this action.
+この定義によると、`list_nth` の挙動を正確に捕捉できます。
+つまり、それはリストの `i` 番目の要素を返すのです。
+ここで、この動作を表現するために、配列理論における静的な "select" 関数を使います。
 
 ```ats
 fun list_nth {xs:stmsq} {n,i:nat | i < n} .<i>. (
@@ -272,11 +279,14 @@ in
 end
 ```
 
-Now, if we were to return anything but x when i = 0, the type checker will catch the error, as only x represents select (xs, i). This is also very interesting as Z3 is able to determine the correctness of this function completely automatically given our interpretations of the stream operations. In the next example, we'll take this idea a step further to provide an implementation of insertion sort that is guaranteed to return a well-sorted list.
+さて、もし `i = 0` のとき `x` の他の値を返そうとすると、`x` のみが `select (xs, i)` 表わすので、型検査器はエラーを発生するでしょう。
+これもまた、ストリーム操作の解釈を与えれば、完全に自動的にこの関数の正確さを Z3 が決定できる点で興味深いものです。
+次の例ではこのアイデアを進めて、正しくソートされたリストを返すことが保証された挿入ソートの実装を示します。
 
-## Sorting Linked Lists
+## 連結リストのソート
 
-The first thing we need to verify a sorting algorithm is a way to express the sortedness of a sequence to the SMT solver. Using SMT-Lib 2, we can use the following definition.
+ソートアルゴリズムの証明に最初に必要なことは SMT ソルバでシーケンスのソートを表現する方法です。
+SMT-Lib 2 で、次の定義を使うことができます。
 
 ```
 (define-fun sorted ((A (Array Int Int)) (n Int)) Bool
@@ -285,7 +295,10 @@ The first thing we need to verify a sorting algorithm is a way to express the so
         (<= (select a i) (select a j)))))
 ```
 
-So implementing a sort function should be trivial. Unfortunately, one of the most important axioms we have when sorting a linked list cannot be solved automatically by Z3. This axiom is that the tail of any sorted list is also a sorted list. This is demonstrated with the following SMT interaction, which responds "unknown" when queried to the axioms validity.
+ソート関数の実装は自明でしょう。
+不幸なことですが、連結リストのソートにおける最も重要な公理の一つは Z3 で自動的に解決できません。
+その公理は、どのようなソート済みリストの tail もまたソート済みリストである、というものです。
+これは次のような SMT 解釈によって示され、この公理の正当性が疑われた場合にはこの解釈は "unknown" を返します。
 
 ```
  (declare-const xs (Array Int Int))
@@ -304,7 +317,10 @@ So implementing a sort function should be trivial. Unfortunately, one of the mos
  (pop)
 ```
 
-Luckily, in ATS we have a system for theorem proving in place that allows us to state this property as an axiom and then use it in our programs. The following are our set of axioms that relate the sortedness of a sequence (represented here as a an abstract prop) to the sequence cons operation. When we are done proving, we can just call SORTED_elim to obtain the assertion that xs is sorted.
+幸運にも、ATS には定理証明システムがあります。
+公理としてのこの特性を宣言でき、それをプログラム中で使うことができるのです。
+次のコードはシーケンスのコンス操作のために、(ここでは抽象命題として表現された) シーケンスのソートに関連した公理のセットです。
+証明が終われば、`xs` がソートされていることを主張するために `SORTED_elim` を呼ぶことができます。
 
 ```ats
 absprop SORTED (xs:stmsq, n:int)
@@ -339,7 +355,9 @@ SORTED_uncons
   (pf: SORTED (cons(x, xs), n)): [x <= select(xs,0)] SORTED (xs, n-1)
 ```
 
-The main axiom that solves the problem we first mentioned is SORTED_uncons, because it adds the assertion that the head of a list is always less then or equal to the head of a sorted tail. let us use these axioms to implement the following function.
+最初に言及したこの問題を解決する主な公理は `SORTED_uncons` です。
+なぜなら、それがリストの先頭が常にソートされた tail の先頭以下であるという主張を追加するからです。
+次の関数を実装するためにこれらの公理を使ってみましょう。
 
 ```ats
 extern
@@ -348,7 +366,8 @@ fun sort
   (xs: list (xs, n)): [ys:stmsq] (SORTED (ys, n) | list (ys, n))
 ```
 
-That is, given any list xs of length n, there exists a sorted list ys of length n, which we return. In order to implement this as insertion sort, we need a function that inserts an element x into the correct position in a sorted list.
+すなわち、どのような長さ `n` のリスト `xs` が与えられても、私達が返すソート済みの長さ `n` のリスト `ys` が存在するのです。
+挿入ソートとしてこれを実装するためには、ソート済みリストの正しい位置に要素 `x` を挿入する関数が必要です。
 
 ```ats
 extern
@@ -363,7 +382,10 @@ fun insord
 )
 ```
 
-This gives us a strong description of what we want. Given any sorted list xs, we must return a sorted list where x0 is inserted into the original list xs. This guarantees that our result from insord will yield the original list with one new element inserted at index i. The following is an interpretation of the insert function in SMT-Lib 2.
+これは強い描写になっています。
+どのようなソート済みリスト `xs` が与えられても、元のリスト `xs` に `x0` を挿入したソート済みリストを必ず返します。
+これは `insord` の結果が、インデックス `i` に挿入された新しい要素と元のリストを生成することを保証しています。
+次のコードは SMT-Lib 2 における挿入関数の解釈です。
 
 ```
 (assert (forall ((A (Array Int Int))(x Int) (i Int) (j Int))
@@ -373,7 +395,7 @@ This gives us a strong description of what we want. Given any sorted list xs, we
        (ite (= j i) x (select A (- j 1))))))))
 ```
 
-With Z3 using this interpretation, we can type check the final implementation of insord that produces "insert(xs, i, x0)" along with a proof that it is sorted.
+この解釈を Z3 は使って、ソート済みであるという証明と共に `insert(xs, i, x0)` を生成する `insord` の最終的な実装を型検査できます。
 
 ```ats
 implement
@@ -398,7 +420,9 @@ case+ xs of
 ) (* end of [insord] *)
 ```
 
-Note that all the props used in this implementation are simply used for the purpose of theorem proving. That is, they add no additional overhead and indeed are completely erased after constraint solving. With this function, writing the sort routine on any list is fairly trivial, and is given below.
+この実装で使われている全ての命題は、定理証明の目的に使われることに注意してください。
+つまり、それらは追加のオーバーヘッドにならず、実際に制約解決の後では完全に消えさります。
+この関数を用いると、リストのソートを書くのは簡単で、次のようになります。
 
 ```ats
 implement
@@ -413,7 +437,7 @@ case+ xs of
 ) (* end of [sort] *)
 ```
 
-## Linear Views
+## 線形観 (Linear Views)
 
 So far we've only spoke of using streams for linked lists, but how can they aid us in enforcing correct pointer arithmetic in programs? While ATS has a primitive pointer type, it also has a view system of tracking resources in memory. A "view" is simply a certificate that some data structure lies at a point in memory. This is illustrated in the following example.
 
