@@ -1,4 +1,4 @@
-# Verified Efficient Programs in ATS: qsort
+# ATSにおける証明された効率的なプログラム: qsort
 
 (元記事は http://www.illtyped.com/projects/patsolve/qsort.html です)
 
@@ -9,29 +9,34 @@ By Will Blair
 このチュートリアルは、ATS のために Z3 SMT ソルバを使って私達が設計した、新しい制約ソルバの外観です。
 静的な部分が ATS においてどのように動作するのか、新しい種と述語を用いてそれらをどうやって拡張できるか、そして述語の意味を制約ソルバに与えられるか、を議論します。
 最後に、以前は証明できなかった、もしくは大幅は手動の努力が必要だったプログラムの関数的な正確さを証明するために、この手法をどのように使えるのか示します。
-同時に、この成果のゴールはATS コードを書く際の手動の定理証明を取り除くことではないことを強調しておきます。
+同時に、この成果のゴールは ATS コードを書く際の手動の定理証明を取り除くことではないことを強調しておきます。
 
 代わりに、私達は自動と手動の定理証明の組み合わせを支持しています。
-Our rationale for this approach revolves around a desire to maintain the usefulness of type error messages to the user.
-Indeed, if you discharge too much of a program's proof to automation, the tool may fail, but it may not be entirely clear why it fails.
-When proving manually, error messages point out the exact location where your proof fails, and the reason can be given explicitely.
-At the same time, manual proofs take time and can be quite tedious.
-In this tutorial, we will explore how we can use both approaches effectively together.
-In particular, we'll pay attention to low-level programs involving pointer arithmetic and linear resources.
-We will use automated proving to reason about functional correctness, that our program does what we intend it to do, and manual proving to verify memory safety.
+このアプローチに対する私達の理論的根拠は、型エラーメッセージの有用性を維持する要求を解決することです。
+実際、自動化のためにあまりに多くのプログラムの証明を作ると、ツールは失敗するかもしれません。
+そしてそれはなぜ失敗したのか、明確ではないかもしれないのです。
+手動で証明すると、エラーメッセージがあなたの証明が失敗した正確な位置を指摘します。
+そしてその理由は明確に与えられるでしょう。
+同時に、手動の証明は時間がかかり、退屈になりえます。
+このチュートリアルでは、2つのアプローチを一緒に使う方法を探訪します。
+特に、ポインタ演算と線形リソースを必要とする低レベルなプログラムに注意をはらいます。
+プログラムが意図した通りに動くこと、つまり関数的な正しさについて自動証明を使い、メモリ安全性の検証について手動証明を使います。
 
-The constraint solver developed in this work was made to work outside ATS.
-Typically, the typechecker solvers constraints internally, but in the interest of enabling more powerful verification, the ATS2 compiler gives an option to export constraints in the familiar JSON format.
-A constraint solver is simply a tool that can parse this information, and try to find any contradiction between the program and its formal specification.
-Finding counter examples to logical assertions is a basic task for an SMT solver, so naturally one as powerful as Z3 can fit this role.
-Z3 also comprehends theories that were previously outside the reach of our static language such as extensional arrays, real numbers, and fix width bit vectors, all of which are common domains in software development.
+この成果で開発された制約ソルバは ATS の外部で動作するよう作られました。
+通常は、型検査のソルバは内部で制約をかけますが、より強力な検査を可能にするために、ATS2 コンパイラにオプションを渡してなじみのある JSON フォーマットで制約をエクスポートできます。
+制約ソルバは単純なツールで、この情報を構文解析し、プログラムのその形式的な仕様の間の矛盾を見つけようとします。
+論理的な主張に対する反例を見つけることは SMT ソルバにとって基本的な仕事です。
+そのため Z3 はこの役目に適合できます。
+Z3 はまた、伸長配列、実装、固定長ビットベクタなどソフトウェア開発の共通要素のような私達の静的言語の範囲外の仮定を理解します。
 
-This is all very nice at a high level, but how exactly does a constraint solver built with Z3 work, and how can we effectively utilize its broad decision power?
-This tutorial aims to answer these questions with illustrative examples that show static reasoning in ATS verifying program invariants.
-We'll start with a discussion of ATS without any static types applied dynamic values, and gradually refine the types of our programs into a more formal specification.
-As we go along we'll argue that the correctness guarantees of our programs will become stronger as a result.
+これは高位ではとても好ましいですが、どのように Z3 の動作の上に制約ソルバを正確に構築すれば良いでしょうか？
+また、どうすればその広範囲な判定力を効果的に利用できるでしょうか？
+このチュートリアルでは、プログラムの不変条件における ATS での静的な推論の例を示すことで、これらの疑問に答えようと思います。
+私達は動的な値に適用された静的な型のない ATS コードからスタートします。
+それからプログラムの型をより形式的な仕様に徐々に洗練していきます。
+その過程で、私達はプログラムの正確さの保証が結果としてより強くなることを主張します。
 
-## Goal
+## ゴール
 
 The end goal of this tutorial is to show how we can use the constraint solver we built on top of Z3 to construct an efficient and verified ATS program corresponding exactly to this version of quicksort, given in C.
 
