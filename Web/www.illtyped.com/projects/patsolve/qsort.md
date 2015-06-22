@@ -38,7 +38,7 @@ Z3 はまた、伸長配列、実装、固定長ビットベクタなどソフ�
 
 ## ゴール
 
-The end goal of this tutorial is to show how we can use the constraint solver we built on top of Z3 to construct an efficient and verified ATS program corresponding exactly to this version of quicksort, given in C.
+このチュートリアルのゴールは、私達が Z3 の上に構築した制約ソルバが、次の C コードで与えられたクイックソートに対応する効率的で証明された ATS プログラムを構築することに使えることを示すことです。
 
 ```c
 void swap (int *a, int *b) {
@@ -75,19 +75,23 @@ void quicksort (int *ar, int n) {
 }
 ```
 
-We didn't develop this code in C.
-In fact, we used our constraint solver to construct and simultaneously verify an implementation of quicksort in ATS, and then wrote its C counter part after we had proven its correctness.
-Writing the above in C is completely redundant, as ATS programs are compiled to C and run directly.
-We did this to demonstrate our philosophy behind software verification.
-We are interested in verifying programs in a programmer centric way, where the programmer interacts with a verifier during a program's construction.
-In doing so, he can catch logical errors in his reasoning early, before any code is ever compiled.
-The rest of this tutorial will describe how the constraint solver helps faciliate this style of programming, and how we can use it to construct and verify several example programs.
+私達はこのコードを C 言語で設計しませんでした。
+実際、
 
-## Basic ATS
+私達は、ATS のクイックソート実装を構築して証明するのに制約ソルバを使い、それからその正確さを証明してから対応する C 言語実装を書きました。
+ATS プログラムは C 言語にコンパイルされて直接実行されるので、C 言語における上記の実装はまったく重複しています。
+これはソフトウェア検証における私達の哲学を示すためです。
+私達はプログラマ中心の方法でプログラムを証明することに興味があります。
+プログラマはプログラムの構築中に証明器とやりとりするのです。
+そうすることで、プログラマは彼の推論の早い段階で論理的なエラーをとらえることができるのです。
+コードがまったくコンパイルされる前に。
+このチュートリアルの残りでは、この制約ソルバがこのプログラミングのスタイルをどのように促進するのか、いくつかのプログラム例を構築/証明するのにどのように使えるのかを述べます。
 
-With this in mind, let's talk about ATS without its more advanced features.
-In this way, it will appear more like your standard functional programming language, such as ML.
-Suppose we have a simple datatype representing a linked list of some generic type T.
+## ATS の基礎
+
+より進んだ機能を除いて ATS を議論しましょう。
+この点では、ATS は ML のような標準的な関数型プログラミング言語に似ています。
+なんらかの一般的な型 `T` の連結リストを表現する単純なデータ型があると仮定します。
 
 ```ats
 abstype T
@@ -97,7 +101,8 @@ datatype list =
     | list_cons of (T, list)
 ```
 
-Now, let's define a simple accessor function to get the nth element in a list. Using pattern matching this is completely trivial.
+ここで、リストの n 番目の要素を得る単純なアクセサ関数を定義しましょう。
+パターンマッチを使えばこれは簡単です。
 
 ```ats
 fun list_nth (xs: list, i:int): T =
@@ -111,11 +116,17 @@ case+ xs of
      list_nth (xss, i-1)
 ```
 
-Looking over this function, it seems a little ad-hoc. It would be cleaner if we could guarantee for every call of listnth, no errors would occur. That is, the value i passed to listnth is always less than the length of the list. This can be easily done by adding statics to our data types.
+この関数を見るかぎり、少しアドホックに思えます。
+もし `list_nth` の各呼び出しにおいてエラーが起きないことを保証できるなら、この関数をよりきれいにできます。
+つまり、`list_nth` に渡される値 `i` が常にそのリストの長さより小さいのであれば。
+これはデータ型に静的な要素を追加すれば簡単です。
 
-## Refining with Static Types
+## 静的な型を用いて洗練する
 
-In order to get an always error free version of listnth, we index every value of list with a static integer representing its length. Note, this index occurs only in type checking, and has no concrete representation or overhead in the final program at runtime. We introduce it because it allows us to reason about whether any indice given to listnth is always less then the length of the list given to list_nth. This is an invariant we can enforce using the following definition of list.
+`list_nth` のエラー無し版を得るために、リストのそれぞれの値を、そのリストの長さを表わす静的な整数でインデックスしましょう。
+このインデックスは型検査時でのみ存在し、実行時のプログラムでは具体的な表現やオーバーヘッドを持たないことに注意してください。
+私達がそれを導入するのは、`list_nth` に与えられたリストの長さよりも `list_nth` に与えられたインデックスが常に小さいことを推論するためです。
+この不変条件は次のリスト定義を使って強制することができます。
 
 ```ats
 datatype list (n:int) =
@@ -124,9 +135,12 @@ datatype list (n:int) =
        list_cons (n+1) of (T, list(n))
 ```
 
-The syntax will likely be confusing for new comers. The text {n:nat} is a universal quantifier we use for the list_cons constructor. It means that for all natural numbers n, the cons of a list of length n and a type T yields a list of length n+1. This is simple enough, and precisely captures the length invariant we wish to enforce.
-
-Now, let's redefine listnth to ensure that for all lists xs and all indices less than the length of xs, listnth is well defined. Note, we also end up asserting that the length of xs must be positive.
+初心者にとってこの構文は混乱しやすいかもしれません。
+文字列 `{n:nat}` は `list_cons` コンストラクタで使う全称量化子です。
+これは全ての自然数 `n` について、長さ `n` のリストと型 `T` のコンスが、長さ `n+1` のリストを生じることを意味しています。
+これは単純で、私達が強制したい長さの不変条件を正確に捕捉しています。
+ここで、全てのリスト `xs` について、全てのインデックスが `xs` の長さより小さくなることを保証するために `list_nth` を再定義してみましょう。
+結局のところ `xs` の長さは正であると主張することに注意してください。
 
 ```ats
 fun list_nth {n,i:nat | i < n} (
@@ -141,7 +155,11 @@ in
 end
 ```
 
-This is much better, and by the definition of its type, whenever the programmer uses listnth, they must provide proof that the index is always less then the length of the list. This is a pretty bold claim. How exactly does the constraint solver know this implementation never produces an out of bound error? Using the common SMT-Lib2 syntax, let's see the automated interaction our constraint solver has with Z3 to type check the listnth function. Internally, this interaction is achieved through ATS bindings we wrote for Z3's C API.
+これはより良いもので、プログラマが `list_nth` を使うときは、インデックスがリストの長さより常に小さいことを示す証明を提供しなければならないことが、型で定義されています。
+これは少し大胆な主張です。
+制約ソルバは、この実装が範囲外エラーを発生しないことをどうやって知ったのでしょうか？
+一般の SMT-Lib2 構文を使って、`list_nth` 関数を型検査するための、制約ソルバと Z3 の自動的なやりとりを見てみましょう。
+内部的には、Z3 の C API に私達が書いた ATS バインディングを通じてこのやりとりは行なわれます。
 
 ```
 ;; first, state our assertions
@@ -185,11 +203,19 @@ This is much better, and by the definition of its type, whenever the programmer 
 (pop 2)
 ```
 
-If all of the above return unsatisfiable, we know that if we provide valid input (i.e. i is less than n), then it will never go outside the bound of the list. This is certainly nice, but it provides no guarantee that the element we return is actually the ith element within the list. Indeed, there is no guarantee what we return is even an element of the list! In order to get this much stronger guarantee, and capture what we want precisely in the function's type, we can leverage Z3's array theory. This allows us to capture invariants that would have been quite cumbersome in our original constraint solver.
+上記の全てが満たされたとしたら、もし有効な入力 (すなわち `i` が `n` より小さい) を与えると、リストの範囲外アクセスがないことになります。
+これはもちろん素晴しいことです。
+しかしこれは私達が返す要素が実際にそのリストの `i` 番目の要素なのか保証していません。
+実際、返り値がリスト中の要素であるかどうかさえなんの保証もないのです!
+このようなより強い保証を得るために、さらに関数の型で強制を捕捉するために、Z3 の配列理論 (array theory) を使うことができます。
+これはオリジナルの制約ソルバでは扱いにくかった不変条件を捕捉できます。
 
-## Z3 Arrays as Streams
+## ストリームとしての Z3 配列
 
-In the last example, we used Z3's understanding of integers to automatically check whether invariants involving indexes and lengths of lists were enforced in our code. Using its knowledge of arrays, we can take this a step further to statically guarantee more properties. Let us use this to refine our type of list to be indexed by a "static" stream understood by Z3. Suppose we have the following static sort in ATS.
+In the last example, we used Z3's understanding of integers to automatically check whether invariants involving indexes and lengths of lists were enforced in our code.
+Using its knowledge of arrays, we can take this a step further to statically guarantee more properties.
+Let us use this to refine our type of list to be indexed by a "static" stream understood by Z3.
+Suppose we have the following static sort in ATS.
 
 ```ats
 datasort stampseq = (* abstract *)
