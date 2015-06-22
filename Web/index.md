@@ -45,5 +45,5 @@ ATS2に関する一次情報は
 ## ill typed
 
 * [patsolve](www.illtyped.com/projects/patsolve/index.md)
-* [Scripting Patsolve](www.illtyped.com/projects/patsolve/scripting.md)
-* [Verified Efficient Programs in ATS: qsort](www.illtyped.com/projects/patsolve/qsort.md)
+* [Patsolveスクリプト](www.illtyped.com/projects/patsolve/scripting.md)
+* [ATSにおける証明された効率的なプログラム: qsort](www.illtyped.com/projects/patsolve/qsort.md)
