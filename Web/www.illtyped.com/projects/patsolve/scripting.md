@@ -1,4 +1,4 @@
-# Scripting Patsolve
+# Patsolveスクリプト
 
 (元記事は http://www.illtyped.com/projects/patsolve/scripting.html です)
 
