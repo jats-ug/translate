@@ -439,7 +439,10 @@ case+ xs of
 
 ## 線形観 (Linear Views)
 
-So far we've only spoke of using streams for linked lists, but how can they aid us in enforcing correct pointer arithmetic in programs? While ATS has a primitive pointer type, it also has a view system of tracking resources in memory. A "view" is simply a certificate that some data structure lies at a point in memory. This is illustrated in the following example.
+連結リストを表わすストリームを使うことについて話してきましたが、それはプログラムにおける正しいポインタ演算の強制にどのように役立つのでしょうか？
+ATS はプリミティブとしてポインタ型を持っていて、それはまたメモリ上のリソースを追跡する観です。
+"観" はなんらかのデータ構造がメモリ上の位置に有ることを表わす単純な証明書です。
+これは次のような例で示されます。
 
 ```ats
 var counter: int
@@ -448,7 +451,10 @@ val pf = view@ counter (* pf is of type int @ counter *)
 val p = addr@ p        (* p is of type ptr counter *)
 ```
 
-All views are "linear" in that the programmer must consume all views so that resources are not lost. Conversely, if a programmer takes a view from a static variable, as above, she is obligated to put it back. Just as we defined lists inductively, so can we define array views and index them with a static stream. This gives us the following definition
+全ての観は "線形" で、リソースを紛失しないようにプログラマは全ての観を消費しなければなりません。
+逆に上記のように静的な変数から観を受け取ったら、プログラマはそれを元の場所に戻す義務があります。
+リストを帰納的に定義したので、配列の観を定義して、それらを静的なストリームでインデックスすることができます。
+これは次のような定義で与えられます。
 
 ```ats
 dataview
@@ -461,7 +467,12 @@ array_v
 // end of [array_v]
 ```
 
-Notice we use pointer arithmetic here so we may get more views of elements in the array. Naturally, we make want to split an array into sub-views to process individual sections of an array. We can do this with the following proof function. Note, just like their non-linear counterparts, all views are proof terms and have no runtime representation. They simply aid the process of type checking.
+ここでポインタ演算を使っていることに注意してください。
+そのため配列における要素の観を得ることができます。
+配列の個々の部分を処理するために、配列をサブの観に分割したくなるでしょう。
+次のような証明関数を使うことでこれが可能になります。
+非線形の部分と同様に、全ての観は証明の項で実行時表現を持たないことに注意してください。
+それらは型検査に役立ちます。
 
 ```ats
 prfun
@@ -476,7 +487,8 @@ array_v_split
 ) (* end of [array_v_split] *)
 ```
 
-Where take returns a stream consisting of the first i elements in xs, and drop contains all elements from index i and on. They are given the following interpretation in SMT-Lib 2.
+ここで、`take` は `xs` の最初の `i` 個の要素から成るストリームを返し、`drop` はインデックス `i` 以降の全ての要素を含みます。
+これらには次のような SMT-Lib 2 の解釈が与えられます。
 
 ```
 (assert (forall ((A (Array Int Int)) (i Int) (j Int))
@@ -489,7 +501,10 @@ Where take returns a stream consisting of the first i elements in xs, and drop c
     (= (select (drop A i) j) (select A (+ i j))))))
 ```
 
-As we mentioned before, all linear views must be used properly in the scope they are used. A programmer could specify that a view is preserved in some scope, and consumed (freed) in another. In the case of a preserving scope, we need some way to put arrays back together. The following unsplit function accomplishes just that.
+以前言及しましたが、全ての線形観はそれらのスコープにおいて適切に使われなければなりません。
+観がどこかのスコープで維持され、別の場所で消費 (解放) されることをプログラマは明記します。
+維持しているスコープについては、配列を一緒に戻すことができます。
+次の `unsplit` 関数はこれを実現しています。
 
 ```ats
 prfun
@@ -506,7 +521,7 @@ array_v_unsplit
 ) (* end of [array_v_unsplit] *)
 ```
 
-Where append is given the following SMT-Lib 2 interpretation.
+このとき、`append` には次のような SMT-Lib 2 解釈が与えられています。
 
 ```
 (assert (forall ((A (Array Int Int)) (B (Array Int Int)) (m Int) (n Int) (i Int))
@@ -515,7 +530,7 @@ Where append is given the following SMT-Lib 2 interpretation.
       (ite (< i m) (select A i) (select B (- i m)))))))
 ```
 
-With these tools in place, let's implement a function that dereferences the ith element in an array using pointer arithmetic.
+これらの関数を用いて、ポインタ演算を使って配列の `i` 番目の要素をデリファレンスする関数を実装してみましょう。
 
 ```ats
 fun array_get_at
@@ -524,7 +539,8 @@ fun array_get_at
   (pf: !array_v(l, xs, n) | p: ptr(l), i: int i) : T(select(xs, i))
 ```
 
-In the following, we first split the original array view to obtain a view of the element at position (p+i), dereference the pointer, and then reconstruct the array view using unsplit. Internally, Z3 is able to determine from our interpretations of take, drop, cons, and append that our return value is in fact the ith element in the original array.
+次のコードは、`(p+i)` の位置にある要素の観を得るために元の配列の観を分割して、そのポインタをデリファレンスし、その後 `unsplit` を使って配列の観を再構成します。
+内部では、`take`, `drop`, `cons`, `append` の解釈から、返り値が実際に元の配列の `i` 番目の要素であることを、Z3 は決定できます。
 
 ```ats
 implement
@@ -543,11 +559,16 @@ prval ((*void*)) =
 } (* end of [array_get_at] *)
 ```
 
-Besides providing interpretations for static functions, the manual effort to write the program is fairly slight, yet Z3 is able to provide a very strong guarantee for its correctness. Of course, this is a trivial example, but showing Z3 automatically solving constraints involving pointer arithmetic enables us to construct the efficient version of quicksort we presented at the beginning of the tutorial.
+静的な関数に解釈を提供することを除いて、プログラムを書くための手動の作業は少しです。
+けれども Z3 はその正確さにとても強い保証を与えることができます。
+もちろん、これは自明な例です。
+しかし、ポインタ演算を含む Z3 の自動的な制約解決によって、このチュートリアルの最初に示した効率的なクイックソートを構築できることを示しています。
 
-## Constructing Quicksort
+## クイックソートを構築する
 
-Now, let's use what we know about linear views of arrays and sequences interpreted by Z3 to build an efficient and verified version of quicksort using pointer arithmetic. The first thing we need is a type for a function that partitions an array by a user chosen pivot. We can use static types to guarantee the following
+Now, let's use what we know about linear views of arrays and sequences interpreted by Z3 to build an efficient and verified version of quicksort using pointer arithmetic.
+The first thing we need is a type for a function that partitions an array by a user chosen pivot.
+We can use static types to guarantee the following
 
 * The resulting array at pointer l is of length n
 * That the array is partitioned by a pivot
