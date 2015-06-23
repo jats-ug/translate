@@ -566,15 +566,15 @@ prval ((*void*)) =
 
 ## クイックソートを構築する
 
-Now, let's use what we know about linear views of arrays and sequences interpreted by Z3 to build an efficient and verified version of quicksort using pointer arithmetic.
-The first thing we need is a type for a function that partitions an array by a user chosen pivot.
-We can use static types to guarantee the following
+ここで、ポインタ演算を用いた効率的で証明されたクイックソートを構築するために、配列の線形観と Z3 によって解釈されたシーケンスを使ってみましょう。
+最初に、ユーザが選んだピボットで配列を分割する関数を表わす型が必要になります。
+静的な型を使って次を保証できます。
 
-* The resulting array at pointer l is of length n
-* That the array is partitioned by a pivot
-* That the pivot in the resulting array is the element xs[piv] which the user gave as the desired pivot
+* ポインタ `l` にある配列の長さは `n` である
+* その配列はピボットによって分割されている
+* 配列内のそのピボットは、ユーザがピボットとして与えた要素 `xs[piv]` である
 
-This yields the following signature in ATS.
+これは ATS で次のようなシグニチャを作ります。
 
 ```ats
 fun
@@ -586,7 +586,12 @@ partition {l:addr} {xs:stmsq} {pivot,n:nat | pivot < n} (
    ] (array_v (l, ys, n) | int p) =
 ```
 
-More props may be added to assure that the result is a permutation of the original array, but this example is already verbose enough :D. To partition, we first swap the desired pivot to the last spot in the array. Then we start at i=0 and maintain a partition index. Any element to the left of this index is less then or equal to a[n-1] (the pivot). Any element to the right of this index, up until the current element i, must be greater than or equal to the pivot. Let us use the following definitions to describe these invariants to the SMT solver.
+結果が元の配列の置換であることを保証するために、より多くの命題を追加できますが、この例では十分です。
+分割のために、はじめに所望のピボットと配列の最終地点を交換します。
+その後、`i=0` からはじめて、分割インデックスを作ります。
+このインデックスより左の要素はピボット `a[n-1]` 以下です。
+このインデックスの右から要素 `i` までの要素は、ピボット以下です。
+SMT ソルバでこれらの不変条件を表現する次の定義を使いましょう。
 
 ```
  (define-fun part-left ((a (Array Int Int)) (pindex Int) (last Int))
@@ -600,9 +605,13 @@ More props may be added to assure that the result is a permutation of the origin
       ((select a last) <= (select a j)))))
 ```
 
-During this loop, if we encounter an element less than the pivot, we swap it with the current pindex and increment pindex by one and maintain the above invariants.
+このループ中では、ピボットより小さい要素を見つけたら、それを現在の `pindex` と交換して `pindex` を1増やし、上記の不変条件を維持します。
 
-When we're all done, and i = n - 1, we've reached the pivot, and so from our loop invariants, if we swap the pointer at n-1 with pindex, we'll have an array partitioned by the desired pivot. As an added bonus, we have a termination metric to enforce the loop to terminate. This metric is translated into constraints by ATS that Z3 will solve as well. An implementation that fits this specification is given below, where we make heavy use of views to reason about our pointer arithmetic.
+すべて終わった時には `i = n - 1` で、ピボットに到達していて、そしてループの不変条件から、もし `n-1` のポインタと `pindex` を交換したら、所望のピボットで分割された配列が得られたことになります。
+おまけに、停止性メトリクスはこのループが停止することを強制しています。
+このメトリクスは、Z3 によって解決できる ATS における強制に変換されます。
+この仕様に適合する実装は以下のようになります。
+このコードでは、ポインタ演算を推論するために観を頻繁に使っています。
 
 ```ats
 implement
@@ -643,7 +652,10 @@ partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
 in loop {swap_at(xs,pivot,n-1)} {0,0} (pf | p, p) end
 ```
 
-Just as with insertion sort, there is an important axiom we cannot completely leave Z3 to infer automatically. In our implementation of quicksort, this axiom is that after we sort two sub arrays of a partitioned array, combining them forms a sorted array. What we lose here is that after quicksort we only have a proof that we have two sub arrays that are sorted (with no reference to them being a permutation of the original array). To address this, we put forth the following lemma.
+挿入ソートを用いると、Z3 に自動的に推論させることができない重要な公理があります。
+クイックソートのこの実装ではその公理は、分割された配列の2つのサブ配列をソートした後、それらを結合して1つのソート済み配列を作るものです。
+ここでも問題は、クイックソートの後でのみソートされた (元の配列の置換でへの参照のない) 2つのサブ配列の証明を持つということです。
+これに対処するため、次の補題を導入します。
 
 ```ats
 absprop PARTED (l:addr, xs: stmsq, p:int, n:int)
@@ -670,7 +682,10 @@ praxi partitioned_lemma
 ] void
 ```
 
-This allows us to state to the SMT solver, if I have a proof that xs is partitioned by p, then the element select(xs, p) is greater than every element in the left sub array, and it is less then or equal every element in the right array. In short, it allows us to assert the array is still partitioned. Using this, implementing and verifying quicksort with the previously defined partition function is fairly straightforward.
+これは SMT ソルバに宣言できます。
+もし `xs` が `p` で分割されたという証明があるなら、要素 `select(xs, p)` はその左側のサブ配列のどの要素より大きく、またそれはその右側の配列のそれぞれの要素以下です。
+要するに、その配列が分割されていることを主張することができるのです。
+これを使って、前に定義した `partition` 関数を用いて `quicksort` を素直に実装/証明できます。
 
 ```ats
 fun quicksort {l:addr} {xs:stmsq} {n:nat} .<n>. (
@@ -699,15 +714,22 @@ fun quicksort {l:addr} {xs:stmsq} {n:nat} .<n>. (
   end
 ```
 
-## Generics
+## ジェネリックス
 
-In our examples above, all functions worked with an abstract type T that was indexed with a stamp. An excellent question is how could we modify these functions so that they work on any type? Recall tha ATS is largely a front end for C, and so it shares its unboxed representation for data. Therefore, we can replace our boxed type T with a flat unboxed type as follows
+上記の例では、抽象型 `T` と動作する全ての関数はスタンプでインデックスされていました。
+どうやって任意の型で動作できるようにこれらの関数を修正すればいいか、というのは良い質問です。
+おおざっぱに言って ATS はC言語のフロントエンドなので、アンボックス化データ表現を共有できます。
+したがって、私達のボックス化型 `T` を次のようなフラットなアンボックス化型で置換できます。
 
 ```ats
 abst@ype T(a:t@ype, s: stamp) = a
 ```
 
-The size of this type will simply be that of a, yet every instance of T will have a corresponding stamp that allows us to enforce orderedness constraints. This allows us to define a homomorphism between a type "a" and the set of integers. Therefore, indexing a generic array with a static array of stamps still captures the invariants we've discussed so far, but in a polymorphic way. Let us use this to define polymorphic versions of list and array.
+この型のサイズは単純に `a` のサイズです。
+けれども `T` のあらゆるインスタンスは順序を強制する対応するスタンプを持ちます。
+これは型 `a` と整数の集合の間に準同型の定義を可能にします。
+したがって、スタンプの静的な配列を用いた一般的な配列のインデックスはまた、これまで議論してきた不変条件を多相的な方法で捕捉します。
+これを使って多相的なリストと配列を定義してみましょう。
 
 ```ats
 datatype
@@ -724,10 +746,17 @@ array_v (a:t@ype, addr, stmsq, int) =
     array_v_cons (a, l, cons(x, xs), n+1) of (T(x) @ l, array_v (a, l+sizeof(a), xs, n))
 ```
 
-The case of array is an interesting one, as it allows us to enforce correct pointer arithmetic by modelling the sizeof() function in the statics. Using the above definitions, we can use templates in ATS to generate completely generic versions of the sorting functions we have presented in this tutorial.
+配列の場合は興味深いものです。
+静的に `sizeof()` 関数をモデリングすることで、正確なポインタ演算を強制できるのです。
+上記の定義を用いて、ATS のテンプレートを使ってこのチュートリアルで示したソート関数の総称的なバージョンを作ることができます。
 
-## Conclusion
+## 結論
 
-This is certainly exciting, as these programs are efficient in their use of memory but also verified as correct. This type of program construction may be possible without Z3, but we hope to demonstrate here that integrating a powerful automated reasoning tool into our constraint solver can make the process much simpler and intuitive. We hope to continue on this path by adding support for new theories being purposed for SMT-Lib 2 (Sequences, IEEE Floats) and possibly utilizing full fledged interactive proof assistants such as Coq, Isabelle, and ACL2.
+これらのプログラムはメモリの使用において効率的であるにもかかわらず正確さが証明されているという点で、これは興味深いでしょう。
+プログラムを構築するこの型は Z3 がなくても可能ですが、強力な自動的推論ツールを私達の制約ソルバに統合することで、このプロセスをより単純により直感的にできることを、ここでは示したかったのです。
+この方向に進んで SMT-Lib 2 の新しい理論 (シーケンスや IEEE 浮動小数点数) をサポートしたいと私達は望んでいます。
+またできれば Coq, Isabelle, ACL2 のような対話型の証明アシスタントも利用したいと考えています。
 
-This style of programming/debugging by interacting with a verifier is difficult to illustrate with finished examples. Nonetheless, it's quite a more enjoyable experience reasoning about programs formally rather than simply observing their outputs. Moreover, introducing formal reasoning into a program's construction leads to some assurance to its correctness in a way that is difficult to capture using only run-time testing.
+検査器と相互作用してプログラミング/デバッグをするこのスタイルでは最終的な例を示すのは難しいかもしれません。
+それでもなお、プログラムの出力を観察するよりも、形式的にプログラムの推論するのは楽しい体験でしょう。
+その上、プログラムの構築に形式的な推論を導入することで、実行時のテストで捕捉することが困難な正確さに対する自信につながります。
