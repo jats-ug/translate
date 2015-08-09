@@ -64,34 +64,37 @@ ATS の論文では、種は次のように定義されています:
 唯一の違いは ![](img/sorts-statics-and-dynamics-in-ats/11.png) です。
 それは関数適用の特別な種類で、静的な定数 ![](img/sorts-statics-and-dynamics-in-ats/12.png) を静的な項 ![](img/sorts-statics-and-dynamics-in-ats/13.png) に適用します。
 
-Static constants include static constant constructors like int(n), and static constant functions like + operator.
-Or you can just call them static constant functions, because they are essentially the same.
-Although they could both be classified as lambda abstractions or functions (or more precisely, predefined functions in ATS), ATS does so because of some practical implementation considerations.
-If you try to encode the plus operator using pure typed lambda calculus, that could be a lot of work.
-So ATS just extract them into a separate definition.
-I don't know too much about it currently, but I may explain it later when I learn more.
-Come back to static constants. Their definitions are described in ![](img/sorts-statics-and-dynamics-in-ats/14.png).
-The first part ![](img/sorts-statics-and-dynamics-in-ats/15.png) contains  some predefined basic definitions.
-And the second part is an expansion rule which expands ![](img/sorts-statics-and-dynamics-in-ats/16.png) to include a new signature ![](img/sorts-statics-and-dynamics-in-ats/17.png) of the "sort" ![](img/sorts-statics-and-dynamics-in-ats/18.png).
-In order to avoid the conflict between the sort for static constants, and the sort defined previously, ATS calls "sc-sort" for the sort of static constants.
-(There ARE lambda abstractions and function applications in ATS statics.
- You can define a sort in the form of ![](img/sorts-statics-and-dynamics-in-ats/19.png).
- And you can apply it, too.)
-If you would like to gain some real feel, skip to the end for examples.
+静的な定数は `int(n)` のような**静的な定数コンストラクタ**や `+` 演算子のような**静的な定数関数**を含んでいます。
+もしくはそれらを単に静的な定数関数と呼ぶこともできます。
+それらは本質的に同じものだからです。
+
+それらは両方ともラムダ抽象や関数 (もしくはより正確には ATS であらかじめ定義された関数) に分類できますが、ATS は実際の実装です。
+もし純粋な型付きラムダ計算を使ってプラス演算子を作ろうとしたら、それは巨大な作業になるでしょう。
+そこで ATS はそれらを分離された定義に展開します。
+現時点で私はこの点を詳しく知りませんが、より詳しく学んだら後で説明できるかもしれません。
+静的な定数に戻りましょう。
+それらの定義はシグニチャのように表現されます。
+最初の部分 ![](img/sorts-statics-and-dynamics-in-ats/15.png) はあらかじめ定義された基礎的な定義を含んでいます。
+次の2つ目の部分は、種 ![](img/sorts-statics-and-dynamics-in-ats/18.png) の新しいシグニチャ ![](img/sorts-statics-and-dynamics-in-ats/17.png) を含めるために ![](img/sorts-statics-and-dynamics-in-ats/16.png) を拡張する拡張規則です。
+静的な定数を表わす種と以前に定義された種の衝突を防ぐために、ATS では静的な定数を「sc種」と呼びます。
+(ATS の静的な世界にはラムダ抽象と関数適用が存在します。
+![](img/sorts-statics-and-dynamics-in-ats/19.png) の形で種を定義できるのです。
+またそれを適用することもできます。)
+もし実際の感覚を掴みたいのであれば、最後の例まで読み飛ばしてください。
 
 ## 動的な世界 (Dynamics)
 
-Dynamics are all about proofs and programs.
-In a word, you use dynamics to construct a real program, while you use statics to describe dynamics, or to write specifications of dynamics.
-Proofs are also programs, but they produce propositions to prove something.
-Dynamics are very similar to statics.
-Dynamic terms will be assigned types.
-Those types are static terms of sort type(or t@ype).
-There is also a formal definition for dynamic terms, dynamic values, variable context, and substitution.
-But it is too complex for me now.
-I will cover that later on.
-Not that there is a "dynamic values".
-As far as I know, they are dynamic terms that couldn't be further simplified, like a termination token in a programming language grammar.
+動的な世界は証明とプログラムに関する全てです。
+一言で言えば、動的な世界を表現したり動的な世界の使用を書いたりするために静的な世界を使うのとは対照的に、現実のプログラムをコンストラクトするために動的な世界を使います。
+証明もまたプログラムですが、それらはなんらかの証明のための定理を生成します。
+動的な世界は静的な世界と良く似ています。
+**動的な項には型が割り当てられます。**
+**これらの型は、種** `type` **(もしくは** `t@ype`**) の静的な項です。**
+また動的な項、動的な値、変数コンテキスト、置換を表わす形式的な定義があります。
+しかしこれは今の私には複雑すぎます。
+後に解説できるかもしれません。
+けれども「動的な値」が存在するわけではないのです。
+私の知っている限りそれらは動的な項で、プログラミング言語の文法における末端のようにそれ以上分割できません。
 
 ## 例
 
@@ -102,21 +105,22 @@ datasort mylist =
 stadef list = cons (1, nil())
 ```
 
-In this statics example, we defined a sort called mylist, which is part of the base sort ![](img/sorts-statics-and-dynamics-in-ats/20.png) in the paper.
-The consis a static constant of sc-sort ![](img/sorts-statics-and-dynamics-in-ats/21.png).
-The nil() and cons (1, nil()) are static constant applications, which are defined to be static terms, of sort mylist.
-The listis a static term, of sort mylist.
-Note that, the static constant should be of form ![](img/sorts-statics-and-dynamics-in-ats/22.png) instead of ![](img/sorts-statics-and-dynamics-in-ats/23.png).
+この静的な例では、`mylist` という種を定義していて、これは論文での基礎種 ![](img/sorts-statics-and-dynamics-in-ats/20.png) に相当します。
+`cons` はsc種 ![](img/sorts-statics-and-dynamics-in-ats/21.png) の静的な定数です。
+`nil()` と `cons (1, nil())` は静的な定数適用で、種 `mylist` の静的な項として定義されています。
+`list` は種 `mylist` の静的な項です。
+
+この静的な定数は ![](img/sorts-statics-and-dynamics-in-ats/23.png) の代わりに、![](img/sorts-statics-and-dynamics-in-ats/22.png) の形を取るべきであることに注意してください。
 
 ```ats
 fun myplus (a:int, b:int):int
 ```
 
-In this dynamics example, we defined a function myplus, which is a dynamic term, of type ![](img/sorts-statics-and-dynamics-in-ats/24.png).
-The type ![](img/sorts-statics-and-dynamics-in-ats/24.png) is a static term of sort type.
-This static term is of the form of static constant application with the static constant being the ![](img/sorts-statics-and-dynamics-in-ats/25.png) symbol.
-It is a static constant who takes static terms (of sort type) and produces static terms (of sort type).
-The ![](img/sorts-statics-and-dynamics-in-ats/25.png) is defined as a member of ![](img/sorts-statics-and-dynamics-in-ats/26.png) in the statics syntax.
+この動的な例では、関数 `myplus` を定義していて、これは型 ![](img/sorts-statics-and-dynamics-in-ats/24.png) の動的な項です。
+型 ![](img/sorts-statics-and-dynamics-in-ats/24.png) は種 `type` の静的な項です。
+この静的な項は、![](img/sorts-statics-and-dynamics-in-ats/25.png) 記号の静的な定数を用いた静的な定数適用の形を取ります。
+これは (種 `type` の) 静的な項を取り、(種 `type` の) 静的な項を生成する静的な定数です。
+![](img/sorts-statics-and-dynamics-in-ats/25.png) は静的な構文における ![](img/sorts-statics-and-dynamics-in-ats/26.png) の要素として定義されています。
 論文を参照してください。
 
 ## 参考文献
