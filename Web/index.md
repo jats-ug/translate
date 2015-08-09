@@ -5,7 +5,7 @@ ATS2に関する一次情報は
 [ATS言語の公式マニュアル](../Manual/index.md)
 を参照してください。
 
-## Likai Liu (劉力愷)'s page
+## [Likai Liu (劉力愷)'s page](http://cs.likai.org/ats/)
 
 * [MLプログラマ向けATS言語ガイド](cs.likai.org/ats/ml-programmers-guide-to-ats.md)
 * [フラットなメモリを操作する](cs.likai.org/ats/manipulating-flat-memory.md)
@@ -14,7 +14,7 @@ ATS2に関する一次情報は
 
 * [atsdoc](http://jats-ug.metasepi.org/doc/ATS1/atsdocman/atsdocman.html)
 
-## BLUISH CODER
+## [BLUISH CODER](http://bluishcoder.co.nz/tags/ats/)
 
 * [安全なプログラミング言語を使って heartbleed を防ぐには](bluishcoder.co.nz/2014/04/11/preventing-heartbleed-bugs-with-safe-languages.md)
 * [ATS でデータ命題を使って証明を構築する](bluishcoder.co.nz/2013/07/01/constructing-proofs-with-dataprop-in-ats.md)
@@ -42,7 +42,20 @@ ATS2に関する一次情報は
 * ATS Preforking Echo Server
 * ATS - Applied Type System Programming Language
 
-## ill typed
+## [Blogs @ Steinway Wu](http://blog.steinwaywu.com/tag/ats/)
+
+* Sorts, Statics, and Dynamics in ATS
+* Enigma Machine
+* Lazy Evaluation
+* A Docker Image for Quick-starting ATS
+* SublimeText Syntax Highlight for ATS
+* Minimax Searching
+* Matrices in ATS
+* High Order Functions
+* More on Types
+* Lists
+
+## [ill typed](http://www.illtyped.com/)
 
 * [patsolve](www.illtyped.com/projects/patsolve/index.md)
 * [Patsolveスクリプト](www.illtyped.com/projects/patsolve/scripting.md)
