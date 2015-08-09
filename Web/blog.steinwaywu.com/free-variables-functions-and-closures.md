@@ -41,26 +41,27 @@ fun addclo (x:int):<cloref1> int = x + y
 評価器がプログラムを評価するとき、変数の値を知る必要があります。
 パラメータ `123` を共なって `addclo` を呼び出すことを考えてみましょう。
 
-1. Interpreter sees the binding occurrence of `x`, therefore it binds `123` onto `x`, which is actually putting a key/value pair `(x,123)` into the environment.
-2. Interpreter then evaluates the body. When it sees the bound occurence of `x`, it looks up the environment, and replace it with `123`.
-3. When it sees the free occurence of `y`, or we say it can't find a binding of `y` in the current environment, it will take further actions.
-    * It either reports an error, and stops evaluating.
-    * Or continues to look up `y` in a parent scope (if `y` is defined somewhere outside this function).
+1. 評価器が `x` の束縛する出現を見つけると、`123` を `x` に束縛します。これは実際には環境にキーバリューペア `(x,123)` を置くのと同じです。
+2. 評価器は本体を評価します。それが `x` の束縛される出現を見つけると、環境を探してそれを `123` で置き換えます。
+3. 評価器が `y` の自由な出現を見つけるか、もしくは現在の環境に `y` の束縛が見つからない場合、それは次のような動作をします。
+    * それはエラーを発生させるか評価を停止します。
+    * もしくは (この関数の外で `y` が定義されていれば) 親のスコープで `y` を探します。
 
-We can see that a free variable may appear locally, but in a correct program, all variables have to be bound eventually.
+自由変数はローカルに出現するかもしれませんが、正しいプログラムでは全ての変数は最終的に束縛されなければなりません。
 
 ## 関数とクロージャ
 
-In a function, every local variable has to be bound.
-This means every variable should have at least a binding occurence (either in the argument list, or in the body), and probably several bound occurences.
+関数では全てのローカル変数は束縛されなければなりません。
+これは全ての変数は (引数リストか本体中に) 束縛する出現を持ち、場合によって数個の束縛される出現を持つことを意味しています。
 
-Closure is actually a function, **plus an environment**.
-The current environment is recorded by the interpreter when it first sees the definition of a closure.
-Later when it starts to evaluate the application of a closure, it will retrieve the original environment, and evaluate the closure application under it.
-We need the environment, and there is a reason.
+クロージャは実際には関数**と環境**です。
+評価器がはじめにクロージャの定義を見つけたときに、現在の環境は評価器によって記録されます。
+後に評価器がクロージャの適用の評価を開始すると、それは元の環境を読み出し、その環境の元でクロージャ適用を評価します。
+環境が必要なのには理由があります。
 
-In a closure definition, variables are not required to be bound (in its defining scope).
-But as we mentioned, it has to be bound somewhere else in order to be evaluated. Look at this.
+クロージャの定義では、変数は (その定義のスコープにおいて) 束縛されている必要はありません。
+しかしそれは評価されるために別の場所で束縛されていなければなりません。
+次のコードを見てみましょう。
 
 ```ats
 implement main0 () = let
@@ -72,16 +73,16 @@ in
 end
 ```
 
-Here, when the interpreter sees the definition main,
+ここでは、評価器がメインの定義を見つけると次のように動作します:
 
-1. Bind `1` onto `y` (put `(y,1)` into the environment).
-2. Record the definition of `addclo`. That is to put the function/environemnt pair into a table. The environment contains `(y,1)`.
-3. It sees a closure application.
-    1. Retrieve `(addclo, env)` from the table
-    2. `x` is a bound variable, it is bound to `123` because of the binding occurrence of `x` in the argument list.
-    3. `y` **is bound to** `1` **according to the** `env`**, which is the environment when we define** `addclo`**.**
-    4. Return `124` (123 + 1), and bind it onto `z`.
+1. `1` を `y` に束縛します。(つまり `(y,1)` を環境に置きます)
+2. `addclo` の定義を記録します。これはつまり関数と環境のペアをテーブルに置くことです。環境は `(y,1)` を含みます。
+3. 評価器はクロージャ適用を見つけます。
+    1. テーブルから `(addclo, env)` を読み出します。
+    2. `x` は束縛変数です。それは引数リスト中の束縛する出現なので、`123` に束縛されています。
+    3. `env` **に従って** `y` **は** `1` **に束縛されます。** `env` **は** `addclo` **を定義した時の環境です。**
+    4. 123 + 1 である `124` を返し、それは `z` に束縛します。
 4. ...
 
-As you can see, if the closure is not accompanied by its environment, we will never know the value of `y`.
-However, since all variables are bound in a function, it does not need to be accompanied by an environment.
+予想される通り、クロージャにその環境が付随しないと、`y` の値を知ることはできません。
+けれども、関数においては全ての変数は束縛されているので、環境が付随する必要はありません。
