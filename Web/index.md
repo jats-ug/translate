@@ -46,7 +46,7 @@ ATS2に関する一次情報は
 
 * [ATSでの種、静的な世界、そして動的な世界](blog.steinwaywu.com/sorts-statics-and-dynamics-in-ats.md)
 * Enigma Machine
-* Lazy Evaluation
+* [遅延評価](blog.steinwaywu.com/lazy-evaluation.md)
 * A Docker Image for Quick-starting ATS
 * SublimeText Syntax Highlight for ATS
 * Minimax Searching
