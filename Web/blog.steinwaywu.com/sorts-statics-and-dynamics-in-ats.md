@@ -34,7 +34,16 @@ ATS の論文では、種は次のように定義されています:
 
 ![](img/sorts-statics-and-dynamics-in-ats/1.png)
 
-The [Math Processing Error] stands for basic sorts, which are sorts that can't be simpler, like bool, addr, type, and t@ype. And [Math Processing Error] is also defined to be sort. They can be regarded as the sort for functions. But in real ATS statics, it hasn't been supported yet, because there is actually no real lambda abstractions and function applications. These sorts will be further used to describe (construct) static terms. Terms refer to lambda terms, and they may be covered in the following blogs. From my understanding, terms are the core part of statics and dynamics, and any other programming languages. It represents those constructive components in a programming language, like variables, statements, functions and function calls, and so on. In a typed language (I am not sure, but at least ATS), each term will be assigned a type. Specifically, each static term will be assigned a sort using some rules. This is what I mean by saying "use sorts to describe or construct static terms".
+The `b` stands for basic sorts, which are sorts that can't be simpler, like bool, addr, type, and t@ype.
+And ![](img/sorts-statics-and-dynamics-in-ats/2.png) is also defined to be sort.
+They can be regarded as the sort for functions. But in real ATS statics, it hasn't been supported yet, because there is actually no real lambda abstractions and function applications.
+These sorts will be further used to describe (construct) static terms.
+Terms refer to lambda terms, and they may be covered in the following blogs.
+From my understanding, terms are the core part of statics and dynamics, and any other programming languages.
+It represents those constructive components in a programming language, like variables, statements, functions and function calls, and so on.
+In a typed language (I am not sure, but at least ATS), each term will be assigned a type.
+Specifically, each static term will be assigned a sort using some rules.
+This is what I mean by saying "use sorts to describe or construct static terms".
 
 Statics could be regarded as a language to describe complex static terms. The syntax is well-defined in the paper, and the first syntax is the sort syntax shown above. The rests are
 
@@ -57,14 +66,18 @@ Dynamics are all about proofs and programs. In a word, you use dynamics to const
 
 ## 例
 
+```ats
 datasort mylist =  
  | nil of ()
  | cons of (int, mylist)
-stadef list = cons (1, nil())  
+stadef list = cons (1, nil())
+```
 
 In this statics example, we defined a sort called mylist, which is part of the base sort [Math Processing Error] in the paper. The consis a static constant of sc-sort [Math Processing Error]. The nil() and cons (1, nil()) are static constant applications, which are defined to be static terms, of sort mylist. The listis a static term, of sort mylist. Note that, the static constant should be of form [Math Processing Error] instead of [Math Processing Error].
 
-fun myplus (a:int, b:int):int  
+```ats
+fun myplus (a:int, b:int):int
+```
 
 In this dynamics example, we defined a function myplus, which is a dynamic term, of type [Math Processing Error]. The type [Math Processing Error] is a static term of sort type. This static term is of the form of static constant application with the static constant being the [Math Processing Error] symbol. It is a static constant who takes static terms (of sort type) and produces static terms (of sort type). The [Math Processing Error] is defined as a member of [Math Processing Error] in the statics syntax. Please refer to the paper.
 
