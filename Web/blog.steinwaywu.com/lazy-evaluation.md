@@ -4,19 +4,20 @@
 
 (これはボストン大学 CS320 コース用の記事です)
 
-In most programming languages, expressions are evaluated right after it is bound to a variable.
-This is **eager evaluation**.
+ほとんどのプログラミング言語では、式は変数を束縛した後、右に向かって評価されます。
+これは**先行評価**です。
 
-However, you can't always evaluate an expression immediately.
+けれども、常に式を即時に評価できるわけではありません。
 
 ```ats
 // pseudo code
 val natlist = 0 :: 1 :: 2 :: ....
 ```
 
-An infinite list can't be expressed in a eager evaluation manner because that will cause a infinite loop and eventually corrupt your stack.
+無限ループに陥いって最終的にスタックを食い潰してしまうために、無限リストは先行評価の作法で評価することができません。
 
-For such a reason, we need **lazy evaluation** which will defer the computation of an expression until it is actually needed. This is also known as **call-by-need**.
+そのような場合、式の計算を必要になるまで延期する**遅延評価**が必要になります。
+これは **call-by-need** としても知られています。
 
 ```ats
 // pseudo code
@@ -26,28 +27,31 @@ val lazylist = $delay (0 :: 1 :: 2 :: ...)
 val _ = show (lazylist, 10)
 ```
 
-Lazy evaluation has other advantages. Since lazy evaluation usually comes together with memorization, efficiency could be improved. Suppose we have a complex experssion consists of several subexpression, e.g. `(1+2)-(1+2)`
+遅延評価は他にも利点があります。
+通常、遅延評価はメモ化も行なうので、効率が良くなります。
+`(1+2)-(1+2)` のような、いくつかのサブ式から成る複合の式を想像してください。
 
-* for eager evaluation: every subexpression `(1+2)` will be evaluated right away no matter they are the same or not.
-* for lazy evaluation with memorization: subexpression evaluation will be deferred until the evaluation of top-level expression `(...) - (...)`. Also, when a subexp `(1+2)` is evaluated, the result will be memorized and when the same subexp is evaluated for the second time, we just retrieve the result without actual computation.
+* 先行評価では: 全てのサブ式 `(1+2)` は右方向に評価され、それらが同一かどうか構いません。
+* メモ化を共なう遅延評価では: サブ式の評価はトップの式 `(...) - (...)` の評価まで延期されます。またサブ式 `(1+2)` が評価されるとき、その結果はメモ化され、同じサブ式が2度目に評価されるときには実際の計算が行なわれず単にその結果を回収します。
 
-## Lazy Evaluation in ATS
+## ATS における遅延評価
 
-In ATS, we use `$delay (exp)` to delay the evaluation of some expression `exp`. And we use `lazy ()` to get a lazy type from an existing type.
+ATS では、`$delay (exp)` を使って式 `exp` の評価を延期させます。
+また `lazy ()` を使うと現存する型から遅延された型を得ることができます。
 
-If the type of `exp` is `T`, then `$delay (exp)` will have type `lazy (exp)`.
+もし `exp` の型が `T` でならば、`$delay (exp)` は型 `lazy (exp)` を持ちます。
 
-We use `!exp` to force the evaluation of some lazy expression exp.
+`!exp` を使うと、遅延された式 `exp` の評価を強制します。
 
-## Example and Exercise
+## 例と練習問題
 
-Please read the following code carefully, especially the definition of lazy list, those signatures of lazy functions, and an example of an infinite fibonacci number list.
+次のコード、特に遅延リストの定義、遅延関数のシグニチャ、そして無限フィボナッチ数のリストの例を注意深く読んでください。
 
-Please implement
+以下を実装してください。
 
-* `from (n:int)`: generate an infinite integer list from n
-* `sieve (xs:lazy(list(int))): lazy (list (int))`: generate an infinite prime number list using this algorithm
-* `intpairs(n:int): lazy (list (@(int, int)))`: generate integer pairs as shown here
+* `from (n:int)`: n から無限整数リストを生成する
+* `sieve (xs:lazy(list(int))): lazy (list (int))`: このアルゴズムを使って無限素数リストを生成する
+* `intpairs(n:int): lazy (list (@(int, int)))`: 次に示す整数のペアを生成する
 
 ```
 (0,0),
