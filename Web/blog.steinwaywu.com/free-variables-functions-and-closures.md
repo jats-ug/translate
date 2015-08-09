@@ -4,40 +4,42 @@
 
 (これはボストン大学 CS320 コース用の記事です)
 
-In order to discuss environments, closures and functions, I would like to discuss free and bound variables first.
+環境、クロージャ、関数について議論するために、はじめに自由変数と束縛変数について議論しようと思います。
 
-## Free/Bound Variables
+## 自由変数と束縛変数
 
-Take this as an example
+次の例を見てみましょう。
 
 ```ats
 lam (x) => x + y
 ```
 
-Here we call `x`, `x`, and `y` **occurrences** (of `x` and `y`).
-The first `x` is called a **binding occurence** of `x`, the second `x` is called a **bound occurence** of `x`, and the `y` is a **free occurence**.
+ここでは上記の `x`, `x`, `y` を (`x` と `y` の) **出現 (occurrence)**と呼びます。
+最初の `x` は `x` の**束縛する出現 (binding occurrence)**と呼ばれ、二番目の `x` は**束縛される出現 (bound occurrence)**と呼ばれ、そして `y` は**自由な出現 (free occurrence)**です。
 
-The `x` in the argument list is like to decalre a name for the placeholder, and then the `x` in the body will become a placeholder.
-Whenever such anonymous function get called with a parameter, all the placeholder `x` will be replaced (or actually, bound) by the actual paremeter value.
-However, the `y` is not defined in the argument list, thus it is not treated as a placeholder.
-However I call this anonymous function, `y` won't have a concrete value. It is not bound, it's free.
+引数リスト中の `x` はプレースホルダーのための名前を宣言していて、本体中の `x` はプレースホルダーになります。
+そのような無名関数がパラメータと共に呼び出されると、全てのプレースホルダー `x` は実際のパラメータ値で置換 (もしくは束縛) されます。
+けれども、`y` が引数リスト中で定義されていないので、それはプレースホルダーとして扱われません。
+この無名関数を呼び出しても、`y` は具体的な値を持っていません。
+それは束縛されておらず、自由なのです。
 
 ```ats
 fun add (x:int, y:int): int = x + y
 ```
 
-Here, all the occurrences of variables in the body are bound, while those occurrences in the argument list are binding occurrences.
+ここでは、本体中の全ての変数の出現は束縛されています。
+引数リスト中のそれらの出現は束縛する出現なのです。
 
 ```ats
 fun addclo (x:int):<cloref1> int = x + y
 ```
 
-While here the `y` in the body is a free occurrence.
+ここでは、本体中の `y` は自由な出現です。
 
-## Environments and Evaluation
+## 環境と評価
 
-When the interpreter evaluates a program, it needs to know the values of variables.
-Suppose I call addclo with parameter 123, then
+評価器がプログラムを評価するとき、変数の値を知る必要があります。
+パラメータ `123` を共なって `addclo` を呼び出すことを考えてみましょう。
 
 1. Interpreter sees the binding occurrence of `x`, therefore it binds `123` onto `x`, which is actually putting a key/value pair `(x,123)` into the environment.
 2. Interpreter then evaluates the body. When it sees the bound occurence of `x`, it looks up the environment, and replace it with `123`.
@@ -47,7 +49,7 @@ Suppose I call addclo with parameter 123, then
 
 We can see that a free variable may appear locally, but in a correct program, all variables have to be bound eventually.
 
-## Functions and Closures
+## 関数とクロージャ
 
 In a function, every local variable has to be bound.
 This means every variable should have at least a binding occurence (either in the argument list, or in the body), and probably several bound occurences.
