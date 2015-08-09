@@ -32,9 +32,7 @@ ATS には型の基礎的なレベルと、その基礎の上に2つの型のレ
 静的な世界の前に、型の基礎的なレベルである種について説明しましょう。
 ATS の論文では、種は次のように定義されています:
 
-```math
-\(\sigma := b \mid \sigma_1 \rightarrow  \sigma_2 \)
-```
+![](img/sorts-statics-and-dynamics-in-ats/1.png)
 
 The [Math Processing Error] stands for basic sorts, which are sorts that can't be simpler, like bool, addr, type, and t@ype. And [Math Processing Error] is also defined to be sort. They can be regarded as the sort for functions. But in real ATS statics, it hasn't been supported yet, because there is actually no real lambda abstractions and function applications. These sorts will be further used to describe (construct) static terms. Terms refer to lambda terms, and they may be covered in the following blogs. From my understanding, terms are the core part of statics and dynamics, and any other programming languages. It represents those constructive components in a programming language, like variables, statements, functions and function calls, and so on. In a typed language (I am not sure, but at least ATS), each term will be assigned a type. Specifically, each static term will be assigned a sort using some rules. This is what I mean by saying "use sorts to describe or construct static terms".
 
