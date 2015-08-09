@@ -53,7 +53,7 @@ ATS2に関する一次情報は
 * Matrices in ATS
 * Free Variables, Functions and Closures
 * High Order Functions
-* More on Types
+* [型についてさらに](blog.steinwaywu.com/more-on-types.md)
 * Lists
 * Types
 * Tail Recursion and Loops
