@@ -51,9 +51,14 @@ ATS2に関する一次情報は
 * SublimeText Syntax Highlight for ATS
 * Minimax Searching
 * Matrices in ATS
+* Free Variables, Functions and Closures
 * High Order Functions
 * More on Types
 * Lists
+* Types
+* Tail Recursion and Loops
+* Very Basic ATS
+* Install ATS in Cygwin
 
 ## [ill typed](http://www.illtyped.com/)
 
