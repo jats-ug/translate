@@ -4,21 +4,21 @@
 
 (これはボストン大学 CS320 コース用の記事です)
 
-Recall that a type can be seen as a value space.
-We also mentioned algebric data type, specifically sum types.
+型を値の空間として考えることができたことを思い出しましょう。
+また代数的データ型、特に直和型についても学びました。
 
-## Abstract Types
+## 抽象型
 
-In ATS, we encourage programmers to think in an abstract way, to program towards your goal, instead of paying great attention to details at the very beginning.
-Therefore ATS provides **abstract types**.
+ATS では、設計の最初期に詳細について注意を払う代わりに、ゴールに向かってプログラムを進める際に抽象的な方法で考えることをプログラマに促しています。
+そのために ATS は**抽象型**を提供しています。
 
 ```ats
 abstype money
 ```
 
-The above code introduces a type.
-It has a name `mytype`, but it has no concrete value space associated to it.
-You can now use the type to write your interface,
+上記のコードは型を導入しています。
+それは名前 `mytype` を持っていますが、それに関連した具体的な値の空間を持っていません。
+この型を使って次のようにインターフェイスを書くことができます:
 
 ```ats
 fun get_cent (money): int
@@ -29,27 +29,27 @@ fun money_to_cent (money): int
 fun cent_to_money (int): money
 ```
 
-and use the interface to write the program.
+そしてこのインターフェイスを使ってプログラムを書くことができます。
 
 ```ats
 implement money_to_cent (m) = get_dollar (m) * 100 + get_cent (m)
 implement cent_to_money (c) = make_money (c / 100, c mod 100)
 ```
 
-As you can see, the detail of `money` is **completely unknown**, so are the first three interfaces.
-But you can still write programs like the implemtations of the last two interfaces.
+想像通り、`money` の詳細は**完全に未知**で、最初の3つのインターフェイスについても同様です。
+しかし最後の2つのインターフェイスの実装のようなプログラムを書き下すこともできます。
 
-However, the implementation of the first three functions, have to know the details of `money`.
+けれども、最初の3つの関数の実装は `money` の詳細について知らなければなりません。
 
 ```ats
 datatype money_type = M of (int, int)
 assume money = money_type
 ```
 
-Here, we define a sum type `money_type` with only one varient `M`.
-This is a concrete type.
-We then use `assume` to associate the value space of `money_type` to `money` to make it concrete.
-From now on, we can implement those functions.
+ここで、唯一のバリアント `M` を持つ直和型 `money_type` 定義しました。
+これは具体的な型です。
+それから具体化するために、`assume` を使って `money_type` 値の空間を `money` に関連付けます。
+これで、それらの関数を実装することができます。
 
 ```ats
 implement get_cent (m) = c where M(_, c) = m
@@ -57,12 +57,13 @@ implement get_dollar (m) = d where M(d, _) = m
 implement make_money (d, c) = M(d, c)
 ```
 
-The benefit here is that you can **change your implementation** as you want.
-You just need to `assume` it to another concrete type, and implement these three functions again based on the new associated value space.
+この恩恵は、望むときに**実装を変更**できることです。
+他の具体的な型に変更したい時は `assume` を使い、新しい関連した値の空間に基づいてこれら3つの関数を再度実装するだけです。
 
-## Exercise
+## 練習問題
 
-Suppose we have an integer arithmatic expression to be evaluated. Please write your implementation based on abstract types and interfaces.
+評価したい整数の代数式があると仮定します。
+次の抽象型とインターフェイスに基づいてあなたの実装を書いてください。
 
 ```ats
 abstype exp
@@ -77,10 +78,10 @@ fun snd (exp): exp      // e.g. (pseudo) snd ("1+2") = "2"
 fun eval (exp): int     // please implement this
 ```
 
-And based on the following code
+また次のコードに基づき...
 
 ```ats
-datatype exp_type = 
+datatype exp_type =
     | num of (int)
     | add of (exp_type, exp_type)
     | sub of (exp_type, exp_type)
@@ -88,5 +89,5 @@ datatype exp_type =
 assume exp = exp_type
 ```
 
-write the implementations for the first five functions.
+最初の5つの関数の実装を書いてください。
 
