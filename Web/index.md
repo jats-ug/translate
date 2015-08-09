@@ -44,7 +44,7 @@ ATS2に関する一次情報は
 
 ## [Blogs @ Steinway Wu](http://blog.steinwaywu.com/tag/ats/)
 
-* Sorts, Statics, and Dynamics in ATS
+* [ATSでの種、静的な世界、そして動的な世界](blog.steinwaywu.com/sorts-statics-and-dynamics-in-ats.md)
 * Enigma Machine
 * Lazy Evaluation
 * A Docker Image for Quick-starting ATS
