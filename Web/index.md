@@ -55,7 +55,7 @@ ATS2に関する一次情報は
 * High Order Functions
 * [型についてさらに](blog.steinwaywu.com/more-on-types.md)
 * Lists
-* Types
+* [型について](blog.steinwaywu.com/types.md)
 * Very Basic ATS
 * Install ATS in Cygwin
 
