@@ -4,16 +4,15 @@
 
 (これはボストン大学 CS320 コース用の記事です)
 
-A type is a category of things having common characteristics.
-Putting it into our context, it is a **classification** identifying one of various types of data that usually determines
-([参考](https://ja.wikipedia.org/wiki/%E3%83%87%E3%83%BC%E3%82%BF%E5%9E%8B))
+型は共通の特性を持つモノの分類です。
+私達の文脈では、一般に以下を決定するようなデータの様々な型を同定する**分類**です ([参考](https://ja.wikipedia.org/wiki/%E3%83%87%E3%83%BC%E3%82%BF%E5%9E%8B))。
 
-* the **possible values** for that type;
-* the operations that can be done on values of that type;
-* the meaning of the data;
-* and the way values of that type can be stored.
+* その型の**取り得る値**
+* その型の値に対して行なえる操作
+* そのデータの意味
+* その型の値を保管する方法
 
-Or, you can think of a type as a value space, a **set** of all possible values.
+もしくは値の空間、つまり取り得る全ての値の集合として型を考えることもできます。
 
 * 整数型: `{... -2, -1, 0, 1, 2, ...}`
 * 真理値型: `{true, false}`
@@ -21,36 +20,36 @@ Or, you can think of a type as a value space, a **set** of all possible values.
 
 ## プリミティブ型/複合型
 
-Usually, we call them primitive type: `int`, `bool`, `string`, `float`, etc. They are building blocks for composite types.
-Composite types are types formed by combining other types.
+一般に `int`, `bool`, `string`, `float` などをプリミティブ型と呼びます。
+それらは複合型の構成要素です。
+複合型は他の型を結び付けて作られた型です。
 
 ## 代数的データ型
 
-ADT is a kind of composite type.
-Depending on how the value space is determined by its composing types, we have **product types** and **sum types**.
-([参考](https://ja.wikipedia.org/wiki/%E4%BB%A3%E6%95%B0%E7%9A%84%E3%83%87%E3%83%BC%E3%82%BF%E5%9E%8B))
+代数的データ型は複合型の一種です。
+その複合した型で値の空間がどのように決定されるかによって、**直積型**と**直和型**があります ([参考](https://ja.wikipedia.org/wiki/%E4%BB%A3%E6%95%B0%E7%9A%84%E3%83%87%E3%83%BC%E3%82%BF%E5%9E%8B))。
 
 ### 直積型
 
-If P is a product type formed by A and B, then the value space of P is the **cartisian product** of the value space of A and B.
+もし P が A と B で作られた直積型なら、P の値の空間は A と B の値の空間の**デカルト積**になります。
 
-Suppose we have a pair of type `(bool, int)`, then it's value space should be `{..., (T -1), (F -1), (T 0), (F 0), (T 1), (F 1), ...}`.
-It is easily seen that this is simply a cartisian product of `{T, F}` and `{..., -1, 0, 1, ...}`.
+型 `(bool, int)` のペアがあるとすると、それは `{..., (T -1), (F -1), (T 0), (F 0), (T 1), (F 1), ...}` となるような値の空間になります。
+これは単純に `{T, F}` と `{..., -1, 0, 1, ...}` のデカルト積であると考えることができます。
 
-These composing types are usually called **fields**.
-The above type contains two fields: the first is a bool field, the second is an int field.
-Fields may or may not have names/labels.
+これらの複合した型は一般に**フィールド**と呼ばれます。
+上記の型は2つのフィールドを含んでいます。1番目は bool フィールド。2番目は int フィールドです。
+フィールドは名前やラベルを持つことも、持たないこともあります。
 
-Examples of product types are: pairs, tuples, records, etc.
+直積型の例はペア、トリプル、レコードなどです。
 
 ### 直和型
 
-If S is a sum type formed by A and B, then the value space of S is the **union** of the value space of A and B.
+もし S が A と B の直和型なら、S の値の空間は A と B の値の空間の**合併**になります。
 
-For a sum type, each of its composing types is called a **variant**, and each variant is identified by a **constructor**.
-Constructors may or may not **carry data** of any type.
+直和型において、それぞれの複合した型は**バリアント**と呼ばれ、それぞれのバリアントは**コンストラクタ**で識別されます。
+コンストラクタは型の**データを保持する**ことも、持たないこともあります。
 
-Suppose we have a `intlist` type:
+次の `intlist` 型があるとします:
 
 ```ats
 datatype intlist = 
@@ -58,17 +57,18 @@ datatype intlist =
     | list_nil of ()
 ```
 
-The integer list type has two variants, identified by its two constructors: `list_cons` and `list_nil`.
+この整数リスト型は、2つのコンストラクタ `list_cons` と `list_nil` で識別される 2つのバリアントを持っています。
 
-* `list_cons` variant correspond to the set of all non-empty integer lists.
-* `list_nil` variant correspond to the set of empty integer list.
+* `list_cons` 全ての空でない整数リストの集合に対応するバリアント
+* `list_nil` 空の整数リストの集合に対応するバリアント
 
-And we also see, `list_cons` is carrying two pieces of data: an integer (representing the current/head list node), and an integer list (representing the rest of the list).
-But `list_nil` is carrying nothing.
+そしてまた、`list_cons` は2つのデータを保持しています。
+それらは (リストノードの先頭を表わす) 1つの整数と (そのリストの残りを表わす) 1つの整数リストです。
+しかし `list_nil` は何も保持していません。
 
 ## 型の値を定義する
 
-For primitive types and product types, just write down the literal value of that type (which should be a member of the value space set).
+プリミティブ型と直積型について、(その値の集合の要素である) その型のリテラル値を書いてみましょう。
 
 ```ats
 val x = 3
@@ -77,12 +77,12 @@ val z1 = (x, y)  // an unboxed/flat tuple
 val z2 = '(x, y) // a boxed tuple
 
 typedef point = @{x = double, y = double} // an unboxed record
-val p = @{x = 0.0, y = 0.0 } : point 
+val p = @{x = 0.0, y = 0.0 } : point
 
 typedef student = `{name = string, id = int} // a boxed record
 ```
 
-For sum types, we should instead **use the constructor**.
+直和型については、その代わりに**コンストラクタを使います**。
 
 ```ats
 val l = list_nil ()
@@ -92,7 +92,7 @@ val ls = list_cons (1, list_nil ())
 val lss = list_cons (1, list_cons (2, list_cons (3, list_nil ()))
 ```
 
-After constructing sum type values, we can use **pattern matching** to **retrieve** the data we previously put into the constructor.
+直和型の値をコンストラクトしたら、コンストラクタに配置したデータをを**取り出す**ために**パターンマッチ**を使うことができます。
 
 ```ats
 case+ lss of
@@ -100,10 +100,10 @@ case+ lss of
     | list_cons (x, y) => println! (x)
 ```
 
-Because constructors can identify different variants of a sum type, it is perfect for pattern matching, which will help us interpret the ADT value, and reverse the process of constructing to get the data inside it.
-Here, `x` is matched with `1`, the head of the list.
-`y` is matched with `list_cons (2, list_cons (3, list_nil ()))`, the rest of the list.
+コンストラクタは直和型の異なるバリアントを識別できるので、その代数的データ型を解釈したり、その中のデータを得るためにコンストラクトしたプロセスを巻き戻したりするためにパターンマッチを使えるのです。
+ここでは、`x` はそのリストの先頭である `1` にマッチします。
+`y` はそのリストの残りである `list_cons (2, list_cons (3, list_nil ()))` にマッチします。
 
-However, this is only a list of integers.
-It can't hold other types of data.
-We will solve this by polymorphic types later.
+けれども、これは単なる整数のリストです。
+それは他の型のデータを保持できません。
+後で多相型を使うとこの問題を解決できるでしょう。
