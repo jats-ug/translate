@@ -2,8 +2,8 @@
 
 (元記事は http://bluishcoder.co.nz/2011/04/25/sharing-linear-resources-in-ats.html です)
 
-My previous post on [converting C programs to ATS](http://bluishcoder.co.nz/2011/04/24/converting-c-programs-to-ats.html) had an example of passing a linear resource to a callback function.
-The code looked like:
+私の以前の記事[「C言語のプログラムをATSに翻訳する」](http://bluishcoder.co.nz/2011/04/24/converting-c-programs-to-ats.html)では、線形リソースをコールバック関数に渡す例を紹介しました。
+そのコードは次のようなものでした:
 
 ```ats
 typedef evhttp_callback (t1:viewtype) = (!evhttp_request1, !t1) -<fun1> void
@@ -18,7 +18,7 @@ val _ = evhttp_set_cb {event_base1} (http,
                                      base)
 ```
 
-The base argument to be passed to the callback is an instance of a linear type:
+コールバック関数に渡される `base` 引数は線形型のインスタンスです:
 
 ```ats
 absviewtype event_base (l:addr)
@@ -26,17 +26,20 @@ viewtypedef event_base0 = [l:addr | l >= null ] event_base l
 viewtypedef event_base1 = [l:addr | l >  null ] event_base l
 ```
 
-For some callback programming I need to pass more than one argument to the callback.
-I needed a way to package up a number of linear resources, pass them to the callback, and have the callback possibly consume some of them.
-I took a stab at solving this problem myself before [asking for advice](http://sourceforge.net/p/ats-lang/mailman/message/27404524/) on the [ats-lang-users mailing list](https://lists.sourceforge.net/lists/listinfo/ats-lang-users) for comments.
-[Hongwei Xi replied](http://sourceforge.net/p/ats-lang/mailman/message/27405027/) with some great advice on how to deal with the issue.
+コールバックプログラミングにおいては、1つより多くの引数をコールバックに渡したくなるものです。
+多くのリソースをまとめて、それらをコールバックに渡し、それらのいくつかを消費するかもしれないコールバックを作る方法が必要でした。
 
-I’ll go through a cut down example of the callback program, my first attempt at solving it, and then onto a solution based on Hongwei’s reply.
+[ats-lang-users メーリングリスト](https://lists.sourceforge.net/lists/listinfo/ats-lang-users) で
+[助言を求める](http://sourceforge.net/p/ats-lang/mailman/message/27404524/) までは、この問題を解決するためにスタブを使っていました。
+[Hongwei Xi の返信](http://sourceforge.net/p/ats-lang/mailman/message/27405027/) はこの問題に対する良い助言です。
 
-## Callback example
+コールバック問題の例を切り崩し、解決の最初の試みを説明して、Hongweiの返答に基づく解決策に繋げようと思います。
 
-The following program, [callback1.dats](http://bluishcoder.co.nz/ats/callback1.dats) ([pretty-printed html](http://bluishcoder.co.nz/ats/callback1.html)) is a small test case for the callback program where I pass one linear resource to the callback as in my libevent example referred to above.
-The main code body is:
+## コールバックの例
+
+次のプログラム [callback1.dats](http://bluishcoder.co.nz/ats/callback1.dats) ([pretty-printed html](http://bluishcoder.co.nz/ats/callback1.html))
+は、上記の libevent の例のように、1つの線形リソースをコールバックに渡すコールバックプログラムの小さなテストケースです。
+メインコードは次のようなものです:
 
 ```ats
 absviewtype resource (l:addr)
@@ -50,18 +53,18 @@ extern fun do_something(f: callback, arg: !resource1):void = "mac#do_something"
 
 implement main() = let
   val r = resource_new()
-  val () = do_something(lam (r) => resource_use(r), r) 
+  val () = do_something(lam (r) => resource_use(r), r)
   val () = resource_free(r)
 in
   ()
 end
 ```
 
-In this example I pass my linear object, r, to `do_something` along with a callback.
-`do_something` then calls the callback passing my linear object as an argument.
-The callback uses and does not consume the object.
-My next task was to tackle the issue of passing multiple linear objects.
-Something like:
+この例では、線形オブジェクト `r` をコールバックと一緒に `do_something` に渡しています。
+それから `do_something` はそのコールバックに引数である線形オブジェクトを渡します。
+このコールバックはそのオブジェクトを使用し、そして消費しません。
+次の作業は複合的な線形オブジェクトを渡す問題に対処することです。
+およそ次のようになるでしょう:
 
 ```ats
 implement main() = let
@@ -76,12 +79,12 @@ in
 end
 ```
 
-## Linear Closure Containing Linear Types
+## 線形型を含む線形クロージャ
 
-My first attempt at passing multiple values to the callback was to use a closure as the argument to the callback function.
-I could then close over the multiple objects.
-This code is in [callback2.dats](http://bluishcoder.co.nz/ats/callback2.dats) ([pretty-printed html](http://bluishcoder.co.nz/ats/callback2.html)).
-The main changes are:
+コールバックへ複合的な値を渡す最初の試みは、コールバック関数への引数としてクロージャを使うことでした。
+そうすれば複合オブジェクトに対処できます。
+このコードは [callback2.dats](http://bluishcoder.co.nz/ats/callback2.dats) ([pretty-printed html](http://bluishcoder.co.nz/ats/callback2.html)) です。
+主な変更点は次のようなものです:
 
 ```ats
 viewtypedef func = () -<lincloptr1> void
@@ -103,7 +106,7 @@ implement main() = let
                           val () = resource_use(r2)
                           prval () = pff(pf)
                           prval () = pff2(pf2)
-                        in () end) 
+                        in () end)
   val () = resource_free(r2)
   val () = resource_free(r)
 in
@@ -154,7 +157,7 @@ I wrote more about linear closures around linear resource in [lin and llam with 
 This example works and is flexible in that I can pass any objects along, captured within the closure.
 Complications arise when there are objects that need to be consumed.
 
-## Using a container dataviewtype
+## データ観型 (dataviewtype) コンテナを使う
 
 If I want to consume the resources I pass to the callback I can use a dataviewtype to hold the resources I pass.
 The code for this is in [callback3.dats](http://bluishcoder.co.nz/ats/callback3.dats) ([pretty-printed html](http://bluishcoder.co.nz/ats/callback3.html)).
@@ -198,7 +201,7 @@ val ~Container (r,r2) = c
 Hopefully that code is easier to understand than the linear closure example previously.
 The next approach is how to deal with passing objects where some are to be consumed and some aren’t.
 
-## Using call-by-reference
+## 参照渡しを使う
 
 The approach here is to create a record containing the resources I want to share.
 I pass this record around using call by reference.
@@ -238,7 +241,7 @@ In this example the linear resources are owned by the env instance and a referen
 A flat record is like a struct in C.
 In fact the generated C code from ATS uses a C struct allocated on the stack.
 
-## Consuming only some resources
+## いくつかのリソースのみ消費する
 
 Extending the previous ‘call-by-reference’ example I show how to consume some of the resources but not others.
 See [callback5.dats](http://bluishcoder.co.nz/ats/callback5.dats) ([pretty-printed html](http://bluishcoder.co.nz/ats/callback5.html)) for the full code with the changed bits below:
@@ -292,7 +295,7 @@ if it is `Some_vt` I use the the resource, free it, and assign `None_vt` back to
 In the main body I do the same to free the resource if a resource is being held.
 Note the use of the `~` in the patterns to consume and free the `Option_vt` resources.
 
-## Summary
+## 概要
 
 This final example most closely follows the way some C programs work, allocating a context object to hold semi-global objects.
 And passing that around as needed.
