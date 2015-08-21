@@ -160,9 +160,9 @@ prval () = pff(pf)
 
 ## データ観型 (dataviewtype) コンテナを使う
 
-If I want to consume the resources I pass to the callback I can use a dataviewtype to hold the resources I pass.
-The code for this is in [callback3.dats](http://bluishcoder.co.nz/ats/callback3.dats) ([pretty-printed html](http://bluishcoder.co.nz/ats/callback3.html)).
-The changed parts of this code are:
+コールバックに渡したリソースを消費したければ、渡したリソースほ保持するために データ観型 (dataviewtype) を使えます。
+これを表わすコードは [callback3.dats](http://bluishcoder.co.nz/ats/callback3.dats) ([pretty-printed html](http://bluishcoder.co.nz/ats/callback3.html)) です。
+このコードの主な変更点は次のようになります:
 
 ```ats
 dataviewtype container = Container of (resource1, resource1)
@@ -190,24 +190,24 @@ in
 end
 ```
 
-In this code the Container dataviewtype holds the two resources.
-Ownership of r and r2 are passed to the Container.
-The argument for the callback is Container rather than !Container to indicate that the container itself gets destroyed.
-The following line does a deconstructing bind of the objects in the container to r and r2 and destroys the container (The ~ is the notation that does this):
+このコードでは `Container` データ観型が2つのリソースを保持しています。
+`r` と `r2` の所有権は `Container` に渡されます。
+コールバックへの引数は `!Container` ではなく `Container` で、これはそのコンテナが破棄されることを示しています。
+次の行は、コンテナ中にある `r` と `r2` へのオブジェクトの束縛をデコンストラクトして、そのコンテナを破棄します (`~` はこれを行なう表記です):
 
 ```ats
 val ~Container (r,r2) = c
 ```
 
-Hopefully that code is easier to understand than the linear closure example previously.
-The next approach is how to deal with passing objects where some are to be consumed and some aren’t.
+以前の線形クロージャの例よりもこのコードの方が理解しやすいでしょう。
+次のアプローチは、渡されたオブジェクトのいくつかを消費し、いくつかを消費しないための方法です。
 
 ## 参照渡しを使う
 
-The approach here is to create a record containing the resources I want to share.
-I pass this record around using call by reference.
-The equivalent of the container example above, but using call-by-reference, is in [callback4.dats](http://bluishcoder.co.nz/ats/callback4.dats) ([pretty-printed html](http://bluishcoder.co.nz/ats/callback4.html)).
-The changed code is:
+ここでのアプローチは、共有したいリソースを含むレコードを生成することです。
+参照渡しを使ってこのレコードを渡します。
+参照渡しを使うという点を除いて上記のコンテナの例と同じコードが [callback4.dats](http://bluishcoder.co.nz/ats/callback4.dats) ([pretty-printed html](http://bluishcoder.co.nz/ats/callback4.html)) です。
+変更したコードは次です:
 
 ```ats
 viewtypedef env (l1:addr, l2:addr) = @{r1= resource l1, r2= resource l2}
@@ -236,16 +236,17 @@ in
 end
 ```
 
-The &env syntax in the argument to a function means pass that argument by reference.
-In this example the linear resources are owned by the env instance and a reference to that is passed around.
-`env` is a flat record (the { says it’s a record, the @ says it’s flat vs ' for boxed).
-A flat record is like a struct in C.
-In fact the generated C code from ATS uses a C struct allocated on the stack.
+関数への引数の `&env` 構文は参照で引数を渡すことを意味しています。
+この例では、線形リソースは `env` インスタンスと渡される参照に所有されています。
+`env` はフラットレコードです。
+(`{` レコードを、`@` はそれがフラットであることを意味します。対して `'` はそれがボックス化されていることを意味します。)
+フラットレコードはC言語の構造体のようなものです。
+実際 ATS から生成されたC言語コードは、スタックに確保するのにC言語の構造体を使います。
 
 ## いくつかのリソースのみ消費する
 
-Extending the previous ‘call-by-reference’ example I show how to consume some of the resources but not others.
-See [callback5.dats](http://bluishcoder.co.nz/ats/callback5.dats) ([pretty-printed html](http://bluishcoder.co.nz/ats/callback5.html)) for the full code with the changed bits below:
+前の「参照渡し」の例を拡張して、リソースのいくつかを消費して、それ意外を消費しない方法を示してみようと思います。
+下記に少しの変更を加えた完全なコードは [callback5.dats](http://bluishcoder.co.nz/ats/callback5.dats) ([pretty-printed html](http://bluishcoder.co.nz/ats/callback5.html)) を見てください:
 
 ```ats
 viewtypedef env (l1:addr) = @{r1= resource l1, r2= Option_vt (resource1)}
@@ -284,24 +285,25 @@ in
 end
 ```
 
-For resources that can be consumed I use the `Option_vt` viewtype defined in the ATS prelude.
-This has constructors `Some_vt` and `None_vt`.
-The former holds a value and the latter means no value is contained.
-The `_vt` suffix is the prelude’s naming standard to say that this is a viewtype.
-There also exists an equivalent to Option for datatypes (garbage collectable objects).
-We use a viewtype here since we a holding on to values that are viewtypes.
+消費されるかもしれないリソースのために、ATS prelude で定義された観型 (viewtype) `Option_vt` を使います。
+これはコンストラクタ `Some_vt` と `None_vt` を持っています。
+前者は値を保持し、後者は値を持ちません。
+`_vt` 接尾辞は prelude における命名規約で、それが観型であることを示しています。
+また (ガベージコレクションされるオブジェクトである) データ型の `Option` に相当します。
+観型の値を保持するために、ここでは観型を使います。
 
-The callback uses case to check if a value is held by the record.
-if it is `Some_vt` I use the the resource, free it, and assign `None_vt` back to say there is no longer a resource being held.
-In the main body I do the same to free the resource if a resource is being held.
-Note the use of the `~` in the patterns to consume and free the `Option_vt` resources.
+コールバックは値がレコードによって保持されている確認するのに `case` を使います。
+もしそれが `Some_vt` ならば、そのリソースを使い、解放し、保持されたリソースがないことを主張するために `None_vt` を割り当てます。
+`main` 本体でも、リソースが保持されていたら、同様にそのリソースを解放します。
+パターンで `~` を使っているのは `Option_vt` リソースを消費して解放するためであることに注意してください。
 
 ## 概要
 
-This final example most closely follows the way some C programs work, allocating a context object to hold semi-global objects.
-And passing that around as needed.
-What ATS buys us is the checking at compile time that these objects are correctly destroyed and not used again.
+この最終的な例は、準グローバルなオブジェクトを保持するためにコンテキストオブジェクトを確保するようなC言語プログラムに近いものです。
+また必要に応じてそれを渡しまわります。
+ATS はそれらのオブジェクトが正しく破棄され、再び使われないことをコンパイル時に検査してくれます。
 
-An example of this type of C program is [download.c](http://bluishcoder.co.nz/ats/download.c) (originally [based on this code](http://archives.seul.org/libevent/users/Sep-2010/msg00050.html)) which uses [libevent](http://monkey.org/~provos/libevent/) to read the contents of a URL via HTTP.
-It allocates a download_context object which contains pointers to other objects, some of which are destroyed and some are supposed to be retained.
-My explorations into linear resource sharing was motivated by converting this example.
+この形のC言語プログラムの例は、 [libevent](http://monkey.org/~provos/libevent/) を使って HTTP 経由で URL の内容を読む [download.c](http://bluishcoder.co.nz/ats/download.c) (元は [このコードに基づいています](http://archives.seul.org/libevent/users/Sep-2010/msg00050.html)) です。
+それは他のオブジェクトへのポインタを含む `download_context` オブジェクトを確保します。
+そして、それらのいくつかは破棄され、いくつかは保持し続けることを想定します。
+私の線形リソースの共有の調査はこの例を変換することが動機でした。
