@@ -24,7 +24,7 @@ ATS2に関する一次情報は
 * Safer handling of C memory in ATS
 * Lightweight Tasks Library for ATS
 * ATS library reference
-* Pattern Matching Against Linear Objects in ATS
+* [ATSにおける線形オブジェクトのパターンマッチ](bluishcoder.co.nz/2011/12/16/pattern-matching-against-linear-objects-in-ats.md)
 * [ATSでレコードとC言語の構造体を使う](bluishcoder.co.nz/2011/11/01/using-records-and-c-structs-in-ats.md)
 * Overloading Functions in ATS
 * Safe destruction in the presence of sharing in ATS
