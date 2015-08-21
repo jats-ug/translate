@@ -122,9 +122,10 @@ val () = list_vt_free (a)
 
 ## 末尾再帰フィルタ
 
-In Lisp code I’d often build the result list tail recursively by passing an accumulator, with each new element in the result being prepended to the accumulator.
-This builds a list in the reverse order so before returning it the list would be reversed.
-The ATS code for this is:
+Lisp コードでは私はしばしば、アキュムレータを渡して結果のリストを末尾再帰的に構築します。
+そしてそのアキュムレータの先頭に結果の新しい要素を追加するのです。
+これは逆順にリストを構築することになるので、返る前にそのリストを逆順にします。
+この ATS コードは次のようになります:
 
 ```ats
 fun list_vt_filter (l: !List_vt (int), f: int -<> bool): List_vt (int) = let
