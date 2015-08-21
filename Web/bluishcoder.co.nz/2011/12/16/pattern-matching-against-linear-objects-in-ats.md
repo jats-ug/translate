@@ -147,8 +147,8 @@ in
 end
 ```
 
-The `cloptr1` function annotation marks the inner function as being a closure where the memory for the closure’s environment is managed by the compiler using malloc and free instead of the garbage collector (which is what `cloref1` would signify).
-See my post on [closures in ATS](http://bluishcoder.co.nz/2010/06/20/closures-in-ats.html) for more about the different closure and function types used by ATS.
+`cloptr1` 関数注釈は、ガベージコレクタの代わりにクロージャ環境のメモリが malloc と free を使ってコンパイラによって管理されるような、クロージャとして内側の関数をマークしています (ガーベッジコレクタを使ったクロージャは `cloref1` で表わします)。
+ATS で使われる異なるクロージャと関数については、私のブログポスト [「ATSのクロージャ」](http://bluishcoder.co.nz/2010/06/20/closures-in-ats.html) を参照してください。
 
 Unfortunately the requirement to use `fold@` after we’ve finished with using the pattern matched variables makes the code slightly more verbose as we need to do the tail recursion, obtaining the result, then do the `fold@` and return the result.
 Remember that the `fold@` is erased at type checking type which is how this code remains tail recursive even though the code structure makes it look like it isn’t.
