@@ -2,19 +2,19 @@
 
 (元記事は http://bluishcoder.co.nz/2011/12/16/pattern-matching-against-linear-objects-in-ats.html です)
 
-In a project I’m working on I’m using linear lists.
-This is the `list_vt` type in the [ATS](http://www.ats-lang.org/) prelude.
-`list_vt` is similar to the list types in Lisp and functional programming languages except it is linear.
-The memory for the list is not managed by the garbage collector and the type system enforces the rule that only one reference to the linear object can exist.
-This sometimes requires a bit of extra effort when using pattern matching against the `list_vt` instances.
+この記事では線形リストを扱います。
+これは `list_vt` 型で [ATS](http://www.ats-lang.org/) prelude で定義されています。
+`list_vt` は Lisp や線形型のない関数型プログラミング言語におけるリスト型に似ています。
+そのリストのメモリはガベージコレクタが管理せず、線形オブジェクトへの参照が唯一1つであるという規則を型システムが強制します。
+`list_vt` インスタンスにパターンマッチを使うには、少し努力が要求されることがあります。
 
 ## パターンマッチ
 
-When pattern matching against linear objects you can do a destructive match or a non-destructive match.
-The former will destroy and free the memory allocated for the object automatically.
-The latter will not.
-Destructive matches are done by having the pattern match clause prefixed with a `~`.
-For example, the following will print an integer list and destroy the list while it does it:
+線形オブジェクトにパターンマッチするとき、デストラクタマッチもしくは非デストラクタマッチを行なうことができます。
+前者は自動的にオブジェクトに確保されたメモリを破棄して解放します。
+後者はそうではありません。
+デストラクタマッチは接頭辞 `~` を付けたパターンマッチ節を使います。
+例えば、次のコードは整数リストを印字し、その最中にそのリストを破棄します:
 
 ```ats
 fun print_list (l: List_vt (int)): void =
@@ -28,8 +28,8 @@ fun test1 (): void = {
 }
 ```
 
-Things get complicated when doing non-destructive matches.
-The following won’t typecheck:
+非デストラクタマッチを使うとうまくいきません。
+次のコードは型検査に失敗します:
 
 ```ats
 fun print_list2 (l: !List_vt (int)): void =
@@ -44,12 +44,12 @@ fun test2 (): void = {
 }
 ```
 
-The problem with this example is that when the match is made we are effectively taking the linear object out of the variable `l`.
-This leaves `l` with a different type, but we’ve stated in the function signature for `print_list2` that the type is not modified or consumed.
-We need a way of putting the linear object back into l once we’re done using the match.
-This primitive to do this is `fold@` which I briefly introduced in my [linear datatypes post](http://bluishcoder.co.nz/2011/02/27/linear-datatypes-in-ats.html).
-`fold@` will change the type of l back to the original and prevent access to the pattern match variables.
-Usage looks like this:
+この例の問題はそのマッチによって、値 `l` の外にある線形オブジェクトを取っていることです。
+`l` は異なった型として放置されていますが、`print_list2` の関数シグニチャでその型は変更も消費もされないと宣言してしまっています。
+そのマッチを使ったらすぐに、その線形オブジェクトを `l` に戻す方法が必要なのです。
+これを行なうプリミティブが `fold@` で、私のブログエントリ [「ATSにおける線形データ型」](http://bluishcoder.co.nz/2011/02/27/linear-datatypes-in-ats.html) で簡単に説明しました。
+`fold@` は `l` の型を元に戻して、パターンマッチ変数へのアクセスを防止します。
+その使用例は次のようになります:
 
 ```ats
 fun print_list2 (l: !List_vt (int)): void =
