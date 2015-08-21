@@ -84,9 +84,9 @@ ATS の解決策では、接頭辞 `!` をパターンマッチに付けるこ�
 
 ## 線形リストをフィルタする
 
-In my project I needed to filter a linear list.
-Unfortunately ATS doesn’t have a filter implementation in the standard prelude for linear lists (it does for persistent lists).
-My first attempt at writing a `list_vt_filter` looked like:
+私のプロジェクトでは線形リストをフィルタする必要がありました。
+不幸にも ATS は標準 prelude に線形リストのフィルタ実装を持っていません (永続化リストには有ります)。
+私の最初の試みでは `list_vt_filter` を次のように書きました:
 
 ```ats
 fun list_vt_filter (l: !List_vt (int), f: int -<> bool): List_vt (int) =
@@ -104,10 +104,10 @@ fun list_vt_filter (l: !List_vt (int), f: int -<> bool): List_vt (int) =
                               end
 ```
 
-This should look familiar since it’s very similar to the `print_list2` code shown previously in the way it uses non-destructive matching and `fold@`.
-The function `list_vt_filter` takes a `list_vt` as an argument and a function to apply to each element in the list.
-That function returns true if the element should be included in the result list.
-Usage looks like:
+非デストラクタマッチと `fold@` を使う以前のコード `print_list2` と良く似ているため、このコードは馴染みがあるでしょう。
+関数 `list_vt_filter` は引数に `list_vt` を取り、リスト中のそれぞれの要素に関数を適用します。
+その関数が `true` を返すと、その要素は結果のリストに含まれます。
+使い方は次のようになります:
 
 ```ats
 val a  = list_vt_cons (1, list_vt_cons (2, list_vt_cons (3, list_vt_cons (4, list_vt_nil ()))))
@@ -117,8 +117,8 @@ val () = list_vt_free (b)
 val () = list_vt_free (a)
 ```
 
-One issue with this implementation is it is not tail recursive.
-It has stack growth proportional to the size of the result list.
+この実装の1つの問題点は、それが末尾再帰ではないことです。
+結果のリストサイズに比例してスタックは成長してしまいます。
 
 ## 末尾再帰フィルタ
 
