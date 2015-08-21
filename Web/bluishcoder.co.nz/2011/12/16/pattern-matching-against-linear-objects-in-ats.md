@@ -64,21 +64,23 @@ fun test2 (): void = {
 }
 ```
 
-You’ll notice with this version that the match for `list_vt_cons` has changed the `xs` parameter to be `!xs`.
-The second argument in the cons constructor is a linear object.
-If the object itself is matched against `xs` then it is another example of aliasing the linear object.
-It is taken out of the l and needs to be put back.
-The way ATS handles this is to require pattern matching with a `!` prefixed.
-This makes `xs` be a pointer to the object rather than the object itself.
-So in this example `xs` has the type `ptr addr` where `addr` is the address of the actual `List_vt` object.
-This is why the `xs` is prefixed by `!` in the recursive call to `print_list2`.
-The `!` means dereference the pointer, so the `List_vt` it is pointing to is passed as the argument to the recursive call.
+このバージョンで注意すべきは、`list_vt_cons` のマッチで `xs` パラメータを `!xs` に変更していることです。
+コンスコンストラクタの二番目の引数は線形オブジェクトです。
+もしそのオブジェクトを `xs` にマッチさせたら、線形オブジェクトの別名を作るもう1つの例になっていまいます。
+`l` を取り出して、元に戻す必要があるのです。
+ATS の解決策では、接頭辞 `!` をパターンマッチに付けることです。
+これによて `xs` はオブジェクト自身ではなくオブジェクトへのポインタになります。
+そのためこの例では `xs` は型 `ptr addr` を持ちます。
+このとき `addr` は実際の `List_vt` オブジェクトのアドレスです。
+これはまた、`print_list2` の再帰呼び出しにおいて、`xs` に `!` 接尾辞を付ける理由です。
+この `!` はポインタのデリファレンスを意味しています。
+そのためそれが指している `List_vt` は再帰呼び出しの引数に渡されます。
 
-In this way the linear object is never taken out, we only access it via its pointer.
-The `fold@` call in this clause will change `xs` back to the `List_vt` object.
-The `fold@` call is done after the usage of `!xs`.
-If it was done before then we wouldn’t have access to the view for `xs` to be able to derefence it.
-`print_list2` is still tail recursive as the `fold@` call is only used during typechecking and is erased afterwards.
+この方法では線形オブジェクトは取り出されず、ポインタを通じてアクセスするだけです。
+その節での `fold@` 呼び出しは `xs` を `List_vt` オブジェクトに戻します。
+`fold@` は `!xs` を使った後に呼び出します。
+もしそれより前に呼び出すと、デリファレンスできる `xs` を表わす観 (view)にアクセスできなくなってしまいます。
+また `fold@` 呼び出しは型検査時のみ使われて、その後削除されるので、`print_list2` は末尾再帰です。
 
 ## 線形リストをフィルタする
 
