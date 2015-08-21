@@ -28,7 +28,7 @@ ATS2に関する一次情報は
 * [ATSでレコードとC言語の構造体を使う](bluishcoder.co.nz/2011/11/01/using-records-and-c-structs-in-ats.md)
 * Overloading Functions in ATS
 * Safe destruction in the presence of sharing in ATS
-* Sharing Linear Resources in ATS
+* [ATSにおける共有した線形リソース](bluishcoder.co.nz/2011/04/25/sharing-linear-resources-in-ats.md)
 * [C言語のプログラムをATSに翻訳する](bluishcoder.co.nz/2011/04/24/converting-c-programs-to-ats.md)
 * [ATSにおける線形データ型](bluishcoder.co.nz/2011/02/27/linear-datatypes-in-ats.md)
 * Reading data from a file in ATS
