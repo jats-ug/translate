@@ -114,19 +114,19 @@ in
 end
 ```
 
-In this code the actual callback is a function that takes as an argument another callback which takes no arguments and calls it.
-This new callback is a closure.
-The code closes over the value of r and r2 and calls resource_use on them.
-As r and r2 are linear resources I can’t use an ordinary closure to close over them.
-I use a ‘linear closure containing linear types’ type of closure, identified by the <lincloptr1> tag in:
+このコードでは、実際のコールバックは引数として、引数のない別のコールバックを取って呼び出すような関数です。
+この新しいコールバックはクロージャです。
+そのコードは `r` と `r2` の値とそれらへの `resource_use` 呼び出しを含んでいます。
+`r` と `r2` は線形リソースなので、それらに対して通常のクロージャを使うことができません。
+「線形型を含む線形クロージャ」を使い、そのクロージャの型は `<lincloptr1>` タグで識別されます:
 
 ```ats
 viewtypedef func = () -<lincloptr1> void
 ```
 
-This tells the type system that this closure can contain references to linear resources in the enclosing scope.
-The other thing I have to do is use the proof system to explicitly ‘borrow’ the linear object from the enclosing scope.
-This is done using this code:
+これはこのクロージャがそのスコープにおいて、線形リソースへの参照を含むことができるように型システムにしらせます。
+他に、そのスコープから線形オブジェクトを明示的に借りる (borrow) ための証明システムを使うことが必要になります。
+これは次のコードを使って行なわれます:
 
 ```ats
 extern prfun __borrow {l:addr} (pf: ! resource1 @ l): (resource1 @ l, resource1 @ l -<lin,prf> void)
@@ -134,28 +134,29 @@ extern prfun __borrow {l:addr} (pf: ! resource1 @ l): (resource1 @ l, resource1 
 prval (pf, pff) = __borrow(view@ r)
 ```
 
-The __borrow proof function takes a view to the resource and returns a new proof variable for this view along with a proof function that we need to call to return the borrowed resource.
-Inside the closure we call this proof function, passing it the new proof variable we got, to say that we have finished borrowing the resource.
-This is what this code does:
+証明関数 `__borrow` は観 (view) を取り、その観と借りたリソースを返却するために呼び出す証明関数を表わす、新しい証明の値を返します。
+このクロージャの中ではこの証明関数に受け取った新しい証明の値を渡して、そのリソースの借用が完了したことを申告します。
+これは次のコードのようになります:
 
 ```ats
 prval () = pff(pf)
 ```
 
-If the code doesn’t `__borrow` the resource then the type system expects the linear resources in the closure to be consumed.
-In this example we don’t want to do that as we consume them later, outside of the closure, using resource_free.
-Think of `__borrow` as “Dear type system, I’m borrowing this resource temporarily in another function, I’ll let you know when I’m done with it”.
+もしこのコードは `__borrow` でリソースを借りていなければ、型システムはクロージャ中の線形リソースは消費されていると期待します。
+この例では、クロージャの外で `resource_free` を使ってそれらを消費したくはありません。
+`__borrow` を「型システムさん、他の関数で一時的にこのリソースを借りますよ、使い終わったらしらせますから」と主張していると考えてみてください。
 
-When using closures memory has to be allocated to store the enclosed environment.
-I discuss this in my [Closures in ATS](http://bluishcoder.co.nz/2010/06/20/closures-in-ats.html) post.
-A linear closure has that memory automatically freed by the caller.
-In this case however the caller is a function implemented in C so ATS can’t insert the call to free the memory.
-This results in a type check failure if I don’t manually free the memory which is what the call to cloptr_free is doing in this code.
-If I was calling the callback from ATS code then I wouldn’t need it and no type check error would occur.
-I wrote more about linear closures around linear resource in [lin and llam with closures](http://bluishcoder.co.nz/2010/08/02/lin-and-llam-with-closures.html).
+クロージャを使うとき、そのメモリは閉じた環境を保管するために確保されます。
+これについて [ATSのクロージャ](http://bluishcoder.co.nz/2010/06/20/closures-in-ats.html) の記事で議論しました。
+線形クロージャのメモリは呼び出し元によって自動的に解放されます。
+けれどもこの場合、呼び出し元はC言語で実装された関数です。
+そのため ATS はそのメモリの解放呼び出しを挿入できません。
+このコードの `cloptr_free` 呼び出しによるメモリの手動解放を行なわないと、型検査エラーを引き起こします。
+もし ATS コードからそのコールバックを呼び出していたら、それがなくても型検査エラーを起こさないで欲しいのです。
+線形リソースと線形クロージャについて、より多くのことを [lin と llam を伴うクロージャ](http://bluishcoder.co.nz/2010/08/02/lin-and-llam-with-closures.html) に書きました。
 
-This example works and is flexible in that I can pass any objects along, captured within the closure.
-Complications arise when there are objects that need to be consumed.
+この例は動作し、どのようなオブジェクトもクロージャで捕捉して渡すことができるという点で柔軟です。
+オブジェクトは消費されなければならないという点で複雑です。
 
 ## データ観型 (dataviewtype) コンテナを使う
 
