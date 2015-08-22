@@ -150,26 +150,29 @@ end
 `cloptr1` 関数注釈は、ガベージコレクタの代わりにクロージャ環境のメモリが malloc と free を使ってコンパイラによって管理されるような、クロージャとして内側の関数をマークしています (ガーベッジコレクタを使ったクロージャは `cloref1` で表わします)。
 ATS で使われる異なるクロージャと関数については、私のブログポスト [「ATSのクロージャ」](http://bluishcoder.co.nz/2010/06/20/closures-in-ats.html) を参照してください。
 
-Unfortunately the requirement to use `fold@` after we’ve finished with using the pattern matched variables makes the code slightly more verbose as we need to do the tail recursion, obtaining the result, then do the `fold@` and return the result.
-Remember that the `fold@` is erased at type checking type which is how this code remains tail recursive even though the code structure makes it look like it isn’t.
+不幸にも、パターンマッチした値の使用後に `fold@` を使う必要あるということは、末尾再帰をして結果を得てから `fold@` をして結果を戻すというように、コードが少し冗長になってしまいます。
+型検査時に `fold@` は消去されるので、見た目にはコードの構造が末尾再帰に見えなくとも、そのコードが末尾再帰になることがあることを覚えておいてください。
 
-One downside to this approach is we iterate over the list twice.
-Once to build the result, and once over the result to reverse it.
+このアプローチの欠点はリストを二回反復している点です。
+1回は結果を構築するため、もう1回はそれを逆順にするためです。
 
 ## シングルパス末尾再帰フィルタ
 
-The creation of the result list can be done in a single pass if we could create a cons with no second argument, and fill in that argument later when we have a result to store there that passes filtering.
-ATS allows construction of datatypes with a ‘hole’ that can be filled in later. The ‘hole’ is an unintialized type and we get a pointer to it. An example of doing this is:
+もし第二引数なしにコンスを生成し、後にそこに保管するフィルタ結果が得られたときにその引数を埋めたなら、結果のリストはシングルパスで生成されます。
+ATS は後に埋めることができる "hole" を用いてデータ型をコンストラクトできます。
+この "hole" は未初期化の型で、それにを指すポインタを得ることができます。
+この例は次のようになります:
 
 ```ats
 var x = list_vt_cons {int} {0} (1, ?)
 ```
 
-This creates a `list_vt_cons` with the data set to `1` but no second parameter.
-Instead of that parameter being of type `List_vt (int)` it is of type `List_vt (int)?`, the `?` signifying it is uninitialized.
-For this example we have to pass the universal type parameters explicitly (the `{int} {0}`) as the ATS type inference algorithm can’t compute them.
+上記のコードは `list_vt_cons` を生成するのにそのデータに `1` を設定しますが、第二引数は設定しません。
+このパラメータは型 `List_vt (int)` ではなく、`List_vt (int)?` になります。
+`?` はそれが未初期化であることを表わします。
+この例では、ATS の型推論アルゴリズムが推論できるように、全称型パラメータ (`{int} {0}`) を明示的に渡す必要があります。
 
-To get a pointer to the ‘hole’ we have to pattern match:
+"hole" へのポインタを得るためには、パターンマッチをする必要があります:
 
 ```ats
 val+ list_vt_cons (_, !xs) = x
@@ -177,11 +180,11 @@ val () = !xs := list_vt_nil
 val () = fold@ x
 ```
 
-In this example the `xs` is a pointer, pointing to the `List_vt (int)?`.
-It assigns a `list_vt_nil` to this, making the tail of the cons a `list_vt_nil`.
-Just like in our previous pattern matching examples using case, the code has to do a `fold@` to change the type of `x` back to that containing a linear object once we’ve finished using xs.
+この例では、`xs` は `List_vt (int)?` を指すポインタです。
+ここではコンスのテイルを `list_vt_nil` にするために `list_vt_nil` を割り当てています。
+前の `case` を使ったパターンマッチの例のように、このコードも `xs` を使い終わったらすぐに `x` の型を線形オブジェクトを含むものに戻すために `fold@` を呼ぶ必要があります。
 
-Now that we can get pointers to the tail of the list we can implement a single pass tail recursive filter function:
+リストのテイルを指すポインタを得ることができるようになったので、シングルパスの末尾再帰フィルタ関数を実装できます:
 
 ```ats
 fun list_vt_filter (l: !List_vt (int), f: int -<> bool): List_vt (int) = let
@@ -203,11 +206,11 @@ in
 end
 ```
 
-The loop function here no longer turns a result.
-Instead the result is passed via a reference (the & signifies ‘by reference’).
-When there is something that needs to be stored in the list, a cons is created with a hole in the tail position.
-This cons is stored in the result we are passing by reference and we tail recursively call with the hole as the new result.
-ATS converts this to nice C code that is a simple loop rather than recursive function calls.
+この `loop` 関数もう結果を取り回しません。
+代わりに結果は参照を通じて渡されます (`&` 参照渡しを表わします)。
+リスト中に保管されるべき内容物があるとき、テイル位置に hole を持つコンスが生成されます。
+このコンスは参照として渡される結果に保管されていて、それは新しい結果である hole を共なって末尾再帰的に呼び出されます。
+ATS はこのコードを、再帰関数呼び出しではなく単純なループになるような良いC言語コードに変換します。
 
 ## 雑多なこと
 
