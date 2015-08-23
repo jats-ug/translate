@@ -214,36 +214,38 @@ ATS はこのコードを、再帰関数呼び出しではなく単純なルー�
 
 ## 雑多なこと
 
-The code examples in this post use `List_vt (a)`.
-This is actually a typedef for `list_vt (a,n)` where a is the type and `n` is the length of the list.
-The typedef allows shorter examples without needing to specify the sorts for the list length.
-Using the full type though has the advantage of being able to specifiy a bit more type safety.
-For example, the original filter function would be declared as:
+この記事でのコード例では `List_vt (a)` を使っています。
+これは実際には `list_vt (a,n)` の typedef です。
+このとき `a` はその型、`n` はリストの長さです。
+この typedef によってリストの長さを表わす種を指示する必要のない短かい記述が可能になります。
+完全な型を使うことの利点は少し型安全な指定ができるようになることです。
+例えば、元のフィルタ関数は次のように宣言できます:
 
 ```ats
 fun list_vt_filter {n:nat} (l: !list_vt (int,n), f: int -<> bool): [r:nat | r <= n] list_vt (int, r)
 ```
 
-This defines the type of the result as having a length equal to or less than that of the original list.
-This helps prevent errors in the implementatin of the filter - it can’t accidentally leave extra items in the list.
-I cover this type of thing in my post on [dependent types](http://bluishcoder.co.nz/2010/09/01/dependent-types-in-ats.html).
+上記コードは元のリストの以下の長さを持つような結果の型を定義しています。
+これはフィルタの実装におけるエラーの防止を助けます - そのリスト中に余分な要素をうっかり残すことを許しません。
+この型については私のブログポスト [「ATSにおける依存型」](http://bluishcoder.co.nz/2010/09/01/dependent-types-in-ats.html) で説明しています。
 
-Another addition to safety that adding the extra sorts can provide is the ability to check that the function terminates.
-This can be done by adding a termination metric to the function definition:
+種を追加することによるもう一つ安全性は関数の停止性の検査が可能になることです。
+これは関数定義に停止性メトリクスを追加することで可能になります:
 
 ```ats
 fun list_vt_filter {n:nat} .<n>. (l: !list_vt (int,n), f: int -<> bool): [r:nat | r <= n] list_vt (int, r)
 ```
 
-The compiler checks that `n` is decreasing on each recursive call.
-If this fails to happen the recursive calls may not terminate and it becomes a compile error.
-This is discussed in the Termination-Checking for Recursive Functions section of the [Introduction to Programming in ATS book](http://jats-ug.metasepi.org/doc/ATS2/INT2PROGINATS/index.html).
+コンパイラはそれぞれの再帰呼び出しにおいて `n` が減少することを検査します。
+もしそれに失敗したら、その再帰呼び出しは停止しないかもしれないたため、コンパイルエラーになります。
+これについては [ATSプログラミング入門](http://jats-ug.metasepi.org/doc/ATS2/INT2PROGINATS/index.html) の章「再帰関数の停止性検査」で議論しています。
 
-A description of how `fold@` works is in the [ATS/Anairats User’s Guide PDF](http://ats-lang.sourceforge.net/htdocs-old/DOCUMENT/MISC/manual_main.pdf).
-It’s in the ‘Dataviewtypes’ section of the ‘Programming with Linear Types’ chapter and is referred to as folding and unfolding a linear type.
+`fold@` がどのように動作するかの説明は [ATS/Anairats User’s Guide PDF](http://ats-lang.sourceforge.net/htdocs-old/DOCUMENT/MISC/manual_main.pdf) にあります。
+それは「Programming with Linear Types」の章「Dataviewtypes」で、線形型の folding と unfolding を参照しています。
 
-It’s the usage of linear types and dealing with their restrictions that makes my examples a bit more complex.
-If you use ATS mainly with non-linear types and link with the garbage collector then it becomes very much like using any other functional programming language, but with additional features in the type system.
-My interest has been around avoiding using a garbage collector and having the compiler give errors when memory is not allocated or free’d correctly.
-Don’t be put off from using ATS by these complex examples if you’re fine with using garbage collection and non-linear datatypes.
-You might never need to deal with the cases that bring in the extra complexity.
+この記事は線形型の使い方と、私の例を少し複雑にしているそれらの制限の扱いでした。
+もし ATS を主に非線形型で使いガベージコレクタとリンクするのであれば、他の関数型プログラミング言語を使うようにより良いものになるでしょう。
+しかし型システムの追加の機能は使えなくなってしまいます。
+私の興味はガーベッジコレクタを使せず、メモリが正確に確保/解放されないときにコンパイラがエラーにするかどうかです。
+もしガーベッジコレクションを使用し非線形のデータ型を使って問題ないのであれば、これらの ATS の複雑な使用例にふみこむ必要はありません。
+余計に複雑な使用例を扱う必要はないのです。
