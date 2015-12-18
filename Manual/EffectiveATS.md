@@ -12,6 +12,7 @@
 * [マージソート (Mergesort)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/mergesort/main.html)
 * [リーダー/ライター問題 (Readers-and-Writers)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/Readers-and-Writers/main.html)
 * [単語を数える (Word Counting)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/word-counting/main.html)
+* [命題をエンコードする (Encoding Propositional Logic)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/prop-logic/main.html)
 * [最小の HTTP サーバを実装する (Implementing a minimal http-server)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/HttpServer/main.html)
 * [末尾再帰関数としてのループ (Loops as Tail-Recursive Functions)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/loop-as-tailrec/main.html)
 * [生産者/消費者問題 (Producer-Consumer)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/Producer-Consumer/main.html)
