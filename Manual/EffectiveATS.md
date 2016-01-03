@@ -7,6 +7,7 @@
 * [Redis を用いたプロセス間通信 (Inter-Process Communication based on Redis)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/IPC-redis/main.html)
 * [キューの償却実装 (An Amortized Implementation of Queues)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/queue-sllist2/main.html)
 * [シェルピンスキーの三角形を描く (Drawing Sierpinski triangles)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/Sierpinski-3angle/main.html)
+* [セッション型チャネル:セッションを合成しよう! (Session-typed Channels:Let us combine sessions together!)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/ssntyped-channels-2/main.html)
 * [セッション型チャネル:概要入門 (Session-typed Channels:A Brief Introduction)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/ssntyped-channels-1/main.html)
 * [ファイルコピー (Copying Files)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/file-copying/main.html)
 * [マージソート (Mergesort)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/mergesort/main.html)
