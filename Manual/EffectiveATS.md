@@ -4,6 +4,8 @@
 
 元データ: https://github.com/jats-ug/ATS-Postiats/tree/translate_ja/doc/EXAMPLE/EFFECTIVATS
 
+* [Parsers of CPS-style](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/parsing-cmbntr-cps/main.html)
+* [ATS における2つの定理証明のスタイル (Two Styles of Theorem-Proving in ATS)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/PwTP-bool-vs-prop/main.html)
 * [Redis を用いたプロセス間通信 (Inter-Process Communication based on Redis)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/IPC-redis/main.html)
 * [キューの償却実装 (An Amortized Implementation of Queues)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/queue-sllist2/main.html)
 * [シェルピンスキーの三角形を描く (Drawing Sierpinski triangles)](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/Sierpinski-3angle/main.html)
