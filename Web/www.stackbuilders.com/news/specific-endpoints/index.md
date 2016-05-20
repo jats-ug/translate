@@ -2,26 +2,44 @@
 
 (元記事は http://www.stackbuilders.com/news/specific-endpoints です)
 
-> “It’s not the daily increase but daily decrease. Hack away at the unessential.”
+> 「日々増加しているのではなく日々減少しているのだ。余計なものを削ぎ落せ。」
 >
-> -- Bruce Lee
+> -- ブルース・リー
 
-As a web application developer, many of the x-unit style tests that I write assert simple relationships among data. When applications begin to grow, the constraints imposed by these relationships are sometimes strengthened through addition or relaxed for convenience; they sometimes converge and become redundant requiring removal or come into conflict and require reconciliation. Furthermore, as application data becomes more complicated tests begin to implicitly depend on several sets of conditions aside from the one that is explicitly stated in a given test. This leads to situations where harmless code modifications begin to cause test failures leaving only lengthy back traces to hint at the violated assumption which caused the failure. In these situations it is no seldom occurrence that a test fails for not the betrayal of an explicit assertion in a test case but because of the invalidity of an implicit assumptions made in the test setup. In larger projects the maintenance costs of x-unit testing efforts can be such that they require a developer to spend much more time in the update and correction of tests and test data than in the development of production code. The question is then "how can we greatly minimize maintenance costs while losing little of the confidence gained by the construction of heavy x-unit test suites?"
+Web アプリケーション開発者として、私が書いた xUnit スタイルテストの多くはデータ間の単純な関係を表明していました。
+When applications begin to grow, the constraints imposed by these relationships are sometimes strengthened through addition or relaxed for convenience;
+they sometimes converge and become redundant requiring removal or come into conflict and require reconciliation.
+Furthermore, as application data becomes more complicated tests begin to implicitly depend on several sets of conditions aside from the one that is explicitly stated in a given test.
+This leads to situations where harmless code modifications begin to cause test failures leaving only lengthy back traces to hint at the violated assumption which caused the failure.
+In these situations it is no seldom occurrence that a test fails for not the betrayal of an explicit assertion in a test case but because of the invalidity of an implicit assumptions made in the test setup.
+In larger projects the maintenance costs of x-unit testing efforts can be such that they require a developer to spend much more time in the update and correction of tests and test data than in the development of production code.
+The question is then "how can we greatly minimize maintenance costs while losing little of the confidence gained by the construction of heavy x-unit test suites?"
 
-Haskell web developers claim that encoding constraints as types (as opposed to tests) reduces the growth rate of test suites which encourages sustained developer productivity. As a Haskeller, I am inclined to agree with that notion. I firmly believe that constraints encoded at the level of static verification offer faster and more relevant failure information often with pinpoint precision with respect to the location in the code that caused the failure. With a degree of the low-level testing burden mitigated by types, Haskell programmers can spend more time focusing on application code and write fewer tests and at a higher level. But why stop there? Are there emerging techniques that can further improve savings in the test maintenance department by delegating more of our verification effort to static analysis? Are there existing systems that can, today, offer some glimpse of how we might perform our redundant checks in a manner less costly? In this post we briefly explore one promising solution through an example combining the use of both the languages **ATS** and **Haskell**.
+Haskell web developers claim that encoding constraints as types (as opposed to tests) reduces the growth rate of test suites which encourages sustained developer productivity.
+As a Haskeller, I am inclined to agree with that notion.
+I firmly believe that constraints encoded at the level of static verification offer faster and more relevant failure information often with pinpoint precision with respect to the location in the code that caused the failure.
+With a degree of the low-level testing burden mitigated by types, Haskell programmers can spend more time focusing on application code and write fewer tests and at a higher level.
+But why stop there?
+Are there emerging techniques that can further improve savings in the test maintenance department by delegating more of our verification effort to static analysis?
+Are there existing systems that can, today, offer some glimpse of how we might perform our redundant checks in a manner less costly?
+In this post we briefly explore one promising solution through an example combining the use of both the languages **ATS** and **Haskell**.
 
-> “Would you tell me, please, which way I ought to go from here?”
-> “That depends a good deal on where you want to get to,” said the Cat.
+> 「ねぇ教えて、どっちへ行けばいいの？」
+> 「そりゃー、アンタがどこへ行きたいかによるにゃー」と猫は言った。
 >
-> (Alice’s Adventures in Wonderland)
+> (不思議の国のアリス)
 
-Consider a hypothetical business specification which resembles much of what I, as an everyday web developer, encounter on a regular basis. We are going to encode much of this specification at the type level in effort to eliminate the maintenance costs of encoding our specs as x-unit tests cases.
+Consider a hypothetical business specification which resembles much of what I, as an everyday web developer, encounter on a regular basis.
+We are going to encode much of this specification at the type level in effort to eliminate the maintenance costs of encoding our specs as x-unit tests cases.
 
 Let's begin with our specification:
 
-A book dealer wants to offer shipping discounts to her customers but only those customers classified as "VIP"; regular customers are not eligible for a shipping discount. The discount percentage is 2% off the shipping amount for every book beyond the 2nd in a given transaction. If a VIP does not have more than 2 books the customer does not receive a discount on shipping.
+A book dealer wants to offer shipping discounts to her customers but only those customers classified as "VIP"; regular customers are not eligible for a shipping discount.
+The discount percentage is 2% off the shipping amount for every book beyond the 2nd in a given transaction.
+If a VIP does not have more than 2 books the customer does not receive a discount on shipping.
 
-Although quite realistic, the specification is intentionally kept simple. Please try the mock VIP bookstore view below to get a concrete feel for the described behavior.
+Although quite realistic, the specification is intentionally kept simple.
+Please try the mock VIP bookstore view below to get a concrete feel for the described behavior.
 
 ![](img/bookstore.png)
 
@@ -84,9 +102,9 @@ ATS is designed to make the expression of propositions "programmer centric," and
 
 In the static world we construct properties. In the dynamic world we construct programs and manipulate properties to constrain our programs. The datatype `customer` in the example above has two data constructors both of which are singleton, that is, they are constrained to represent only one value, that value represented in the static world as `vip` and `regular` respectively. This means that when we write functions using these data constructions in the dynamic world their use can be constrained to the properties we have defined on their counterparts in the static world. Which, of course, means that any x-unit testing for behavior precluded by static constraints would be redundant and serve no purpose.
 
-> "You can have any colour as long as it's black."
+> 「それが黒いなら、どんな色も手にできる。」
 >
-> -- Henry Ford
+> -- ヘンリー・フォード
 
 ```ats
 dataprop CUSTOMER_GETS_DISCOUNT (customer, int, bool) =
