@@ -64,3 +64,7 @@ ATS2に関する一次情報は
 * [patsolve](www.illtyped.com/projects/patsolve/index.md)
 * [Patsolveスクリプト](www.illtyped.com/projects/patsolve/scripting.md)
 * [ATSにおける証明された効率的なプログラム: qsort](www.illtyped.com/projects/patsolve/qsort.md)
+
+## [Stack Builders News](http://www.stackbuilders.com/news/page/1)
+
+* [Specific Endpoints](www.stackbuilders.com/news/specific-endpoints/index.md)
