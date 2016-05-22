@@ -42,6 +42,7 @@ Haskell プログラマはアプリケーションコードにより多くの時
 
 現実的ですが、その仕様は意図的に単純です。
 表現された挙動を具体的に体感するために、次の **VIP** ブックストアビューのモックを試しましょう。
+(訳注: 動作させたい方は [原文](http://www.stackbuilders.com/news/specific-endpoints) のモックを試してください。)
 
 ![](img/bookstore.png)
 
@@ -70,14 +71,16 @@ server :: Server BookStoreAPI
 server = handleCalculateDiscount
 ```
 
-The type `BookStoreAPI` strongly (if not exactly) expresses the endpoint specification.
-The type unambiguously represents the URL `/user/:userid/discount/:book-count` which collects the user's identification and a tentative count of books for the estimated discount calculation.
-The API type dictates the type of the web handler used to serve the content.
-With Servant we can rest assured that the entry and exit to/from our handler is in harmonious accordance with the URL specification.
+(正確とは言わないまでも) 型 `BookStoreAPI` はエンドポイントの仕様を表現しています。
+この型は明確に URL `/user/:userid/discount/:book-count` が user の識別子と割引計算を見積るための仮の冊数を受け取ることを表わしています。
+この API 型はその中身を供給するのに使われる Web ハンドラの型を示しています。
+Servant を用いると、このハンドラに対する出入りがその URL の仕様に従っていると安心できます。
 
-If you haven't already, please read the [Servant tutorial](https://haskell-servant.github.io/tutorial/) to get an understanding of how the BookStoreAPI type captures the requirements and provides us with a good degree of type safety by facilitating the "correct by construction" philosophy that many Haskell developers favor.
+もしまだ読んでいなければ、どのように BookStoreAPI 型が要求を捕捉し、多くの Haskell 開発者が好む「構文による正しさ (correct by construction)」哲学を促進することによって型安全を提供するか理解するために、[Servant チュートリアル](https://haskell-servant.github.io/tutorial/) を読んでください。
 
-Now that entry point to our functionality is nicely constrained to specification, how then do we implement the handler `calculateDiscount` (as seen in the above code) and how can we ever hope to encode the constraints on the discount logic in a way as precise and easy as Servant has allowed for the API's endpoint specification?
+これでこの機能へのエントリイポイントには仕様が強制されました。
+すると、どうやって (上記のコードで見た) ハンドラ `calculateDiscount` 実装し、
+どうやって API のエンドポイント仕様を許すような Servant と同様に正確/簡単な方法で割引ロジックに制約をエンコードできるのでしょうか？
 
 ```haskell
 foreign import ccall unsafe calculate_discount :: CInt -> CInt -> CInt
@@ -88,9 +91,13 @@ calculateDiscount userId bookCount =
                                     (fromIntegral bookCount)
 ```
 
-The foreign call hints that we intention to leave the elegant world of Haskell in order to claim the prize of implementing our constraints statically. We will be using a language called ATS which has been described as an advanced type system layered on top of the C programming language. ATS' primitive types mirror that of C's and therefore interfacing using Haskell's excellent FFI is as easy as delicious cake.
+この FFI 呼び出しは、Haskell のエレガントな世界をはなれて、静的に制約を実装を主張することを意図しています。
+C 言語の上に階層化された高度な型システムとして表現された ATS と呼ばれる言語を使います。
+ATS のプリミティブ型はC言語の型をミラーしているので、Haskell の FFI を使ったインターフェイスを取るのは簡単です。
 
-Update: Note that it is not a necessity to leave Haskell to achieve what follows. [LiquidHaskell](http://goto.ucsd.edu/~rjhala/liquid/haskell/blog/about/) offers a way to remain in Haskell and yet achieve the same guarantees found in the ATS code we develop here. Many thanks to Professor Ranjit Jhala for providing [an equivalent LiquidHaskell example](http://goto.ucsd.edu:8090/index.html#?demo=permalink%2F1449031696_5061.hs)!!!
+更新: 次のように、Haskell を使わない必要はありません。
+[LiquidHaskell](http://goto.ucsd.edu/~rjhala/liquid/haskell/blog/about/) は Haskell に留まり、私達が開発した ATS コードで発見した保証を同じく実現する方法を提供します。
+[等価な LiquidHaskell の例](http://goto.ucsd.edu:8090/index.html#?demo=permalink%2F1449031696_5061.hs) を提供してくれた Ranjit Jhala 教授ありがとうございます!!!
 
 ```ats
 #define DISCOUNT_PERCENTAGE   2 (* percent *)
@@ -107,9 +114,18 @@ datatype customer(customer) =
   | regular (regular)
 ```
 
-ATS is designed to make the expression of propositions "programmer centric," and as a programmer I find the clean separation between its concepts of "statics" and "dynamics" refreshingly simple. The `datasort` declaration is a simple type declaration only it is in the static world. The `datatype` declaration (considered a dynamic construct in ATS) should look very familiar to any Haskell programmer with the only strangeness being that a datatype declaration may be parameterized by a sort thereby constructing a conduit between the two dimensions of statics and dynamics.
+ATS は「プログラマ中心」に命題の式を作るようにデザインされていて、
+プログラマとして私は「静的」と「動的」のコセンプトの間に明確な分離を見つけました。
+`datasort` 宣言は単純な型宣言で、それは静的な世界に属します。
+(ATS で動的にコンストラクトすると考えられる) `datatype` 宣言は Haskell プログラマに馴染み深いはずですが、
+唯一不思議な点は静的と動的の2つの次元の間の導線をコンストラクトすることで datatype 宣言は種 (sort) によってパラメータ化できることです。
 
-In the static world we construct properties. In the dynamic world we construct programs and manipulate properties to constrain our programs. The datatype `customer` in the example above has two data constructors both of which are singleton, that is, they are constrained to represent only one value, that value represented in the static world as `vip` and `regular` respectively. This means that when we write functions using these data constructions in the dynamic world their use can be constrained to the properties we have defined on their counterparts in the static world. Which, of course, means that any x-unit testing for behavior precluded by static constraints would be redundant and serve no purpose.
+静的な世界では、性質をコンストラクトします。
+動的な世界では、プログラムをコンストラクトし、そのプログラムを制約するために性質を操ります。
+上記の例の datatype `customer` はシングルトンである2つのデータコンストラクタを持ちます。
+すなわち、それらは唯一1つの値を表わすことを強制されており、その値はそれぞれ `vip` と `regular` として静的な世界で表現されます。
+これは、動的な世界でこれらのデータコンストラクタを使って関数を書く際、それらの使用は静的な世界でのそれらの対応で定義した性質を強制できることを意味しています。
+もちろんこれは、静的な制約で除外された挙動を表わす xUnit テストは余分で、無意味であることを意味しています。
 
 > 「それが黒いなら、どんな色も手にできる。」
 >
@@ -122,11 +138,18 @@ dataprop CUSTOMER_GETS_DISCOUNT (customer, int, bool) =
   | {i:int}                        REGULAR              (regular, i, false)
 ```
 
-The dataprop declaration above describes a relationship between the sorts customer, int, and bool. The first case of our dataprop states that for all ints, as long as they are greater than a defined number of books, the relationship between the customer, those particular ints, and the bool should be that the customer is a vip, the int is greater than the threshold, and the bool equals true. This case is named `VIP_ENOUGH_BOOKS` to denote that it is the case where a vip customer is purchasing enough books to get a discount on his shipping cost.
+The dataprop declaration above describes a relationship between the sorts customer, int, and bool.
+The first case of our dataprop states that for all ints, as long as they are greater than a defined number of books, the relationship between the customer, those particular ints, and the bool should be that the customer is a vip, the int is greater than the threshold, and the bool equals true.
+This case is named `VIP_ENOUGH_BOOKS` to denote that it is the case where a vip customer is purchasing enough books to get a discount on his shipping cost.
 
-The second constructor of the dataprop declares another valid relationship between the sorts customer, int, and bool. `CUSTOMER_GETS_DISCOUNT` allows the customer to be VIP, the int to be less than the threshold, and the bool (which represents whether or not the customer is entitled to a discount) to be false. This case is named `VIP_NOT_ENOUGH_BOOKS`.
+The second constructor of the dataprop declares another valid relationship between the sorts customer, int, and bool.
+`CUSTOMER_GETS_DISCOUNT` allows the customer to be VIP, the int to be less than the threshold, and the bool (which represents whether or not the customer is entitled to a discount) to be false.
+This case is named `VIP_NOT_ENOUGH_BOOKS`.
 
-Finally, the constructor `REGULAR` encodes the relationship "regular customers are not eligible for a shipping discount"; it doesn't matter how many books a regular customer intends to buy, they receive no discount regardless. We now have our constraints encoded at the type level; we only need to put them to use.
+Finally, the constructor `REGULAR` encodes the relationship "regular customers are not eligible for a shipping discount";
+it doesn't matter how many books a regular customer intends to buy, they receive no discount regardless.
+We now have our constraints encoded at the type level;
+we only need to put them to use.
 
 ```ats
 extern fn customer_gets_discount:
@@ -141,7 +164,10 @@ implement customer_gets_discount(c,i) =
                           else (VIP_NOT_ENOUGH_BOOKS | false)
 ```
 
-We use the dataprop `CUSTOMER_GETS_DISCOUNT` in the description of the predicate function `customer_gets_discount`. The type expresses that this function, for all customers and all ints, takes as arguments a value of type customer and a value of type int and returns a value of type bool. The type signature is simple enough yet it says something more and outside of what most strongly typed programmers would normally expect; it says that the post-condition relationship between the customer, int, and bool are confined to only those relationships we defined as part of the algebraic property `CUSTOMER_GETS_DISCOUNT`.
+We use the dataprop `CUSTOMER_GETS_DISCOUNT` in the description of the predicate function `customer_gets_discount`.
+The type expresses that this function, for all customers and all ints, takes as arguments a value of type customer and a value of type int and returns a value of type bool.
+The type signature is simple enough yet it says something more and outside of what most strongly typed programmers would normally expect;
+it says that the post-condition relationship between the customer, int, and bool are confined to only those relationships we defined as part of the algebraic property `CUSTOMER_GETS_DISCOUNT`.
 
 ```ats
 typedef discount (book_count:int) =
@@ -159,11 +185,15 @@ implement calculate_discount' (_ |bookCount) =
   g1int_mul2 (bookCount - BOOK_THRESHOLD, DISCOUNT_PERCENTAGE)
 ```
 
-In the tradition of `type-driven development` we start with a type definition, here an alias, detailing what we want to have returned from our `calculate_discount'` function. The typedef discount says "for all ints 'book_count' we will return an int 'result' such that the result will be book_count minus our threshold thus multiplied by the discount percentage". That wasn't hard, and if you ask me it is pretty specific -- which is exactly what we want.
+In the tradition of `type-driven development` we start with a type definition, here an alias, detailing what we want to have returned from our `calculate_discount'` function.
+The typedef discount says "for all ints 'book_count' we will return an int 'result' such that the result will be book_count minus our threshold thus multiplied by the discount percentage".
+That wasn't hard, and if you ask me it is pretty specific -- which is exactly what we want.
 
-The type signature of `calculate_discount'` takes things a step further by facilitating the tracking of the static information asserting that its argument int is indeed a part of a relationship that entitles a discount in the first place. `calculate_discount'` will not accept an int that cannot be shown to be of the `CUSTOMER_GETS_DISCOUNT` relationship.
+The type signature of `calculate_discount'` takes things a step further by facilitating the tracking of the static information asserting that its argument int is indeed a part of a relationship that entitles a discount in the first place.
+`calculate_discount'` will not accept an int that cannot be shown to be of the `CUSTOMER_GETS_DISCOUNT` relationship.
 
-The implementation of `calculate_discount'` is of course a simple arithmetic routine that uses `g1int_mul2` which is a function that generates that static information needed to appease the `discount` constraint attached to our result type -- in other words, `g1int_mul2` not only multiplies its operands but returns evidence that the operations actually took place. We will need this evidence later.
+The implementation of `calculate_discount'` is of course a simple arithmetic routine that uses `g1int_mul2` which is a function that generates that static information needed to appease the `discount` constraint attached to our result type -- in other words, `g1int_mul2` not only multiplies its operands but returns evidence that the operations actually took place.
+We will need this evidence later.
 
 ```ats
 extern fn calculate_discount: (int, int) -> int = "mac#"
@@ -183,8 +213,19 @@ implement calculate_discount (userid, bookCount) =
   end
 ```
 
-`calculate_discount` brings it all together and is the function that is being called from Haskell (and by the bookstore demo above). We call `customer_type` to check the customer's type and then call `customer_gets_discount'` with the customer's type and his count of books. As stated above, the call to `customer_gets_discount'` returns both a bool denoting whether the customer gets a discount as well as the proof of the relationship backing the determination of its decision. If the customer is entitled, we will calculate the discount by supplying the proof given to us by `customer_gets_discount` and the count of books to `calculate_discount'`. This all works out because, like a guardian angel, there is an omnipresence checking that the relationship between our three pieces of important information; the customer type, his current book count, and his discount eligibility; remain valid throughout the code. That presence is an applied type system.
+`calculate_discount` brings it all together and is the function that is being called from Haskell (and by the bookstore demo above).
+We call `customer_type` to check the customer's type and then call `customer_gets_discount'` with the customer's type and his count of books.
+As stated above, the call to `customer_gets_discount'` returns both a bool denoting whether the customer gets a discount as well as the proof of the relationship backing the determination of its decision.
+If the customer is entitled, we will calculate the discount by supplying the proof given to us by `customer_gets_discount` and the count of books to `calculate_discount'`.
+This all works out because, like a guardian angel, there is an omnipresence checking that the relationship between our three pieces of important information;
+the customer type, his current book count, and his discount eligibility;
+remain valid throughout the code.
+That presence is an applied type system.
 
 The [source](https://github.com/stackbuilders/high-spec) is available for anyone who wants to check how the project is built (by dynamic linking because it's easier than static when it comes to GHC and Cabal).
 
-In conclusion, we have provided test coverage of the specifications we had been handed by both bookseller and the tech-lead. What is more is that we did so using only static analysis and without the use of a single run-time unit test. Thus, we are free to focus our run-time testing on system boundaries and higher-level user-facing behavior keeping our maintenance costs low. I hope for more in the direction of simplifying the use of static verification so that it becomes accessible to a wider audience and a larger number of development efforts can realize the tremendous savings made possible by such techniques. While it is likely that some form of run-time testing will always be of necessity, maybe in the near future minimizing run-time testing in favor of static analysis will be in fact... the way to go.
+In conclusion, we have provided test coverage of the specifications we had been handed by both bookseller and the tech-lead.
+What is more is that we did so using only static analysis and without the use of a single run-time unit test.
+Thus, we are free to focus our run-time testing on system boundaries and higher-level user-facing behavior keeping our maintenance costs low.
+I hope for more in the direction of simplifying the use of static verification so that it becomes accessible to a wider audience and a larger number of development efforts can realize the tremendous savings made possible by such techniques.
+While it is likely that some form of run-time testing will always be of necessity, maybe in the near future minimizing run-time testing in favor of static analysis will be in fact... the way to go.
