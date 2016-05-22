@@ -7,45 +7,51 @@
 > -- ブルース・リー
 
 Web アプリケーション開発者として、私が書いた xUnit スタイルテストの多くはデータ間の単純な関係を表明していました。
-When applications begin to grow, the constraints imposed by these relationships are sometimes strengthened through addition or relaxed for convenience;
-they sometimes converge and become redundant requiring removal or come into conflict and require reconciliation.
-Furthermore, as application data becomes more complicated tests begin to implicitly depend on several sets of conditions aside from the one that is explicitly stated in a given test.
-This leads to situations where harmless code modifications begin to cause test failures leaving only lengthy back traces to hint at the violated assumption which caused the failure.
-In these situations it is no seldom occurrence that a test fails for not the betrayal of an explicit assertion in a test case but because of the invalidity of an implicit assumptions made in the test setup.
-In larger projects the maintenance costs of x-unit testing efforts can be such that they require a developer to spend much more time in the update and correction of tests and test data than in the development of production code.
-The question is then "how can we greatly minimize maintenance costs while losing little of the confidence gained by the construction of heavy x-unit test suites?"
+アプリケーションが正常しはじめると、追加や利便性のために、時々それらの関係によって強制された制約は増加します;
+時々それらは集中し、冗長で除去が必要になり、競合すると調停を要求したりするのです。
+その上、アプリケーションのデータがより複雑になると、テストは与えられたテストで明示的に宣言した状態とは別の状態の集合に暗黙的に依存しはじめます。
+これによってささいなコード変更がテストの失敗をを引き起こすようになり、その失敗の原因である犯された仮定のヒントになる長く退屈なバックトレースが残されます。
+このような状況において、テストケースにおける明示的な表明に対する違反はめったに起きず、テストセッアップにおける暗黙的な仮定の無効によるテスト失敗が起きます。
+より大きなプロジェクトでは、xUnit テストの管理コストによって、製品コードの開発よりもテストとテストデータの更新や修正に開発者がより多くの時間を費やすようになります。
+ここでの問は「どうすれば xUnit テストスイートの構築で得られる信頼を損なうことなく、管理コストを最小化できるのか？」ということです。
 
-Haskell web developers claim that encoding constraints as types (as opposed to tests) reduces the growth rate of test suites which encourages sustained developer productivity.
-As a Haskeller, I am inclined to agree with that notion.
-I firmly believe that constraints encoded at the level of static verification offer faster and more relevant failure information often with pinpoint precision with respect to the location in the code that caused the failure.
-With a degree of the low-level testing burden mitigated by types, Haskell programmers can spend more time focusing on application code and write fewer tests and at a higher level.
-But why stop there?
-Are there emerging techniques that can further improve savings in the test maintenance department by delegating more of our verification effort to static analysis?
-Are there existing systems that can, today, offer some glimpse of how we might perform our redundant checks in a manner less costly?
-In this post we briefly explore one promising solution through an example combining the use of both the languages **ATS** and **Haskell**.
+Haskell Web 開発者は、(テストと対照的に) 型によって制約をエンコードすることで開発者の生産性を維持するテストスイートの成長速度を減少させることができる、と主張します。
+一人の Haskeller として、この意見に同意したいと思います。
+静的な検証のレベルでエンコードされた制約は、より速く、より失敗を引き起こしたコードの位置に精度高く関連した失敗の情報を提供します。
+型によって低レベルのテストの負担が軽減するので、
+Haskell プログラマはアプリケーションコードにより多くの時間を使うことができ、少ないテストを書くだけで済み、高レベルなプログラミングができます。
+しかしなぜここで満足するのでしょう？
+私達の検証努力の多くを静的解析に移譲することで、テスト管理の範囲をより抑える手法はないのでしょうか？
+私達の冗長なチェックをコストの小さくする方法を今日垣間見るような、既存のシステムはないのでしょうか？
+この記事では、[ATS](http://www.ats-lang.org/) と [Haskell](https://www.haskell.org/) 言語の両方を混合して使った例を通して、期待できる解決策を簡潔に探索します。
 
 > 「ねぇ教えて、どっちへ行けばいいの？」
 > 「そりゃー、アンタがどこへ行きたいかによるにゃー」と猫は言った。
 >
 > (不思議の国のアリス)
 
-Consider a hypothetical business specification which resembles much of what I, as an everyday web developer, encounter on a regular basis.
-We are going to encode much of this specification at the type level in effort to eliminate the maintenance costs of encoding our specs as x-unit tests cases.
+日常的な Web 開発者として私が習慣的に出会う仕様と共通点がある、仮想上のビジネス仕様を考えましょう。
+その仕様を xUnit テストケースとしてエンコードする管理コストを取り除くために、型レベルでこの仕様の多くをエンコードします。
 
-Let's begin with our specification:
+その仕様は次のようなものです:
 
-A book dealer wants to offer shipping discounts to her customers but only those customers classified as "VIP"; regular customers are not eligible for a shipping discount.
-The discount percentage is 2% off the shipping amount for every book beyond the 2nd in a given transaction.
-If a VIP does not have more than 2 books the customer does not receive a discount on shipping.
+ある書籍販売業者は "VIP" として分類された顧客に対してのみ購入割引を提供したいとします;
+通常の顧客は購入割引の資格はありません。
+1取引において2冊を超えた本毎に購入合計に対して、割引割合は 2% OFF になります。
+もし VIP が2冊以上購入しなければ、その顧客は購入割引を受けられません。
 
-Although quite realistic, the specification is intentionally kept simple.
-Please try the mock VIP bookstore view below to get a concrete feel for the described behavior.
+現実的ですが、その仕様は意図的に単純です。
+表現された挙動を具体的に体感するために、次の **VIP** ブックストアビューのモックを試しましょう。
 
 ![](img/bookstore.png)
 
-The book dealer's technical lead, after analyzing the above specification, asks for an endpoint to be added to the API she has developed in Haskell. She would like the endpoint to collect the customer's identification as well as the current number of books the customer intends to buy. The endpoint is to return, in JSON format, the estimated shipping discount.
+上記の仕様を解析した後、書籍販売業者の技術主任は、彼女が Haskell で開発した API へのエンドポイント追加を要求します。
+彼女はそのエンドポイントで、顧客の識別子とその顧客が購入するつもりの本の冊数を受け取りたいのです。
+そのエンドポイントは JSON フォーマットで見積った購入割引を返します。
 
-Our first task is to formalize the technical specification of the endpoint which was defined by the technical lead. The technical lead has been developing her API using Servant which we are very happy about given that the package gives us a good deal of flexibility in encoding the specification at the type level which is our goal.
+私達の最初の仕事は、技術主任によって定義されたエンドポイントの技術的な仕様を形式化することです。
+技術主任はその API を Servant を使って開発しています。
+このパッケージは私達のゴールである型レベルの仕様のエンコードに大幅な柔軟性を実現してくれます。
 
 ```haskell
 type BookStoreAPI = "user" :> Capture "userid" Integer
@@ -64,7 +70,10 @@ server :: Server BookStoreAPI
 server = handleCalculateDiscount
 ```
 
-The type `BookStoreAPI` strongly (if not exactly) expresses the endpoint specification. The type unambiguously represents the URL `/user/:userid/discount/:book-count` which collects the user's identification and a tentative count of books for the estimated discount calculation. The API type dictates the type of the web handler used to serve the content. With Servant we can rest assured that the entry and exit to/from our handler is in harmonious accordance with the URL specification.
+The type `BookStoreAPI` strongly (if not exactly) expresses the endpoint specification.
+The type unambiguously represents the URL `/user/:userid/discount/:book-count` which collects the user's identification and a tentative count of books for the estimated discount calculation.
+The API type dictates the type of the web handler used to serve the content.
+With Servant we can rest assured that the entry and exit to/from our handler is in harmonious accordance with the URL specification.
 
 If you haven't already, please read the [Servant tutorial](https://haskell-servant.github.io/tutorial/) to get an understanding of how the BookStoreAPI type captures the requirements and provides us with a good degree of type safety by facilitating the "correct by construction" philosophy that many Haskell developers favor.
 
