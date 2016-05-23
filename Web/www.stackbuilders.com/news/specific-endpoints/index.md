@@ -138,18 +138,18 @@ dataprop CUSTOMER_GETS_DISCOUNT (customer, int, bool) =
   | {i:int}                        REGULAR              (regular, i, false)
 ```
 
-The dataprop declaration above describes a relationship between the sorts customer, int, and bool.
-The first case of our dataprop states that for all ints, as long as they are greater than a defined number of books, the relationship between the customer, those particular ints, and the bool should be that the customer is a vip, the int is greater than the threshold, and the bool equals true.
-This case is named `VIP_ENOUGH_BOOKS` to denote that it is the case where a vip customer is purchasing enough books to get a discount on his shipping cost.
+上記の dataprop 宣言は種 customer, int, bool の間の関係を表現しています。
+この dataprop の最初のケースは、全ての int について定義された書籍の冊数以上なら、customer, int, bool の関係は、customer が vip で、int は閾値より多きく、bool は true であることを表明しています。
+このケースは `VIP_ENOUGH_BOOKS` と名付けられ、vip customer が出荷費用の割引を受けるに十分な本を購入していることを意味しています。
 
-The second constructor of the dataprop declares another valid relationship between the sorts customer, int, and bool.
-`CUSTOMER_GETS_DISCOUNT` allows the customer to be VIP, the int to be less than the threshold, and the bool (which represents whether or not the customer is entitled to a discount) to be false.
-This case is named `VIP_NOT_ENOUGH_BOOKS`.
+dataprop の二番目のコンストラクタは種 customer, int, bool 間の別の有効な関係を宣言しています。
+`CUSTOMER_GETS_DISCOUNT` は customer が VIP で、int が閾値以下で、(customer が割引を受ける権利があるのかどうかを表わす) bool が false であることを許可しています。
+このケースの名前は `VIP_NOT_ENOUGH_BOOKS` です。
 
-Finally, the constructor `REGULAR` encodes the relationship "regular customers are not eligible for a shipping discount";
-it doesn't matter how many books a regular customer intends to buy, they receive no discount regardless.
-We now have our constraints encoded at the type level;
-we only need to put them to use.
+最後に、コンストラクタ `REGULAR` は「regular customerには出荷割引の資格がない」関係をエンコードしています;
+regular customer が購入しようとしている冊数に関係なく、regular customer は割引を受けられません。
+これで型レベルにエンコードされた制約ができました;
+それらを利用してみましょう。
 
 ```ats
 extern fn customer_gets_discount:
@@ -164,10 +164,10 @@ implement customer_gets_discount(c,i) =
                           else (VIP_NOT_ENOUGH_BOOKS | false)
 ```
 
-We use the dataprop `CUSTOMER_GETS_DISCOUNT` in the description of the predicate function `customer_gets_discount`.
-The type expresses that this function, for all customers and all ints, takes as arguments a value of type customer and a value of type int and returns a value of type bool.
-The type signature is simple enough yet it says something more and outside of what most strongly typed programmers would normally expect;
-it says that the post-condition relationship between the customer, int, and bool are confined to only those relationships we defined as part of the algebraic property `CUSTOMER_GETS_DISCOUNT`.
+述語関数 `customer_gets_discount` の記述において dataprop `CUSTOMER_GETS_DISCOUNT` を使います。
+この型は、全ての customer と全ての int について、この関数が型 customer の値と型 int の値を引数に取り、型 bool の値を返すことを表明しています。
+この型シグニチャは単純ですが、多くの強い型付けプログラマの予想以上のことを表現しています;
+このシグニチャは customer, int, bool 間の事後条件の関係が代数的性質 `CUSTOMER_GETS_DISCOUNT` として定義された関係のみに制限されていることを主張しています。
 
 ```ats
 typedef discount (book_count:int) =
@@ -185,15 +185,19 @@ implement calculate_discount' (_ |bookCount) =
   g1int_mul2 (bookCount - BOOK_THRESHOLD, DISCOUNT_PERCENTAGE)
 ```
 
-In the tradition of `type-driven development` we start with a type definition, here an alias, detailing what we want to have returned from our `calculate_discount'` function.
-The typedef discount says "for all ints 'book_count' we will return an int 'result' such that the result will be book_count minus our threshold thus multiplied by the discount percentage".
-That wasn't hard, and if you ask me it is pretty specific -- which is exactly what we want.
+「型駆動開発」の習慣では、ここでは別名ですが、型定義からはじめます。
+`calculate_discount'` 関数が何を返したいのか詳細化するのです。
+この typedef discount は「全ての int `book_count` について、book_count から閾値を引いてから割引率を掛けた返り値 int を返す」と主張しています。
+これは難しくありませんでした。
+私に言わせれば、それは小さな仕様 -- 正確に私達が欲しいものです。
 
-The type signature of `calculate_discount'` takes things a step further by facilitating the tracking of the static information asserting that its argument int is indeed a part of a relationship that entitles a discount in the first place.
-`calculate_discount'` will not accept an int that cannot be shown to be of the `CUSTOMER_GETS_DISCOUNT` relationship.
+`calculate_discount'` の型シグニチャは、そもそも引数 int が割引の権利を持つ関係にあることを表明する静的な情報の追跡で促進されています。
+`calculate_discount'` は `CUSTOMER_GETS_DISCOUNT` の関係で示されない int をを受け付けません。
 
-The implementation of `calculate_discount'` is of course a simple arithmetic routine that uses `g1int_mul2` which is a function that generates that static information needed to appease the `discount` constraint attached to our result type -- in other words, `g1int_mul2` not only multiplies its operands but returns evidence that the operations actually took place.
-We will need this evidence later.
+もちろん `calculate_discount'` の実装は `g1int_mul2` を使った単純な算術ルーチンです。
+このとき関数は返り値の型に付随した `discount` 制約を満たす静的な情報を生成します
+-- 別の言い方をすると、`g1int_mul2` はオペランドを乗算をするだけでなく、その演算が実際に行なわれた証拠も返します。
+後でこの証拠が必要になります。
 
 ```ats
 extern fn calculate_discount: (int, int) -> int = "mac#"
@@ -207,20 +211,19 @@ implement calculate_discount (userid, bookCount) =
       then let
             val (_ | discount) = calculate_discount' (pf | count)
            in
-            discount
+
            end
       else 0
   end
 ```
 
-`calculate_discount` brings it all together and is the function that is being called from Haskell (and by the bookstore demo above).
-We call `customer_type` to check the customer's type and then call `customer_gets_discount'` with the customer's type and his count of books.
-As stated above, the call to `customer_gets_discount'` returns both a bool denoting whether the customer gets a discount as well as the proof of the relationship backing the determination of its decision.
-If the customer is entitled, we will calculate the discount by supplying the proof given to us by `customer_gets_discount` and the count of books to `calculate_discount'`.
-This all works out because, like a guardian angel, there is an omnipresence checking that the relationship between our three pieces of important information;
-the customer type, his current book count, and his discount eligibility;
-remain valid throughout the code.
-That presence is an applied type system.
+`calculate_discount` はそれらを統合し、(上記のブックストアデモから呼び出される) Haskell コードから呼び出される関数です。
+`customer_type` を呼び出して customer の型をチェックし、それから customer 型と彼の冊数と共に `customer_gets_discount` を呼び出します。
+上記で示したように、`customer_gets_discount` 呼び出しは customer が割引を受けられるかどうかを示す bool と共に、その判定を指示する関係の証明を返します。
+もし customer に権利があれば、`customer_gets_discount` で得られた証明と冊数を `calculate_discount'` に渡して、割引を計算します。
+守護天使のように重要な情報の3つの部品、customer 型, 冊数, 割引権利、の間の関係が偏在しているために、これは解決します;
+コードの至るところでそれは有効です。
+それは applied type system と呼ばれます。
 
 The [source](https://github.com/stackbuilders/high-spec) is available for anyone who wants to check how the project is built (by dynamic linking because it's easier than static when it comes to GHC and Cabal).
 
