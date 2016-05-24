@@ -67,4 +67,4 @@ ATS2に関する一次情報は
 
 ## [Stack Builders News](http://www.stackbuilders.com/news/page/1)
 
-* [Specific Endpoints](www.stackbuilders.com/news/specific-endpoints/index.md)
+* [仕様付きエンドポイント](www.stackbuilders.com/news/specific-endpoints/index.md)

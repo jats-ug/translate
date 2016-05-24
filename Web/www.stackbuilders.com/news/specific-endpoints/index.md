@@ -1,4 +1,4 @@
-# Specific Endpoints
+# 仕様付きエンドポイント
 
 (元記事は http://www.stackbuilders.com/news/specific-endpoints です)
 
@@ -222,13 +222,13 @@ implement calculate_discount (userid, bookCount) =
 上記で示したように、`customer_gets_discount` 呼び出しは customer が割引を受けられるかどうかを示す bool と共に、その判定を指示する関係の証明を返します。
 もし customer に権利があれば、`customer_gets_discount` で得られた証明と冊数を `calculate_discount'` に渡して、割引を計算します。
 守護天使のように重要な情報の3つの部品、customer 型, 冊数, 割引権利、の間の関係が偏在しているために、これは解決します;
-コードの至るところでそれは有効です。
-それは applied type system と呼ばれます。
+コードの至るところでそれは有効です;
+これは applied type system と呼ばれます。
 
-The [source](https://github.com/stackbuilders/high-spec) is available for anyone who wants to check how the project is built (by dynamic linking because it's easier than static when it comes to GHC and Cabal).
+(GHC と Cabal で静的リンクより簡単な動的リンクによって) このプロジェクトがどのようにビルドされるかチェックしたい方は [ソースコード](https://github.com/stackbuilders/high-spec) を取得できます。
 
-In conclusion, we have provided test coverage of the specifications we had been handed by both bookseller and the tech-lead.
-What is more is that we did so using only static analysis and without the use of a single run-time unit test.
-Thus, we are free to focus our run-time testing on system boundaries and higher-level user-facing behavior keeping our maintenance costs low.
-I hope for more in the direction of simplifying the use of static verification so that it becomes accessible to a wider audience and a larger number of development efforts can realize the tremendous savings made possible by such techniques.
-While it is likely that some form of run-time testing will always be of necessity, maybe in the near future minimizing run-time testing in favor of static analysis will be in fact... the way to go.
+結論として、書籍販売業者と技術主任の双方によって扱われた仕様のテストカバレッジを提供しました。
+さらに静的解析のみを使い、単純な実行時のユニットテストは使いませんでした。
+そのため、システム境界と高レベルのユーザに面した挙動に対する実行時テストから解放されて、管理コストを低く抑えることができました。
+プログラマが広く使用できるように静的検証を使用がより簡単になり、多大な開発努力がそのような技術によって大幅に省力できればと願っています。
+なんらかの実行時テストは常に必要になりそうですが、近い将来、静的解析を支持する最小の実行時テストが実現するでしょう。
