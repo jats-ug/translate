@@ -27,6 +27,13 @@
 
 ## 未翻訳
 
-* [Hanoi Towers: Let's tap into the power of types!](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/HanoiTowers/main.html)
-* [List-folding Combinators](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/list-folding/main.html)
-* [Parsers of CPS-style](http://jats-ug.metasepi.org/doc/ATS2/EXAMPLE/EFFECTIVATS/parsing-cmbntr-cps/main.html)
+* [A Template-Based Implementation of Graph Search](http://ats-lang.sourceforge.net/EXAMPLE/EFFECTIVATS/GraphSearch/index.html)
+* [Functional Programming with Combinators](http://ats-lang.sourceforge.net/EXAMPLE/EFFECTIVATS/funcomb-style/index.html)
+* [Functional Reactive Programming via Bacon.js](http://ats-lang.sourceforge.net/EXAMPLE/EFFECTIVATS/FRP-bacon.js/index.html)
+* [Hanoi Towers: Let's tap into the power of types!](http://ats-lang.sourceforge.net/EXAMPLE/EFFECTIVATS/HanoiTowers/index.html)
+* [Let's build a template-based package!](http://ats-lang.sourceforge.net/EXAMPLE/EFFECTIVATS/DivideConquer/index.html)
+* [Let's start with package-based programming!](http://ats-lang.sourceforge.net/EXAMPLE/EFFECTIVATS/GraphSearch-npm/index.html)
+* [Linear Streams for Memory-Clean Programs](http://ats-lang.sourceforge.net/EXAMPLE/EFFECTIVATS/linear-streams/index.html)
+* [List-folding Combinators](http://ats-lang.sourceforge.net/EXAMPLE/EFFECTIVATS/list-folding/index.html)
+* [Parallel Sorting](http://ats-lang.sourceforge.net/EXAMPLE/EFFECTIVATS/parallel-sorting/index.html)
+* [Parsers of CPS-style](http://ats-lang.sourceforge.net/EXAMPLE/EFFECTIVATS/parsing-cmbntr-cps/index.html)
